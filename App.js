@@ -13,7 +13,7 @@ export default function App() {
   const Tab = createBottomTabNavigator();
 
   return (
-    <NavigationContainer theme={DarkTheme}>
+    <NavigationContainer style={{backgroundColor: '#2a9d8f'}}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
