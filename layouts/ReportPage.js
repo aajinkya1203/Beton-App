@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useReducer } from 'react'
-import { StyleSheet, Text, View, Alert, Image } from 'react-native';
+import { StyleSheet, Text, View, Alert, Image, Dimensions, StatusBar } from 'react-native';
 import { Container, Header, Content, Footer, FooterTab, Button, Icon, Body, Left, Right, Title } from 'native-base'
 import { Col, Row, Grid } from "react-native-easy-grid";
 import * as ImagePicker from 'expo-image-picker';
 import { stateMachine, reducer } from '../Processing/StateMachine'
 import { fetch, bundleResourceIO } from '@tensorflow/tfjs-react-native';
 import * as jpeg from 'jpeg-js'
+import { h, w } from '../constants'
 import * as tf from '@tensorflow/tfjs';
 
 export default function ReportPage() {
@@ -29,22 +30,20 @@ export default function ReportPage() {
     }, []);
 
     const cloudUpload = (result) => {
-        const uri = result.uri
-        const type = result.type
-
-        const uriArr = uri.split('/')
-        console.log("Uriarr: ", uriArr)
-        const name = uriArr[uriArr.length - 1]
-
-        const source = {
-            uri,
-            type,
-            name
-        }
-
-        console.log(source);
 
         if (!result.cancelled) {
+            const uri = result.uri
+            const type = result.type
+
+            const uriArr = uri.split('/')
+            console.log("Uriarr: ", uriArr)
+            const name = uriArr[uriArr.length - 1]
+
+            const source = {
+                uri,
+                type,
+                name
+            }
             setImage(source);
             console.log("Handle Upload triggered")
             const fileData = new FormData();
@@ -66,6 +65,7 @@ export default function ReportPage() {
                 return err
             })
         }
+        next()
     }
 
 
@@ -78,7 +78,6 @@ export default function ReportPage() {
         });
 
         cloudUpload(result)
-        next()
     }
 
     const pickImageFromCamera = async () => {
@@ -90,7 +89,6 @@ export default function ReportPage() {
         });
 
         cloudUpload(result)
-        next()
     }
 
 
@@ -144,22 +142,19 @@ export default function ReportPage() {
 
     return (
         <Container>
-            {/*<Header iosBarStyle='light-content' style={{backgroundColor: '#181818'}}>
-                <Left />
-                <Body>
-                    <Title>Header</Title>
-                </Body>
-                <Right />
-            </Header>*/}
+            <StatusBar
+                animated={true}
+                backgroundColor="#61dafb" />
+
             {
                 nextPress[state].text === 'Upload' ?
-                    <Grid style={{backgroundColor: '#264653'}}>
-                        <Row onPress={pickImage} style={{ backgroundColor: '#e76f51', margin: 20, borderRadius: 24, marginTop: 50 }}>
+                    <Grid style={{ backgroundColor: '#264653' }}>
+                        <Row onPress={pickImage} style={{ backgroundColor: '#e76f51', borderRadius: 24, marginTop: h * 0.06, marginLeft: w * 0.07, marginRight: w * 0.07 }}>
                             <View style={styles.iconWrapper}>
                                 <Icon style={styles.uploadIcon} name='cloud-upload-outline' type='Ionicons' />
                             </View>
                         </Row>
-                        <Row onPress={pickImageFromCamera} style={{ backgroundColor: '#e76f51', margin: 20, borderRadius: 24}}>
+                        <Row onPress={pickImageFromCamera} style={{ backgroundColor: '#e76f51', marginTop: h * 0.02, marginLeft: w * 0.07, marginRight: w * 0.07, marginBottom: h * 0.02, borderRadius: 24 }}>
                             <View style={styles.iconWrapper}>
                                 <Icon style={styles.uploadIcon} name='camera-outline' type='Ionicons' />
                             </View>
@@ -168,23 +163,38 @@ export default function ReportPage() {
             }
             {
                 nextPress[state].text === 'Confirm' ?
-                    <Grid>
-                        {
-                            console.log("What is this: ", image.uri)
-                        }
-                        <Row>
+                    <Grid >
+                        <Row style={{ backgroundColor: '#ffffff' }}>
                             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                                 <Image
-                                    style={{ width: 300, height: 300, borderRadius: 24 }}
+                                    style={{ width: w * 0.8, height: h * 0.4, borderRadius: 24, marginBottom: h * 0.2, marginTop: h * 0.3, marginLeft: w * 0.2, marginRight: w * 0.2 }}
                                     source={{
                                         uri: image.uri,
                                     }}
                                 />
                             </View>
                         </Row>
-                        <Row>
-                            <Text>Testing</Text>
-                        </Row>
+                        <Col>
+                            <Row size={1}>
+                                <Col>
+                                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text>Do you confirm you have to upload this photo?</Text>
+                                    </View>
+                                </Col>
+                            </Row>
+                            <Row size={3}>
+                                <Col>
+                                    <View>
+                                        <Button style={{ width: 0.25 * w, marginLeft: w * 0.22, justifyContent: 'center' }} primary><Text> Confirm </Text></Button>
+                                    </View>
+                                </Col>
+                                <Col>
+                                    <View>
+                                        <Button style={{ width: 0.25 * w, marginLeft: w * 0.03, justifyContent: 'center'}} danger><Text> Cancel </Text></Button>
+                                    </View>
+                                </Col>
+                            </Row>
+                        </Col>
                     </Grid> : null
             }
         </Container>
