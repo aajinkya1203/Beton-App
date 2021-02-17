@@ -4,16 +4,32 @@ import { Container, Header, Content, Footer, FooterTab, Button, Icon, Body, Left
 import { Col, Row, Grid } from "react-native-easy-grid";
 import * as ImagePicker from 'expo-image-picker';
 import { stateMachine, reducer } from '../Processing/StateMachine'
-import { fetch, bundleResourceIO } from '@tensorflow/tfjs-react-native';
+import { fetch, bundleResourceIO, decodeJpeg } from '@tensorflow/tfjs-react-native';
 import * as jpeg from 'jpeg-js'
 import { h, w } from '../constants'
 import * as tf from '@tensorflow/tfjs';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo'
+import { addUser } from '../queries/query'
+import Geocode from "react-geocode";
+import SelectMap from '../Maps/SelectMap'
 
-export default function ReportPage() {
+
+let coords = ''
+
+function ReportPage(props) {
 
     const [image, setImage] = useState(null);
     const [state, dispatch] = useReducer(reducer, stateMachine.initial)
     const [url, setUrl] = useState('')
+    const [modelReady, setModelReady] = useState(true)
+    const [potholeDetector, setPotholeDetector] = useState(true)
+
+    // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
+    Geocode.setApiKey("AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w");
+
+    // set response language. Defaults to english.
+    Geocode.setLanguage("en");
 
     const next = () => dispatch('next')
 
@@ -60,12 +76,12 @@ export default function ReportPage() {
                 console.log(data);
                 setUrl(data.url)
                 console.log("Photo uploaded")
+                next()
             }).catch(err => {
                 console.log(err);
                 return err
             })
         }
-        next()
     }
 
 
@@ -91,54 +107,88 @@ export default function ReportPage() {
         cloudUpload(result)
     }
 
-
-    const identify = async () => {
-        //Wait for tensorflow module to be ready
-        const tfReady = await tf.ready();
-
-        if (tfReady) {
-            console.log("Model is ready")
-        } else {
-            console.log("Model is not ready")
+    function imageToTensor(rawImageData) {
+        const TO_UINT8ARRAY = true;
+        const { width, height, data } = jpeg.decode(rawImageData, TO_UINT8ARRAY);
+        // Drop the alpha channel info for mobilenet
+        const buffer = new Uint8Array(width * height * 3);
+        let offset = 0; // offset into original data
+        for (let i = 0; i < buffer.length; i += 3) {
+            buffer[i] = data[offset];
+            buffer[i + 1] = data[offset + 1];
+            buffer[i + 2] = data[offset + 2];
+            offset += 4;
         }
-
-        const modelJson = await require("../assets/model/model.json");
-        const modelWeight = await require("../assets/model/weights.bin");
-        const potholeDetector = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeight));
-
-        const res = potholeDetector.predict()
-
-        console.log("[+] Res: ", res)
+        return tf.tensor3d(buffer, [height, width, 3]);
     }
 
 
+    const identify = async () => {
 
-    const confirmation = () => {
+        console.log("Identify is running")
+
+        const response = await fetch(url, {}, { isBinary: true });
+        const rawImageData = await response.arrayBuffer();
+        const imageTensor = imageToTensor(rawImageData).resizeBilinear([224, 224]).reshape([1, 224, 224, 3])
+        let result = await potholeDetector.predict(imageTensor).data()
+
+        // console.log("No Pothole: ", result[0])
+        // console.log("Pothole: ", result[1])
+
+        console.log("Result: ", result)
+        next()
+
+        // const name = 'Kuku'
+        // const email = 'pratit23@gmail.com'
+        // const password = '2323@'
+        // const address = 'This is the address'
+        // const dob = '202012'
+
+        // let res = await props.addUser({
+        //     variables: {
+        //         name,
+        //         email,
+        //         password,
+        //         address,
+        //         dob
+        //     }
+        // })
+
+        // console.log("Res: ", res)
+
+    }
+
+    const getCoords = (coord) => {
+        console.log("Check this: ", coord)
+        coords = coord
+    }
+
+    const confirmation = async () => {
         console.log("Confirmation started")
-        // Alert.alert(
-        //     "Alert Title",
-        //     "My Alert Msg",
-        //     [
-        //         {
-        //             text: "Cancel",
-        //             onPress: () => console.log("Cancel Pressed"),
-        //             style: "cancel"
-        //         },
-        //         { text: "OK", onPress: () => console.log("OK Pressed") }
-        //     ],
-        //     { cancelable: false }
-        // );
         identify()
+        next()
     }
 
     const nextPress = {
         initial: { text: 'Upload' },
         ready: { text: 'Confirm', action: () => confirmation() },
         classifying: { text: 'Identifying', action: () => next() },
-        // details: { text: 'Details', action: () => { console.log("Details entered"); next() } },
-        // location: { text: 'Select', action: () => { selectLocation() } },
-        // complete: { text: 'Report', action: () => { } },
+        details: { text: 'Details', action: () => { console.log("Details entered"); next() } },
+        location: { text: 'Select', action: () => { selectLocation() } },
+        complete: { text: 'Report', action: () => { } },
     }
+
+    useEffect(() => {
+        async function loadModel() {
+            const tfReady = await tf.ready();
+            const modelJson = await require("../assets/model/model.json");
+            const modelWeight = await require("../assets/model/weights.bin");
+            const potholeDetect = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeight));
+            setPotholeDetector(potholeDetect)
+            console.log("[+] Model Loaded")
+        }
+        loadModel()
+    }, []);
 
     return (
         <Container>
@@ -185,21 +235,29 @@ export default function ReportPage() {
                             <Row size={3}>
                                 <Col>
                                     <View>
-                                        <Button style={{ width: 0.25 * w, marginLeft: w * 0.22, justifyContent: 'center' }} primary><Text> Confirm </Text></Button>
+                                        <Button onPress={nextPress[state].action} style={{ width: 0.25 * w, marginLeft: w * 0.22, justifyContent: 'center' }} primary><Text> Confirm </Text></Button>
                                     </View>
                                 </Col>
                                 <Col>
                                     <View>
-                                        <Button style={{ width: 0.25 * w, marginLeft: w * 0.03, justifyContent: 'center'}} danger><Text> Cancel </Text></Button>
+                                        <Button style={{ width: 0.25 * w, marginLeft: w * 0.03, justifyContent: 'center' }} danger><Text> Cancel </Text></Button>
                                     </View>
                                 </Col>
                             </Row>
                         </Col>
                     </Grid> : null
             }
+            {
+                nextPress[state].text === 'Select' ?
+                    <SelectMap/> : null
+            }
         </Container>
     )
 }
+
+export default compose(
+    graphql(addUser, { name: "addUser" })
+)(ReportPage)
 
 const styles = StyleSheet.create({
     iconWrapper: {
