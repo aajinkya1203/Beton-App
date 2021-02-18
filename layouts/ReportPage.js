@@ -14,6 +14,7 @@ import { addUser } from '../queries/query'
 import Geocode from "react-geocode";
 import SelectMap from '../Maps/SelectMap'
 import * as Location from 'expo-location';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 
 let coords = ''
@@ -26,6 +27,7 @@ function ReportPage(props) {
     const [modelReady, setModelReady] = useState(true)
     const [userLocation, setUserLocation] = useState(null)
     const [potholeDetector, setPotholeDetector] = useState(true)
+    const [uploading, setUploading] = useState(false)
 
     // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
     Geocode.setApiKey("AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w");
@@ -67,6 +69,7 @@ function ReportPage(props) {
     const cloudUpload = (result) => {
 
         if (!result.cancelled) {
+            setUploading(true)
             const uri = result.uri
             const type = result.type
 
@@ -90,11 +93,12 @@ function ReportPage(props) {
             // saving to cloud first
             fetch('https://api.cloudinary.com/v1_1/levitation/image/upload', {
                 method: "POST",
-                body: fileData
+                body: fileData,
             }).then(res => res.json()).then(data => {
                 console.log(data);
                 setUrl(data.url)
                 console.log("Photo uploaded")
+                setUploading(false)
                 next()
             }).catch(err => {
                 console.log(err);
@@ -198,7 +202,7 @@ function ReportPage(props) {
         ready: { text: 'Confirm', action: () => confirmation() },
         classifying: { text: 'Identifying', action: () => next() },
         details: { text: 'Details', action: () => { console.log("Details entered"); next() } },
-        location: { text: 'Select', action: () =>  selectLocation()  },
+        location: { text: 'Select', action: () => selectLocation() },
         complete: { text: 'Report', action: () => { } },
     }
 
@@ -216,6 +220,11 @@ function ReportPage(props) {
 
     return (
         <Container>
+            <Spinner
+                visible={uploading}
+                textContent={'Uploading...'}
+                textStyle={styles.spinnerTextStyle}
+            />
             <StatusBar
                 animated={true}
                 backgroundColor="#61dafb" />
@@ -264,7 +273,7 @@ function ReportPage(props) {
                                 </Col>
                                 <Col>
                                     <View>
-                                        <Button style={{ width: 0.25 * w, marginLeft: w * 0.03, justifyContent: 'center' }} danger><Text> Cancel </Text></Button>
+                                        <Button onPress={() => resetting()} style={{ width: 0.25 * w, marginLeft: w * 0.03, justifyContent: 'center' }} danger><Text> Cancel </Text></Button>
                                     </View>
                                 </Col>
                             </Row>
@@ -273,7 +282,7 @@ function ReportPage(props) {
             }
             {
                 nextPress[state].text === 'Select' ?
-                    <SelectMap userLocation={userLocation} selectLocation={selectLocation} resetting={resetting}/> : null
+                    <SelectMap userLocation={userLocation} selectLocation={selectLocation} resetting={resetting} /> : null
             }
         </Container>
     )
@@ -291,5 +300,8 @@ const styles = StyleSheet.create({
     },
     uploadIcon: {
         fontSize: 100
-    }
+    },
+    spinnerTextStyle: {
+        color: '#FFF'
+    },
 })
