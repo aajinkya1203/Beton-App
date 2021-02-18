@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Footer, FooterTab, Button, Icon } from 'native-base'
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -46,7 +46,7 @@ export default function App(props) {
                 iconName = focused
                   ? 'warning'
                   : 'warning-outline';
-              } else if (route.name === 'Settings') {
+              } else if (route.name === 'Map') {
                 iconName = focused ? 'ios-add-circle' : 'ios-add-circle';
               }
 
@@ -60,7 +60,7 @@ export default function App(props) {
           }}
         >
           <Tab.Screen name="Report" component={ReportPage} />
-          <Tab.Screen name="Settings" component={ClusterMap} />
+          <Tab.Screen name="Map" component={ClusterMap} />
         </Tab.Navigator>
       </NavigationContainer>
     </ApolloProvider>

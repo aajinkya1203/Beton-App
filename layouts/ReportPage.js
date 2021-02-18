@@ -13,6 +13,7 @@ import { graphql } from 'react-apollo'
 import { addUser } from '../queries/query'
 import Geocode from "react-geocode";
 import SelectMap from '../Maps/SelectMap'
+import * as Location from 'expo-location';
 
 
 let coords = ''
@@ -23,6 +24,7 @@ function ReportPage(props) {
     const [state, dispatch] = useReducer(reducer, stateMachine.initial)
     const [url, setUrl] = useState('')
     const [modelReady, setModelReady] = useState(true)
+    const [userLocation, setUserLocation] = useState(null)
     const [potholeDetector, setPotholeDetector] = useState(true)
 
     // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
@@ -32,6 +34,7 @@ function ReportPage(props) {
     Geocode.setLanguage("en");
 
     const next = () => dispatch('next')
+    const previous = () => dispatch('previous')
 
     useEffect(() => {
         (async () => {
@@ -43,7 +46,23 @@ function ReportPage(props) {
                 }
             }
         })();
+        (async () => {
+            let { status } = await Location.requestPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            console.log("Users location: ", location)
+            setUserLocation(location)
+        })();
     }, []);
+
+    const resetting = () => {
+        previous()
+        console.log("Reset is working: ", state)
+    }
 
     const cloudUpload = (result) => {
 
@@ -169,12 +188,17 @@ function ReportPage(props) {
         next()
     }
 
+    const selectLocation = () => {
+        console.log("Select location is working")
+        //next()
+    }
+
     const nextPress = {
         initial: { text: 'Upload' },
         ready: { text: 'Confirm', action: () => confirmation() },
         classifying: { text: 'Identifying', action: () => next() },
         details: { text: 'Details', action: () => { console.log("Details entered"); next() } },
-        location: { text: 'Select', action: () => { selectLocation() } },
+        location: { text: 'Select', action: () =>  selectLocation()  },
         complete: { text: 'Report', action: () => { } },
     }
 
@@ -249,7 +273,7 @@ function ReportPage(props) {
             }
             {
                 nextPress[state].text === 'Select' ?
-                    <SelectMap/> : null
+                    <SelectMap userLocation={userLocation} selectLocation={selectLocation} resetting={resetting}/> : null
             }
         </Container>
     )
