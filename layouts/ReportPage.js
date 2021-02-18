@@ -101,6 +101,7 @@ function ReportPage(props) {
                 setUploading(false)
                 next()
             }).catch(err = () => {
+                setUploading(false)
                 Toast.show({
                     text: "Uh-Oh, something went wrong :(",
                     buttonText: "Okay",
