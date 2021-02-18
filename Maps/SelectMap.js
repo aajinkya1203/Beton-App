@@ -251,8 +251,7 @@ class SelectMap extends React.Component {
 
         if (parseInt(latFence) === parseInt(this.state.selectLat) || parseInt(lngFence) === parseInt(this.state.selectLng)) {
             console.log("Valid coords!")
-            
-            //this.props.selectLocation()
+            this.props.selectLocation()
         } else {
             console.log("Invalid coords!")
         }
