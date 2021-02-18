@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useReducer } from 'react'
 import { StyleSheet, Text, View, Alert, Image, Dimensions, StatusBar } from 'react-native';
-import { Container, Header, Content, Footer, FooterTab, Button, Icon, Body, Left, Right, Title } from 'native-base'
+import { Container, Header, Content, Footer, FooterTab, Button, Icon, Body, Left, Right, Title, Toast } from 'native-base'
 import { Col, Row, Grid } from "react-native-easy-grid";
 import * as ImagePicker from 'expo-image-picker';
 import { stateMachine, reducer } from '../Processing/StateMachine'
@@ -100,7 +100,12 @@ function ReportPage(props) {
                 console.log("Photo uploaded")
                 setUploading(false)
                 next()
-            }).catch(err => {
+            }).catch(err = () => {
+                Toast.show({
+                    text: "Uh-Oh, something went wrong :(",
+                    buttonText: "Okay",
+                    type: "danger"
+                  })
                 console.log(err);
                 return err
             })
