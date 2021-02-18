@@ -100,13 +100,8 @@ function ReportPage(props) {
                 console.log("Photo uploaded")
                 setUploading(false)
                 next()
-            }).catch(err = () => {
+            }).catch((err) => {
                 setUploading(false)
-                Toast.show({
-                    text: "Uh-Oh, something went wrong :(",
-                    buttonText: "Okay",
-                    type: "danger"
-                  })
                 console.log(err);
                 return err
             })
