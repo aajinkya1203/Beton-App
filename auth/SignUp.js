@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
     StyleSheet,
     ImageBackground,
@@ -60,6 +60,12 @@ const Register = () => {
     console.log("Password: ", password)
     console.log("Address: ", address)
     console.log("DOB: ", dob)
+
+    const { signUp } = useContext(AuthContext)
+
+    const signUpHandle = (name, email, password, address, dob) => {
+        signUp(name, email, password, address, dob)
+    }
 
 
     return (
@@ -226,7 +232,7 @@ const Register = () => {
                                             </Button>
                                         </Block>
                                         <Block middle>
-                                            <Button color="primary" style={styles.createButton}>
+                                            <Button onPress={() => signUpHandle()} color="primary" style={styles.createButton}>
                                                 <Text bold size={14} color={argonTheme.COLORS.WHITE}>
                                                     CREATE ACCOUNT
                                         </Text>

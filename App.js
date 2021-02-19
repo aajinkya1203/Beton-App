@@ -15,9 +15,13 @@ import SignUp from './auth/SignUp'
 import Login from './auth/SignIn'
 import { View, ActivityIndicator } from 'react-native';
 import { AuthContext } from './auth/context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { graphql } from 'react-apollo';
+import { flowRight as compose } from 'lodash';
+import { users, addUser } from './queries/query'
 
 
-export default function App(props) {
+function App(props) {
 
   const Tab = createBottomTabNavigator();
 
@@ -41,11 +45,16 @@ export default function App(props) {
   })
 
   useEffect(() => {
-    setTimeout(() => {
+    setTimeout(async () => {
       //setIsLoading(false)
-      let userToken = 'fgg'
+      let userToken = null
+      try {
+        await AsyncStorage.getItem('userToken', userToken)
+      } catch (err) {
+        console.log(err)
+      }
       console.log("User token: ", userToken)
-      dispatch({ type: 'RETRIEVE_TOKEN', token: 'asshj'})
+      dispatch({ type: 'RETRIEVE_TOKEN', token: userToken })
     }, 1000)
   }, [])
 
@@ -93,33 +102,56 @@ export default function App(props) {
   const [loginState, dispatch] = useReducer(loginReducer, initialLoginState);
 
   const authContext = useMemo(() => ({
-    signIn: (userName, password) => {
+    signIn: async (userName, password) => {
       // setUserToken('ahsg')
       // setIsLoading(false)
       let userToken;
       userToken = null
-      if(userName === 'user' && password === 'pass') {
+      if (userName === 'user' && password === 'pass') {
         userToken = 'asdj'
+        try {
+          await AsyncStorage.setItem('userToken', userToken)
+        } catch (err) {
+          console.log(err)
+        }
       }
       console.log("User token: ", userToken)
-      dispatch({ type: 'LOGIN', id: userName, token: userToken})
+      dispatch({ type: 'LOGIN', id: userName, token: userToken })
     },
-    signOut: () => {
+    signOut: async () => {
       // setUserToken(null)
       // setIsLoading(false)
-      dispatch({ type: 'LOGOUT'})
+      try {
+        await AsyncStorage.removeItem('userToken')
+      } catch (err) {
+        console.log(err)
+      }
+      dispatch({ type: 'LOGOUT' })
     },
-    signUp: () => {
-      setUserToken('ahsg')
-      setIsLoading(false)
+    signUp: async (name, email, password, address, dob) => {
+      // setUserToken('ahsg')
+      // setIsLoading(false)
+      let res = await props.addUser({
+        variables: {
+          name,
+          email,
+          password,
+          address,
+          dob
+        }
+      })
+
+      console.log("Res: ", res)
     }
   }), [])
 
   if (loginState.isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
+      <ApolloProvider client={client}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" />
+        </View>
+      </ApolloProvider>
     )
   }
 
@@ -161,10 +193,15 @@ export default function App(props) {
                 <Tab.Screen name="Profile" component={Profile} />
               </Tab.Navigator>
             </NavigationContainer> :
-            <Login />
+            <SignUp />
         }
-
       </ApolloProvider>
     </AuthContext.Provider>
   );
 }
+
+export default compose(
+  graphql(users, { name: "users" }),
+  graphql(addUser, { name: "addUser" })
+)(App)
+
