@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
     StyleSheet,
     ImageBackground,
@@ -47,13 +47,14 @@ const argonTheme = {
     }
 };
 
-const Register = () => {
+const Register = (props) => {
 
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [address, setAddress] = useState('')
     const [dob, setDob] = useState('')
+    const { signUp } = useContext(AuthContext)
 
     console.log("Name: ", name)
     console.log("Email: ", email)
@@ -61,6 +62,13 @@ const Register = () => {
     console.log("Address: ", address)
     console.log("DOB: ", dob)
 
+    const signUpHandle = () => {
+        signUp(name, email, password, address, dob)
+    }
+
+    const sendVal = () => {
+        props.showLogin()
+    }
 
     return (
         <Block flex middle>
@@ -88,7 +96,7 @@ const Register = () => {
                                         <Text style={styles.socialTextButtons}>GITHUB</Text>
                                     </Block>
                                 </Button>
-                                <Button style={styles.socialButtons}>
+                                <Button onPress={() => sendVal()} style={styles.socialButtons}>
                                     <Block row>
                                         <Icon
                                             name="logo-google"
@@ -226,7 +234,7 @@ const Register = () => {
                                             </Button>
                                         </Block>
                                         <Block middle>
-                                            <Button color="primary" style={styles.createButton}>
+                                            <Button onPress={() => signUpHandle()} color="primary" style={styles.createButton}>
                                                 <Text bold size={14} color={argonTheme.COLORS.WHITE}>
                                                     CREATE ACCOUNT
                                         </Text>
