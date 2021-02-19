@@ -8,6 +8,7 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+.tmp.drivedownload/
 
 # macOS
 .DS_Store
