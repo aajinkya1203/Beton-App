@@ -6,7 +6,7 @@ import { ApolloProvider } from 'react-apollo';
 import ApolloClient from 'apollo-boost';
 
 
-export default function App(props) {
+function App(props) {
 
   const client = new ApolloClient({
     uri: 'http://192.168.10.29:1000/graphql',
