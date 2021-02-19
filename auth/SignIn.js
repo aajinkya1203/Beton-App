@@ -48,7 +48,7 @@ const argonTheme = {
     }
 };
 
-const Login = () => {
+const Login = (props) => {
 
 
     const [email, setEmail] = useState('')
