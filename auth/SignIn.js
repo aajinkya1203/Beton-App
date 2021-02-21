@@ -5,12 +5,25 @@ import {
     Dimensions,
     StatusBar,
     KeyboardAvoidingView,
-    ScrollView
+    ScrollView,
+    View,
+    ActivityIndicator
 } from "react-native";
 import { Block, Checkbox, Text, theme } from "galio-framework";
 import { Button, Icon, Input } from "../components";
 import { Images } from "../constants";
 import { AuthContext } from './context'
+import {
+    BallIndicator,
+    BarIndicator,
+    DotIndicator,
+    MaterialIndicator,
+    PacmanIndicator,
+    PulseIndicator,
+    SkypeIndicator,
+    UIActivityIndicator,
+    WaveIndicator,
+} from 'react-native-indicators';
 
 
 const { width, height } = Dimensions.get("screen");
@@ -55,12 +68,26 @@ const Login = (props) => {
     const [password, setPassword] = useState('')
     const { signIn } = useContext(AuthContext)
 
+
     console.log("Email: ", email)
     console.log("Password: ", password)
 
 
     const loginHandle = (userName, password) => {
         signIn(userName, password)
+    }
+
+    // useEffect(() => {
+    //     console.log("Sign in useffect is running")
+    //     console.log("Check this: ", props.show)
+    // }, [props.show])
+
+    if (props.load) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
+                <PacmanIndicator color='white' />
+            </View>
+        )
     }
 
     return (
@@ -148,26 +175,25 @@ const Login = (props) => {
                                                 />
                                             }
                                         />
-                                        <Block row style={styles.passwordCheck}>
-                                            <Text size={12} color={argonTheme.COLORS.MUTED}>
-                                                password strength:
-                                                </Text>
-                                            <Text bold size={12} color={argonTheme.COLORS.SUCCESS}>
-                                                {" "}
-                                                strong
-                                            </Text>
-                                        </Block>
+                                        {
+                                            props.show ?
+                                                <Block row style={styles.passwordCheck} key={props.signInError}>
+                                                    <Text size={12} color={argonTheme.COLORS.MUTED}>
+                                                        {props.signInError}
+                                                    </Text>
+                                                </Block> : null
+                                        }
                                     </Block>
 
 
-                                    <Block row width={width * 0.75}>
-                                        <Checkbox
+                                    <Block row width={width * 0.75} style={{ alignItems: 'center', justifyContent: 'center', bottom: height * 0.0005 }}>
+                                        {/*<Checkbox
                                             checkboxStyle={{
                                                 borderWidth: 3
                                             }}
                                             color={argonTheme.COLORS.PRIMARY}
                                             label="I agree with the"
-                                        />
+                                        />*/}
                                         <Button
                                             style={{ width: 100 }}
                                             color="transparent"
@@ -176,7 +202,7 @@ const Login = (props) => {
                                                 fontSize: 14
                                             }}
                                         >
-                                            Privacy Policy
+                                            or Sign up
                                             </Button>
                                     </Block>
                                     <Block middle>

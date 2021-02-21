@@ -19,12 +19,27 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { graphql } from 'react-apollo';
 import { flowRight as compose } from 'lodash';
 import { users, addUser, loginQuery } from './queries/query'
+import {
+    BallIndicator,
+    BarIndicator,
+    DotIndicator,
+    MaterialIndicator,
+    PacmanIndicator,
+    PulseIndicator,
+    SkypeIndicator,
+    UIActivityIndicator,
+    WaveIndicator,
+} from 'react-native-indicators';
+import TestMap from './Maps/TestMap'
 
 
 function Main(props) {
 
     const [showSignIn, setShowSignIn] = useState(false)
     const Tab = createBottomTabNavigator();
+    const [showSignInError, setShowSignInError] = useState(false)
+    const [signInError, setSignInError] = useState(null)
+    const [signInLoad, setSignInLoad] = useState(false)
 
     useEffect(() => {
         setTimeout(async () => {
@@ -38,7 +53,7 @@ function Main(props) {
             console.log("User token: ", userToken)
             dispatch({ type: 'RETRIEVE_TOKEN', token: userToken })
         }, 1000)
-    }, [])
+    }, [showSignInError])
 
     // const [isLoading, setIsLoading] = useState(true)
     // const [userToken, setUserToken] = useState(null)
@@ -87,6 +102,7 @@ function Main(props) {
         signIn: async (userName, password) => {
             // setUserToken('ahsg')
             // setIsLoading(false)
+            setSignInLoad(true)
             console.log("Username: ", userName)
             let userToken;
             userToken = null
@@ -102,12 +118,16 @@ function Main(props) {
                 if (result.data.login) {
                     cls = "success";
                     await AsyncStorage.setItem('userToken', result.data.login.token)
+                    setSignInLoad(false)
                 } else {
                     cls = "error";
+                    setSignInLoad(false)
                 }
                 userToken = result.data.login.token
             } catch (err) {
                 console.log("Sign in error: ", err)
+                setSignInError(err.message)
+                setShowSignInError(true)
             }
             console.log("User token: ", userToken)
             dispatch({ type: 'LOGIN', id: userName, token: userToken })
@@ -147,8 +167,8 @@ function Main(props) {
 
     if (loginState.isLoading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}> 
+                <PacmanIndicator color='white' />
             </View>
         )
     }
@@ -193,8 +213,9 @@ function Main(props) {
                             <Tab.Screen name="Report" component={ReportPage} />
                             <Tab.Screen name="Map" component={ClusterMap} />
                             <Tab.Screen name="Profile" component={Profile} />
+                            <Tab.Screen name="TestMap" component={TestMap} />
                         </Tab.Navigator>
-                    </NavigationContainer> : showSignIn ?  <SignUp showLogin={showLogin} /> : <Login />
+                    </NavigationContainer> : showSignIn ? <SignUp showLogin={showLogin} /> : <Login show={showSignInError} signInError={signInError} load={signInLoad} />
             }
 
 
