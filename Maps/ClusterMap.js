@@ -134,8 +134,6 @@ const ClusterMap = () => {
                             onPress={() => setShowSearch(false)}
                         />
                     </GooglePlacesAutocomplete>
-
-
                     : <ClusterChild initRegion={initialRegion} handleSearch={handleSearch} />
             }
         </>

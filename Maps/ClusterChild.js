@@ -7,6 +7,7 @@ import Constants from 'expo-constants';
 import Geocoder from 'react-native-geocoding';
 import { isEqual } from "lodash";
 import { Container, Header, Content, Icon, Text, Button } from 'native-base';
+import { Switch } from 'galio-framework';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
@@ -16,7 +17,7 @@ const ASPECT_RATIO = width / height;
 console.log("Width: ", width)
 console.log('Height: ', height)
 
-const mapStyle = [
+const darkStyle = [
     {
         "elementType": "geometry",
         "stylers": [
@@ -203,6 +204,17 @@ const mapStyle = [
     }
 ]
 
+const lightStyle = [
+    {
+        "featureType": "poi.attraction",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    }
+]
+
 export default function ClusterChild(props) {
 
     const [initialRegion, setInitialRegion] = useState(props.initRegion)
@@ -214,13 +226,15 @@ export default function ClusterChild(props) {
         longitudeDelta: 0.04 * ASPECT_RATIO,
     }
 
+    const [toggle, setToggle] = useState(false)
+
     const handleButton = () => {
         props.handleSearch()
     }
 
     return (
         <MapView
-            customMapStyle={mapStyle}
+            customMapStyle={toggle ? darkStyle : lightStyle}
             initialRegion={initialRegion ? initialRegion : tempRegion}
             onRegionChangeComplete={reg => {
                 if (reg) {
@@ -237,7 +251,11 @@ export default function ClusterChild(props) {
             <Marker coordinate={{ latitude: 52.2, longitude: 21 }} />
             <Marker coordinate={{ latitude: 52.4, longitude: 21 }} />
             <Marker coordinate={{ latitude: 51.8, longitude: 20 }} />
-            <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline'/></Button>
+            <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
+            <Switch
+                value={toggle}
+                onChange={() => setToggle(!toggle)}
+            />
         </MapView>
     )
 }
