@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import MapView from "react-native-map-clustering";
-import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { Dimensions, View, StyleSheet, TouchableOpacity } from 'react-native'
 import Constants from 'expo-constants';
@@ -20,6 +19,8 @@ import {
     UIActivityIndicator,
     WaveIndicator,
 } from 'react-native-indicators';
+import MapViewDirections from 'react-native-maps-directions';
+import getDirections from 'react-native-google-maps-directions'
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
@@ -227,9 +228,9 @@ const lightStyle = [
     }
 ]
 
-export default function ClusterChild(props) {
+export default function DirectionsMap(props) {
 
-    const [initialRegion, setInitialRegion] = useState(props.initRegion)
+    const [initialRegion, setInitialRegion] = useState(props.from)
     const [isLoading, setIsLoading] = useState(true)
 
     let tempRegion = {
@@ -243,6 +244,31 @@ export default function ClusterChild(props) {
 
     const handleButton = () => {
         props.handleSearch()
+    }
+
+    const handleGetDirections = () => {
+        const data = {
+            source: {
+                latitude: props.from.latitude,
+                longitude: props.from.longitude
+            },
+            destination: {
+                latitude: props.to.latitude,
+                longitude: props.to.longitude
+            },
+            params: [
+                {
+                    key: "travelmode",
+                    value: "driving"        // may be "walking", "bicycling" or "transit" as well
+                },
+                {
+                    key: "dir_action",
+                    value: "navigate"       // this instantly initializes navigation using the given travel mode
+                }
+            ],
+        }
+
+        getDirections(data)
     }
 
     // const [location, setLocation] = useState(null);
@@ -261,8 +287,8 @@ export default function ClusterChild(props) {
             tempRegion = {
                 latitude: location.latitude,
                 longitude: location.longitude,
-                latitudeDelta: 0.04,
-                longitudeDelta: 0.04 * ASPECT_RATIO,
+                latitudeDelta: 0.08,
+                longitudeDelta: 0.08 * ASPECT_RATIO,
             }
             setIsLoading(false)
             console.log("Current location: ", location)
@@ -271,9 +297,9 @@ export default function ClusterChild(props) {
 
     if (isLoading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}> 
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
                 <PulseIndicator color='white' />
-                <Text style={{color: 'white'}}>Getting your current location...</Text>
+                <Text style={{ color: 'white' }}>Getting your current location...</Text>
             </View>
         )
     }
@@ -281,28 +307,31 @@ export default function ClusterChild(props) {
     return (
         <MapView
             customMapStyle={toggle ? darkStyle : lightStyle}
-            initialRegion={initialRegion ? initialRegion : tempRegion}
+            initialRegion={initialRegion ? {
+                ...initialRegion,
+                latitudeDelta: 0.08,
+                longitudeDelta: 0.08 * ASPECT_RATIO,
+            } : tempRegion}
             onRegionChangeComplete={reg => {
                 if (reg) {
                     setInitialRegion(reg)
                 }
             }}
             style={{ flex: 1 }} provider={PROVIDER_GOOGLE}>
-            <Marker coordinate={{ latitude: 52.4, longitude: 18.7 }} />
-            <Marker coordinate={{ latitude: 52.1, longitude: 18.4 }} />
-            <Marker coordinate={{ latitude: 52.6, longitude: 18.3 }} />
-            <Marker coordinate={{ latitude: 51.6, longitude: 18.0 }} />
-            <Marker coordinate={{ latitude: 53.1, longitude: 18.8 }} />
-            <Marker coordinate={{ latitude: 52.9, longitude: 19.4 }} />
-            <Marker coordinate={{ latitude: 52.2, longitude: 21 }} />
-            <Marker coordinate={{ latitude: 52.4, longitude: 21 }} />
-            <Marker coordinate={{ latitude: 51.8, longitude: 20 }} />
+            <MapViewDirections
+                origin={props.from}
+                destination={props.to}
+                apikey={GOOGLE_PLACES_API_KEY}
+                strokeWidth={3}
+                strokeColor="hotpink"
+            />
             <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
             <Switch
-                value={toggle}
-                onChange={() => setToggle(!toggle)}
-                style={{ top: height * 0.09, left: width * 0.85 }}
+            value={toggle}
+            onChange={() => setToggle(!toggle)}
+            style={{ top: height * 0.09, left: width * 0.85 }}
             />
+            <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.74, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button>
         </MapView>
     )
 }

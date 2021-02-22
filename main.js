@@ -30,7 +30,7 @@ import {
     UIActivityIndicator,
     WaveIndicator,
 } from 'react-native-indicators';
-import TestMap from './Maps/TestMap'
+import TestMap from './Maps/Directions'
 
 
 function Main(props) {

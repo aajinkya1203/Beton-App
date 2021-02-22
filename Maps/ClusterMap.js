@@ -59,8 +59,6 @@ const ClusterMap = () => {
             .catch(error => console.warn(error));
     }
 
-    console.log("BERRR: ", initialRegion)
-
     return (
         <>
             {
