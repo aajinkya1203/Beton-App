@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { Dimensions, View, StyleSheet, TouchableOpacity } from 'react-native'
@@ -21,6 +21,13 @@ import {
 } from 'react-native-indicators';
 import MapViewDirections from 'react-native-maps-directions';
 import getDirections from 'react-native-google-maps-directions'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import BottomSheet from '@gorhom/bottom-sheet';
+import Animated, {
+    Extrapolate,
+    interpolate,
+    interpolateColors,
+} from 'react-native-reanimated';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
@@ -228,23 +235,35 @@ const lightStyle = [
     }
 ]
 
-export default function DirectionsMap(props) {
+const DirectionsMap = (props) => {
 
     const [initialRegion, setInitialRegion] = useState(props.from)
     const [isLoading, setIsLoading] = useState(true)
-
-    let tempRegion = {
-        latitude: 52.5,
-        longitude: 19.2,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.04 * ASPECT_RATIO,
-    }
-
+    const [tempRegion, setTempRegion] = useState(null)
+    const [showStart, setShowStart] = useState(props.showStart)
+    const [changeHeight, setChangeHeight] = useState(false)
     const [toggle, setToggle] = useState(true)
 
     const handleButton = () => {
         props.handleSearch()
     }
+
+    // ref
+    const bottomSheetRef = useRef(null);
+
+    // variables
+    const snapPoints = useMemo(() => ['50%', '100%'], []);
+    //const changeHeight = useMemo(() => [styles.container, styles.container1]);
+
+    // callbacks
+    const handleSheetChanges = useCallback((index) => {
+        console.log('handleSheetChanges', index);
+        if (index === 0) {
+            setChangeHeight(false)
+        } else {
+            setChangeHeight(true)
+        }
+    }, []);
 
     const handleGetDirections = () => {
         const data = {
@@ -275,25 +294,17 @@ export default function DirectionsMap(props) {
     // const [errorMsg, setErrorMsg] = useState(null);
 
     useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied');
+        setTimeout(async () => {
+            try {
+                let value = await AsyncStorage.getItem('currLocation')
+                console.log("Curr location: ", JSON.parse(value))
+                setTempRegion(JSON.parse(value))
                 setIsLoading(false)
-                return;
+            } catch (e) {
+                console.log("Error fetching location: ", e)
             }
-
-            let location = await Location.getCurrentPositionAsync({});
-            tempRegion = {
-                latitude: location.latitude,
-                longitude: location.longitude,
-                latitudeDelta: 0.08,
-                longitudeDelta: 0.08 * ASPECT_RATIO,
-            }
-            setIsLoading(false)
-            console.log("Current location: ", location)
-        })();
-    }, []);
+        }, 1000)
+    }, [isLoading]);
 
     if (isLoading) {
         return (
@@ -303,6 +314,12 @@ export default function DirectionsMap(props) {
             </View>
         )
     }
+
+    //const sheetRef = React.useRef(null);
+
+    const renderInner = () => (
+        <Text>Hello</Text>
+    )
 
     return (
         <MapView
@@ -327,21 +344,43 @@ export default function DirectionsMap(props) {
             />
             <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
             <Switch
-            value={toggle}
-            onChange={() => setToggle(!toggle)}
-            style={{ top: height * 0.09, left: width * 0.85 }}
+                value={toggle}
+                onChange={() => setToggle(!toggle)}
+                style={{ top: height * 0.09, left: width * 0.85 }}
             />
-            <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.74, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button>
+            {
+                showStart ? <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.74, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button> : null
+            }
+            <View style={changeHeight ? styles.container1 : styles.container}>
+                <BottomSheet
+                    ref={bottomSheetRef}
+                    index={1}
+                    snapPoints={snapPoints}
+                    onChange={handleSheetChanges}
+                >
+                    <View style={styles.contentContainer}>
+                        <Text>Awesome 🎉</Text>
+                    </View>
+                </BottomSheet>
+            </View>
         </MapView>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        ...StyleSheet.absoluteFillObject,
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: height * 0.5,
+        padding: 24,
+        position: 'absolute',
+        bottom: 0,
+        width: width,
+        height: height * 0.1,
+    },
+    container1: {
+        padding: 24,
+        position: 'absolute',
+        bottom: 0,
+        width: width,
+        height: height * 0.3,
     },
     map: {
         ...StyleSheet.absoluteFillObject,
@@ -360,4 +399,10 @@ const styles = StyleSheet.create({
     plainView: {
         width: 60,
     },
+    contentContainer: {
+        flex: 1,
+        alignItems: 'center',
+    },
 });
+
+export default DirectionsMap

@@ -33,6 +33,7 @@ const Directions = () => {
   const [showSearch, setShowSearch] = useState(false)
   const [from, setFrom] = useState(null)
   const [to, setTo] = useState(null)
+  const [showStart, setShowStart] = useState(false)
 
   const handleSearch = () => {
     setShowSearch(true)
@@ -74,6 +75,7 @@ const Directions = () => {
 
         setTo(region)
         setShowSearch(false)
+        setShowStart(true)
         console.log("To: ", to)
       })
       .catch(error => console.warn(error));
@@ -213,7 +215,7 @@ const Directions = () => {
               />
             </GooglePlacesAutocomplete>
             </GooglePlacesAutocomplete>
-          : <DirectionsMap from={from} to={to} handleSearch={handleSearch} />
+          : <DirectionsMap from={from} to={to} handleSearch={handleSearch} showStart={showStart}/>
       }
     </>
   )

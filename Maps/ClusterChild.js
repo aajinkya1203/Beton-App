@@ -8,7 +8,6 @@ import Geocoder from 'react-native-geocoding';
 import { isEqual } from "lodash";
 import { Container, Header, Content, Icon, Text, Button } from 'native-base';
 import { Switch } from 'galio-framework';
-import * as Location from 'expo-location';
 import {
     BallIndicator,
     BarIndicator,
@@ -20,14 +19,12 @@ import {
     UIActivityIndicator,
     WaveIndicator,
 } from 'react-native-indicators';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
 const { width, height } = Dimensions.get("screen");
 const ASPECT_RATIO = width / height;
-
-console.log("Width: ", width)
-console.log('Height: ', height)
 
 const darkStyle = [
     {
@@ -231,13 +228,7 @@ export default function ClusterChild(props) {
 
     const [initialRegion, setInitialRegion] = useState(props.initRegion)
     const [isLoading, setIsLoading] = useState(true)
-
-    let tempRegion = {
-        latitude: 52.5,
-        longitude: 19.2,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.04 * ASPECT_RATIO,
-    }
+    const [tempRegion, setTempRegion] = useState(null)
 
     const [toggle, setToggle] = useState(true)
 
@@ -249,31 +240,23 @@ export default function ClusterChild(props) {
     // const [errorMsg, setErrorMsg] = useState(null);
 
     useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied');
+        setTimeout(async () => {
+            try{
+                let value = await AsyncStorage.getItem('currLocation')
+                console.log("Curr location: ", JSON.parse(value))
+                setTempRegion(JSON.parse(value))
                 setIsLoading(false)
-                return;
+            } catch (e) {
+                console.log("Error fetching location: ", e)
             }
-
-            let location = await Location.getCurrentPositionAsync({});
-            tempRegion = {
-                latitude: location.latitude,
-                longitude: location.longitude,
-                latitudeDelta: 0.04,
-                longitudeDelta: 0.04 * ASPECT_RATIO,
-            }
-            setIsLoading(false)
-            console.log("Current location: ", location)
-        })();
-    }, []);
+        }, 1000)
+    }, [isLoading]);
 
     if (isLoading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}> 
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
                 <PulseIndicator color='white' />
-                <Text style={{color: 'white'}}>Getting your current location...</Text>
+                <Text style={{ color: 'white' }}>Fetching...</Text>
             </View>
         )
     }

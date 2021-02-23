@@ -13,7 +13,7 @@ import HomePage from './layouts/HomePage'
 import Profile from './layouts/Profile'
 import SignUp from './auth/SignUp'
 import Login from './auth/SignIn'
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Dimensions } from 'react-native';
 import { AuthContext } from './auth/context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { graphql } from 'react-apollo';
@@ -30,7 +30,12 @@ import {
     UIActivityIndicator,
     WaveIndicator,
 } from 'react-native-indicators';
-import TestMap from './Maps/Directions'
+import Directions from './Maps/Directions'
+import * as Location from 'expo-location';
+import Testing from './Maps/Testing'
+
+const { width, height } = Dimensions.get("screen");
+const ASPECT_RATIO = width / height;
 
 
 function Main(props) {
@@ -46,7 +51,23 @@ function Main(props) {
             //setIsLoading(false)
             let userToken = null
             try {
-                await AsyncStorage.getItem('userToken', userToken)
+                userToken = await AsyncStorage.getItem('userToken')
+                let { status } = await Location.requestPermissionsAsync();
+                if (status !== 'granted') {
+                    setErrorMsg('Permission to access location was denied');
+                    setIsLoading(false)
+                    return;
+                }
+
+                let location = await Location.getCurrentPositionAsync({});
+                location = ({
+                    latitude: location.coords.latitude,
+                    longitude: location.coords.longitude,
+                    latitudeDelta: 0.04,
+                    longitudeDelta: 0.04 * ASPECT_RATIO,
+                })
+                console.log("Location in main: ", location)
+                await AsyncStorage.setItem('currLocation', JSON.stringify(location))
             } catch (err) {
                 console.log(err)
             }
@@ -167,7 +188,7 @@ function Main(props) {
 
     if (loginState.isLoading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}> 
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
                 <PacmanIndicator color='white' />
             </View>
         )
@@ -213,7 +234,8 @@ function Main(props) {
                             <Tab.Screen name="Report" component={ReportPage} />
                             <Tab.Screen name="Map" component={ClusterMap} />
                             <Tab.Screen name="Profile" component={Profile} />
-                            <Tab.Screen name="TestMap" component={TestMap} />
+                            <Tab.Screen name="Directions" component={Directions} />
+                            <Tab.Screen name="TestMap" component={Testing} />
                         </Tab.Navigator>
                     </NavigationContainer> : showSignIn ? <SignUp showLogin={showLogin} /> : <Login show={showSignInError} signInError={signInError} load={signInLoad} />
             }

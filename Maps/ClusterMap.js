@@ -29,6 +29,7 @@ const ClusterMap = () => {
         latitudeDelta: 0.04,
         longitudeDelta: 0.04 * ASPECT_RATIO,
     })
+    const [tempRegion, setTempRegion] = useState(null)
 
     const [showSearch, setShowSearch] = useState(false)
 
@@ -53,6 +54,7 @@ const ClusterMap = () => {
                 }
 
                 setInitialRegion(region)
+                setTempRegion(region)
                 setShowSearch(false)
                 console.log("Region: ", initialRegion)
             })
@@ -132,7 +134,7 @@ const ClusterMap = () => {
                             onPress={() => setShowSearch(false)}
                         />
                     </GooglePlacesAutocomplete>
-                    : <ClusterChild initRegion={initialRegion} handleSearch={handleSearch} />
+                    : <ClusterChild initRegion={tempRegion} handleSearch={handleSearch} />
             }
         </>
     )
