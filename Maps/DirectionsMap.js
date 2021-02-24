@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { Dimensions, View, StyleSheet, TouchableOpacity } from 'react-native'
@@ -22,7 +22,7 @@ import {
 import MapViewDirections from 'react-native-maps-directions';
 import getDirections from 'react-native-google-maps-directions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet from 'reanimated-bottom-sheet';
 import Animated, {
     Extrapolate,
     interpolate,
@@ -248,9 +248,6 @@ const DirectionsMap = (props) => {
         props.handleSearch()
     }
 
-    // ref
-    const bottomSheetRef = useRef(null);
-
     // variables
     const snapPoints = useMemo(() => ['50%', '100%'], []);
     //const changeHeight = useMemo(() => [styles.container, styles.container1]);
@@ -321,49 +318,65 @@ const DirectionsMap = (props) => {
         <Text>Hello</Text>
     )
 
-    return (
-        <MapView
-            customMapStyle={toggle ? darkStyle : lightStyle}
-            initialRegion={initialRegion ? {
-                ...initialRegion,
-                latitudeDelta: 0.08,
-                longitudeDelta: 0.08 * ASPECT_RATIO,
-            } : tempRegion}
-            onRegionChangeComplete={reg => {
-                if (reg) {
-                    setInitialRegion(reg)
-                }
+    const renderContent = () => (
+        <View
+            style={{
+                backgroundColor: 'white',
+                padding: 16,
+                height: 450,
             }}
-            style={{ flex: 1 }} provider={PROVIDER_GOOGLE}>
-            <MapViewDirections
-                origin={props.from}
-                destination={props.to}
-                apikey={GOOGLE_PLACES_API_KEY}
-                strokeWidth={3}
-                strokeColor="hotpink"
-            />
-            <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
-            <Switch
-                value={toggle}
-                onChange={() => setToggle(!toggle)}
-                style={{ top: height * 0.09, left: width * 0.85 }}
-            />
-            {
-                showStart ? <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.74, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button> : null
-            }
-            <View style={changeHeight ? styles.container1 : styles.container}>
-                <BottomSheet
-                    ref={bottomSheetRef}
-                    index={1}
-                    snapPoints={snapPoints}
-                    onChange={handleSheetChanges}
-                >
-                    <View style={styles.contentContainer}>
-                        <Text>Awesome 🎉</Text>
-                    </View>
-                </BottomSheet>
+        >
+            <Text>Swipe down to close</Text>
+        </View>
+    );
+
+    //const sheetRef = React.useRef(null);
+
+    return (
+        <>
+            <View
+                style={{
+                    flex: 1,
+                }}
+            >
+                <MapView
+                    customMapStyle={toggle ? darkStyle : lightStyle}
+                    initialRegion={initialRegion ? {
+                        ...initialRegion,
+                        latitudeDelta: 0.08,
+                        longitudeDelta: 0.08 * ASPECT_RATIO,
+                    } : tempRegion}
+                    onRegionChangeComplete={reg => {
+                        if (reg) {
+                            setInitialRegion(reg)
+                        }
+                    }}
+                    style={{ flex: 1 }} provider={PROVIDER_GOOGLE}>
+                    <MapViewDirections
+                        origin={props.from}
+                        destination={props.to}
+                        apikey={GOOGLE_PLACES_API_KEY}
+                        strokeWidth={3}
+                        strokeColor="hotpink"
+                    />
+                    <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
+                    <Switch
+                        value={toggle}
+                        onChange={() => setToggle(!toggle)}
+                        style={{ top: height * 0.09, left: width * 0.85 }}
+                    />
+                    {
+                        showStart ? <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.74, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button> : null
+                    }
+                </MapView>
             </View>
-        </MapView>
+            <BottomSheet
+                //ref={sheetRef}
+                snapPoints={[400, 100]}
+                borderRadius={10}
+                renderContent={renderContent}
+            />
+        </>
     )
 }
 

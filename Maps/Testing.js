@@ -35,7 +35,7 @@ export default function Testing() {
       </View>
       <BottomSheet
         ref={sheetRef}
-        snapPoints={[450, 300, 0]}
+        snapPoints={[370, 300, 0]}
         borderRadius={10}
         renderContent={renderContent}
       />
