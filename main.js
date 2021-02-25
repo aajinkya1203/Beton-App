@@ -40,7 +40,6 @@ const ASPECT_RATIO = width / height;
 
 
 function Main(props) {
-
     const [showSignIn, setShowSignIn] = useState(false)
     const Tab = createBottomTabNavigator();
     const [showSignInError, setShowSignInError] = useState(false)

@@ -241,7 +241,7 @@ function ReportPage(props) {
 
     const getCoords = (coordinates, address) => {
         console.log("Selected Coordinates: ", coordinates)
-        setCoords([coordinates[0].latlng.latitude, coordinates[0].latlng.latitude])
+        setCoords([coordinates[0].latlng.latitude, coordinates[0].latlng.longitude])
         console.log("Selected Region: ", address)
         setAddress(address)
     }
