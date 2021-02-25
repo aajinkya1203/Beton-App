@@ -10,14 +10,19 @@ import { h, w } from '../constants'
 import * as tf from '@tensorflow/tfjs';
 import { flowRight as compose } from 'lodash';
 import { graphql } from 'react-apollo'
-import { addUser } from '../queries/query'
 import Geocode from "react-geocode";
 import SelectMap from '../Maps/SelectMap'
-import * as Location from 'expo-location';
 import Spinner from 'react-native-loading-spinner-overlay';
+import BottomSheet from 'reanimated-bottom-sheet';
+import { useFonts } from 'expo-font';
+import GradientButton from 'react-native-gradient-buttons';
+import { useLazyQuery } from 'react-apollo';
+import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 
-let coords = ''
+const { width, height } = Dimensions.get("screen");
+const ASPECT_RATIO = width / height;
 
 function ReportPage(props) {
 
@@ -28,6 +33,10 @@ function ReportPage(props) {
     const [userLocation, setUserLocation] = useState(null)
     const [potholeDetector, setPotholeDetector] = useState(true)
     const [uploading, setUploading] = useState(false)
+    const [coords, setCoords] = useState([0,0])
+    const [address, setAddress] = useState(null)
+    //const [imagePickerResult, setImagePickerResult] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
 
     // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
     Geocode.setApiKey("AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w");
@@ -38,32 +47,87 @@ function ReportPage(props) {
     const next = () => dispatch('next')
     const previous = () => dispatch('previous')
 
-    useEffect(() => {
-        (async () => {
-            if (Platform.OS !== 'web') {
-                const { camStatus } = await ImagePicker.requestCameraPermissionsAsync();
-                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (status !== 'granted') {
-                    alert('Sorry, we need camera roll permissions to make this work!');
-                }
-            }
-        })();
-        (async () => {
-            let { status } = await Location.requestPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied');
-                return;
-            }
-
-            let location = await Location.getCurrentPositionAsync({});
-            console.log("Users location: ", location)
-            setUserLocation(location)
-        })();
-    }, []);
-
     const resetting = () => {
         previous()
         console.log("Reset is working: ", state)
+    }
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
+                <PulseIndicator color='white' />
+                <Text style={{ color: 'white' }}>Fetching...</Text>
+            </View>
+        )
+    }
+
+    const [existingBase, { called, loading, data }] = useLazyQuery(
+        existingBaseCoordinate,
+        {
+            variables: {
+                latitude: `${coords[0]}`,
+                longitude: `${coords[1]}`
+            }
+        }
+    );
+
+    const handleReport = async () => {
+        console.log("Coords in Handle Report: ", coords)
+        console.log("Props in Handle Report: ", props)
+        await existingBase();
+        if (called && loading) {
+            console.log("Loading...")
+        };
+        if (data && data.existingBaseCoordinate) {
+            console.log("Data here", data)
+            console.log("Image url", url)
+            if (url != "") {
+                if (data.existingBaseCoordinate.location == null) {
+                    // call base point query mutation here
+                    let res = await props.addBaseReport({
+                        variables: {
+                            image: url,
+                            address: address,
+                            location: `${coords[0]} ${coords[1]}`,
+                            reportedAt: new Date().toDateString(),
+                            reportedOn: new Date().toLocaleString().split(", ")[1],
+                            userID: props.decrypt.decrypt.id,
+                            noOfReports: 1
+                        }
+                    })
+                    console.log("res in base", res);
+                    if (res && res.data && res.data.addBaseReport) {
+                        alert("Report successfully submitted!");
+                    }
+                    else {
+                        alert("Uh-oh! Something went wrong!")
+                    }
+                } else {
+                    // call dependenty point query mutation here
+                    let res = await props.addReport({
+                        variables: {
+                            image: url,
+                            address: address,
+                            location: `${coords[0]} ${coords[1]}`,
+                            reportedAt: new Date().toDateString(),
+                            reportedOn: new Date().toLocaleString().split(", ")[1],
+                            userID: props.decrypt.decrypt.id,
+                            baseParent: data.existingBaseCoordinate.id,
+                            level: props.decrypt.decrypt.level
+                        }
+                    })
+                    console.log("res in dep", res);
+                    console.log("res in base", res);
+                    if (res && res.data && res.data.addBaseReport) {
+                        alert("Report successfully submitted!");
+                    }
+                    else {
+                        alert("Uh-oh! Something went wrong!")
+                    }
+                }
+            }
+        }
+
     }
 
     const cloudUpload = (result) => {
@@ -162,29 +226,6 @@ function ReportPage(props) {
         console.log("Result: ", result)
         next()
 
-        // const name = 'Kuku'
-        // const email = 'pratit23@gmail.com'
-        // const password = '2323@'
-        // const address = 'This is the address'
-        // const dob = '202012'
-
-        // let res = await props.addUser({
-        //     variables: {
-        //         name,
-        //         email,
-        //         password,
-        //         address,
-        //         dob
-        //     }
-        // })
-
-        // console.log("Res: ", res)
-
-    }
-
-    const getCoords = (coord) => {
-        console.log("Check this: ", coord)
-        coords = coord
     }
 
     const confirmation = async () => {
@@ -195,8 +236,16 @@ function ReportPage(props) {
 
     const selectLocation = () => {
         console.log("Select location is working")
-        //next()
+        next()
     }
+
+    const getCoords = (coordinates, address) => {
+        console.log("Selected Coordinates: ", coordinates)
+        setCoords([coordinates[0].latlng.latitude, coordinates[0].latlng.latitude])
+        console.log("Selected Region: ", address)
+        setAddress(address)
+    }
+
 
     const nextPress = {
         initial: { text: 'Upload' },
@@ -204,10 +253,11 @@ function ReportPage(props) {
         classifying: { text: 'Identifying', action: () => next() },
         details: { text: 'Details', action: () => { console.log("Details entered"); next() } },
         location: { text: 'Select', action: () => selectLocation() },
-        complete: { text: 'Report', action: () => { } },
+        complete: { text: 'Complete', action: () => { } },
     }
 
     useEffect(() => {
+        console.log("This is running: ", coords)
         async function loadModel() {
             const tfReady = await tf.ready();
             const modelJson = await require("../assets/model/model.json");
@@ -218,6 +268,58 @@ function ReportPage(props) {
         }
         loadModel()
     }, []);
+
+
+    const [loaded] = useFonts({
+        Lexand: require('../assets/font/LexendDeca-Regular.ttf'),
+    });
+
+    const renderContent = () => (
+        <View
+            style={{
+                backgroundColor: '#E8EBF3',
+                padding: 16,
+                height: height * 0.5,
+            }}
+        >
+            <Text style={{ fontFamily: 'Lexand', fontSize: 25 }}>1. Your Selection 📸</Text>
+            <View
+                style={{
+                    borderBottomColor: 'black',
+                    borderBottomWidth: 1,
+                }}
+            />
+            <Text style={{ fontFamily: 'Lexand', fontSize: 18, marginTop: height * 0.02 }}>Name: {(image.uri).substring(image.uri.length - 11, image.uri.length)}</Text>
+            <Text style={{ fontFamily: 'Lexand', fontSize: 18, marginTop: height * 0.02 }}>Uploaded on: {Date().toLocaleString()}</Text>
+            <Text style={{ fontFamily: 'Lexand', fontSize: 25, marginTop: height * 0.04 }}>2. Selected Location 🎯</Text>
+            <View
+                style={{
+                    borderBottomColor: 'black',
+                    borderBottomWidth: 1,
+                }}
+            />
+            <Text style={{ fontFamily: 'Lexand', fontSize: 18, marginTop: height * 0.02 }}>Pothole possibly located at: {address}</Text>
+            <Grid style={{ marginLeft: 0 }}>
+                <Col>
+                    <GradientButton onPressAction={() => handleReport()} text="Submit" width={'100%'} height={'40%'} style={{ marginLeft: 0, marginTop: 20 }} blueViolet impact />
+                </Col>
+                <Col>
+                    <GradientButton
+                        text="Cancel"
+                        gradientBegin="#F21B3F"
+                        gradientEnd="#D9594C"
+                        gradientDirection="diagonal"
+                        width={'100%'}
+                        height={'40%'}
+                        impact
+                        impactStyle='Heavy'
+                        onPressAction={() => resetting()}
+                        style={{ marginTop: 20 }}
+                    />
+                </Col>
+            </Grid>
+        </View>
+    );
 
     return (
         <Container>
@@ -283,14 +385,50 @@ function ReportPage(props) {
             }
             {
                 nextPress[state].text === 'Select' ?
-                    <SelectMap userLocation={userLocation} selectLocation={selectLocation} resetting={resetting} /> : null
+                    <SelectMap getCoords={getCoords} resetting={resetting} selectLocation={selectLocation} /> : null
+            }
+            {
+                nextPress[state].text === 'Complete' ?
+                    <>
+                        <View style={{ height: height * 0.5, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000' }}>
+                            <Image
+                                style={{ width: w * 0.8, height: h * 0.4, borderRadius: 24, marginBottom: h * 0.2, marginTop: h * 0.3, marginLeft: w * 0.2, marginRight: w * 0.2 }}
+                                source={{
+                                    uri: image.uri,
+                                }}
+                            />
+                        </View>
+                        <BottomSheet
+                            //ref={sheetRef}
+                            snapPoints={[350, 350]}
+                            renderContent={renderContent}
+                            initialSnap={1}
+                            borderRadius={24}
+                            enabledGestureInteraction={false}
+                        //renderHeader={renderHeader}
+                        />
+                    </>
+                    :
+                    null
             }
         </Container>
     )
 }
 
 export default compose(
-    graphql(addUser, { name: "addUser" })
+    graphql(addBaseReport, { name: "addBaseReport" }),
+    graphql(addReport, { name: "addReport" }),
+    graphql(decrypt, {
+        name: "decrypt",
+        options: () => {
+            console.log("Global Tempo: ", global.tempo, typeof(global.tempo))
+            return {
+                variables: {
+                    token: global.tempo
+                }
+            }
+        }
+    })
 )(ReportPage)
 
 const styles = StyleSheet.create({
@@ -305,4 +443,7 @@ const styles = StyleSheet.create({
     spinnerTextStyle: {
         color: '#FFF'
     },
+    baseText: {
+        fontFamily: 'Lexend Deca',
+    }
 })

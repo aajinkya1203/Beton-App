@@ -7,23 +7,25 @@ import Geocoder from 'react-native-geocoding';
 import { Container, Header, Content, Button, Icon, Text } from 'native-base';
 import { Col, Row, Grid } from "react-native-easy-grid";
 import * as Location from 'expo-location'
-import RNRestart from 'react-native-restart';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 
 const { width, height } = Dimensions.get('window');
 
 const ASPECT_RATIO = width / height;
-const LATITUDE = 37.78825;
-const LONGITUDE = -122.4324;
-const LATITUDE_DELTA = 0.02;
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-const SPACE = 0.01;
 
-function log(eventName, e) {
-    console.log(eventName, e.nativeEvent);
-}
+import {
+    BallIndicator,
+    BarIndicator,
+    DotIndicator,
+    MaterialIndicator,
+    PacmanIndicator,
+    PulseIndicator,
+    SkypeIndicator,
+    UIActivityIndicator,
+    WaveIndicator,
+} from 'react-native-indicators';
 
-var addressComponent = null
 
 const mapStyle = [
     {
@@ -218,22 +220,15 @@ class SelectMap extends React.Component {
         super(props);
 
         this.state = {
-            a: {
-                latitude: LATITUDE + SPACE,
-                longitude: LONGITUDE + SPACE,
-            },
-            b: {
-                latitude: LATITUDE - SPACE,
-                longitude: LONGITUDE - SPACE,
-            },
             markers: [],
             add_first: '',
             add_last: '',
-            userLocation: props.userLocation,
             selectedLat: null,
             selectLng: null,
             needDetails: false,
-            address: ''
+            address: '',
+            isLoading: true,
+            region: null
         };
     }
 
@@ -243,9 +238,8 @@ class SelectMap extends React.Component {
 
     handleSubmit() {
         console.log("Handle Submit is working")
-        console.log("Check this::::", this.state.userLocation.coords.latitude)
-        let latFence = ((this.state.userLocation.coords.latitude).toString()).substring(3,5)
-        let lngFence = ((this.state.userLocation.coords.longitude).toString()).substring(3,5)
+        let latFence = ((this.state.region.latitude).toString()).substring(3, 5)
+        let lngFence = ((this.state.region.longitude).toString()).substring(3, 5)
         console.log("Lat fence: ", latFence)
         console.log("Lng fence: ", lngFence)
 
@@ -269,16 +263,17 @@ class SelectMap extends React.Component {
         //     this.setState({ add_first: addressComponent.short_name, add_last: addressComponent.long_name })
         // }).catch(error => console.warn(error));
 
-        ( async () => {
-            let regionName = await Location.reverseGeocodeAsync( { longitude: coords.longitude, latitude: coords.latitude } );
+        (async () => {
+            let regionName = await Location.reverseGeocodeAsync({ longitude: coords.longitude, latitude: coords.latitude });
             //console.log("Region Name: ", regionName)
             let area = regionName[0].name
             let city = regionName[0].city
             let district = regionName[0].subregion
             let postalCode = regionName[0].postalCode
             let address = area + ', ' + city + ', ' + district + ', ' + postalCode
-            this.setState({ add_first: address})
-            console.log("Test Name: ", regionName[0])
+            this.setState({ add_first: address })
+            console.log("Test markers: ", this.state.markers)
+            this.props.getCoords(this.state.markers, address)
         })();
 
     }
@@ -286,45 +281,68 @@ class SelectMap extends React.Component {
     async componentDidMount() {
         console.log("User Location: ", this.state.userLocation)
         Geocoder.init("AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w");
+
+        setTimeout(async () => {
+            try {
+                let value = await AsyncStorage.getItem('currLocation')
+                console.log("Curr location: ", JSON.parse(value))
+                this.setState({
+                    region: JSON.parse(value),
+                    isLoading: false
+                })
+                console.log("Checking this: ", this.state.region)
+            } catch (e) {
+                console.log("Error fetching location: ", e)
+            }
+        }, 1000)
     }
 
+
+
     render() {
-        const coords = this.state.userLocation.coords
         const latDelta = w * 0.00003
 
         return (
-            <View style={styles.map}>
-                <MapView style={styles.map} region={{ latitude: coords.latitude, longitude: coords.longitude, latitudeDelta: latDelta, longitudeDelta: ASPECT_RATIO * latDelta }}
-                    onPress={(e) => this.getAddress(e.nativeEvent.coordinate)} customMapStyle={mapStyle} provider={PROVIDER_GOOGLE}>
-                    {
-                        console.log("Markers: ", this.state.markers),
-                        this.state.markers && (this.state.markers).length !== 0 ?
-                            <Marker coordinate={(this.state.markers[0]).latlng} >
-                                <Callout style={styles.plainView}>
-                                    <View>
-                                        <Text>This is a plain view</Text>
-                                    </View>
-                                </Callout>
-                            </Marker> :
-                            <Marker coordinate={{ latitude: coords.latitude, longitude: coords.longitude }} >
-                                <Callout style={styles.plainView}>
-                                    <View>
-                                        <Text>This is a plain view</Text>
-                                    </View>
-                                </Callout>
-                            </Marker>
-                    }
-                    <Button onPress={() => this.handleSubmit()} style={{ top: h * 0.07, left: w * 0.82, width: w * 0.12 }} rounded><Text><Icon name='arrow-forward-outline' style={{ fontSize: 18 }} /></Text></Button>
-                    <Button onPress={() => this.handleRestart()} style={{ top: h * 0.07, left: w * 0.05, width: w * 0.12, position: 'absolute' }} rounded danger><Text><Icon name='refresh-outline' style={{ fontSize: 18 }} /></Text></Button>
-                </MapView>
-                <TouchableOpacity style={styles.overlay}>
-                    {
-                        this.state.markers && (this.state.markers).length !== 0 ?
-                            <Text style={styles.text}>{this.state.add_first}, {this.state.add_last}</Text>
-                            : <Text style={styles.text}>Click on the location of the pothole</Text>
-                    }
-                </TouchableOpacity>
-            </View>
+            <>
+                {
+                    this.state && this.state.isLoading ?
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
+                            <PulseIndicator color='white' />
+                            <Text style={{ color: 'white' }}>Getting your current location...</Text>
+                        </View> :
+                        <View style={styles.map}>
+                            <MapView style={styles.map} region={{ latitude: this.state.region.latitude, longitude: this.state.region.longitude, latitudeDelta: latDelta, longitudeDelta: ASPECT_RATIO * latDelta }}
+                                onPress={(e) => this.getAddress(e.nativeEvent.coordinate)} customMapStyle={mapStyle} provider={PROVIDER_GOOGLE}>
+                                {
+                                    this.state.markers && (this.state.markers).length !== 0 ?
+                                        <Marker coordinate={(this.state.markers[0]).latlng} >
+                                            <Callout style={styles.plainView}>
+                                                <View>
+                                                    <Text>This is a plain view</Text>
+                                                </View>
+                                            </Callout>
+                                        </Marker> :
+                                        <Marker coordinate={{ latitude: this.state.region.latitude, longitude: this.state.region.longitude }} >
+                                            <Callout style={styles.plainView}>
+                                                <View>
+                                                    <Text>This is a plain view</Text>
+                                                </View>
+                                            </Callout>
+                                        </Marker>
+                                }
+                                <Button onPress={() => this.handleSubmit()} style={{ top: h * 0.07, left: w * 0.82, width: w * 0.12 }} rounded><Text><Icon name='arrow-forward-outline' style={{ fontSize: 18 }} /></Text></Button>
+                                <Button onPress={() => this.handleRestart()} style={{ top: h * 0.07, left: w * 0.05, width: w * 0.12, position: 'absolute' }} rounded danger><Text><Icon name='refresh-outline' style={{ fontSize: 18 }} /></Text></Button>
+                            </MapView>
+                            <TouchableOpacity style={styles.overlay}>
+                                {
+                                    this.state.markers && (this.state.markers).length !== 0 ?
+                                        <Text style={styles.text}>{this.state.add_first}, {this.state.add_last}</Text>
+                                        : <Text style={styles.text}>Click on the location of the pothole</Text>
+                                }
+                            </TouchableOpacity>
+                        </View>
+                }
+            </>
         );
     }
 }

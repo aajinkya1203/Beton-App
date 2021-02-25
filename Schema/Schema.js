@@ -7,7 +7,12 @@ const jwt = require('jsonwebtoken');
 const { JWT_SEC } = require('../keys/keys');
 const geolib = require('geolib');
 const User = require('../models/user')
+const Admin = require('../models/admin')
+const Advertisers = require('../models/advertisers')
+const Coupon = require('../models/coupons')
+const Advertisement = require('../models/advertisments')
 const Report = require('../models/reports')
+const BaseReports = require('../models/baseReports');
 
 // https://www.figma.com/file/4bAC5AKUM1VmxyAaRhiLrs/BETON-ER-Diagram?node-id=0%3A1
 
@@ -58,10 +63,10 @@ let reports = [
 ]
 
 let advertisers = [
-    { id: "50", company: "gencoin", password: "pass123", category: "cryptocurrency", email: "gencoin@hotmail.com", name: "user123", website: "youtube.com" },
-    { id: "51", company: "yahoo", password: "pass1234", category: "information", email: "yahoo@hotmail.com", name: "user12345", website: "youtube.com" },
-    { id: "52", company: "google", password: "pass12345", category: "search-engine", email: "google@hotmail.com", name: "user123456", website: "youtube.com" },
-    { id: "53", company: "tesla", password: "pass12345", category: "automobile", email: "tesla@hotmail.com", name: "user123457", website: "youtube.com" },
+    { id: "50", company: "gencoin", password: "pass123", category: "cryptocurrency", email: "gencoin@hotmail.com", website: "youtube.com" },
+    { id: "51", company: "yahoo", password: "pass1234", category: "information", email: "yahoo@hotmail.com", website: "youtube.com" },
+    { id: "52", company: "google", password: "pass12345", category: "search-engine", email: "google@hotmail.com", website: "youtube.com" },
+    { id: "53", company: "tesla", password: "pass12345", category: "automobile", email: "tesla@hotmail.com", website: "youtube.com" },
 ]
 
 
@@ -84,7 +89,18 @@ const UserType = new GraphQLObjectType({
             resolve(parent, args) {
                 let temp = []
                 parent.reports.forEach(y => {
-                    let test = _.find(reports, r => r.id === y)
+                    let test = Report.findById(y)
+                    temp.push(test)
+                })
+                return temp
+            }
+        },
+        baseReports: {
+            type: new GraphQLList(BaseReportsType),
+            resolve(parent, args) {
+                let temp = []
+                parent.baseReports.forEach(y => {
+                    let test = BaseReports.findById(y)
                     temp.push(test)
                 })
                 return temp
@@ -95,12 +111,13 @@ const UserType = new GraphQLObjectType({
             resolve(parent, args) {
                 let temp = []
                 parent.coupons.forEach(y => {
-                    let test = _.find(coupons, r => r.id === y)
+                    let test = Coupon.findById(y);
                     temp.push(test)
                 })
                 return temp
             }
-        }
+        },
+        level: { type: GraphQLString }
     })
 });
 
@@ -124,17 +141,73 @@ const ContractorsType = new GraphQLObjectType({
 });
 
 const AdvertisersType = new GraphQLObjectType({
-    name: "Contractor",
+    name: "Advertisers",
     fields: () => ({
         id: { type: GraphQLID },
         email: { type: GraphQLString },
         password: { type: GraphQLString },
         company: { type: GraphQLString },
-        name: { type: GraphQLString },
         website: { type: GraphQLString },
         category: { type: GraphQLString },
+        token: { type: GraphQLString },
+        coupons: {
+            type: new GraphQLList(CouponsType),
+            resolve(parent, args) {
+                let temp = []
+                parent.coupons.forEach(y => {
+                    let test = Coupon.findById(y);
+                    temp.push(test)
+                })
+                return temp
+            }
+        },
+        advertisments: {
+            type: new GraphQLList(AdvertisementType),
+            resolve(parent, args) {
+                let temp = []
+                parent.coupons.forEach(y => {
+                    let test = Advertisement.findById(y);
+                    temp.push(test)
+                })
+                return temp
+            }
+
+        }
     })
 });
+
+
+const BaseReportsType = new GraphQLObjectType({
+    name: "BaseReports",
+    fields: () => ({
+        id: { type: GraphQLID },
+        image: { type: GraphQLString },
+        address: { type: GraphQLString },
+        location: { type: GraphQLString },
+        reportedAt: { type: GraphQLString }, // date
+        reportedOn: { type: GraphQLString }, // time
+        userID: {
+            type: UserType,
+            resolve(parent, args) {
+                //// change this. Fetch from MongoDB
+                return User.findById(parent.userID)
+            }
+        },
+        resolved: { type: GraphQLBoolean },
+        noOfReports: { type: GraphQLInt },
+        similar: {
+            type: GraphQLList(ReportsType),
+            resolve(parent, args) {
+                let temp = [];
+                parent.similar.forEach(s => {
+                    let test = Report.findById(s)
+                    temp.push(test);
+                })
+                return temp;
+            }
+        }
+    })
+})
 
 const ReportsType = new GraphQLObjectType({
     name: "Reports",
@@ -143,14 +216,21 @@ const ReportsType = new GraphQLObjectType({
         image: { type: GraphQLString },
         address: { type: GraphQLString },
         location: { type: GraphQLString },
+        reportedAt: { type: GraphQLString }, // date
+        reportedOn: { type: GraphQLString }, // time
         userID: {
             type: UserType,
             resolve(parent, args) {
-                return _.find(users, a => a.id === parent.userID)
+                //// change this. Fetch from MongoDB
+                return User.findById(parent.userID)
             }
         },
-        resolved: { type: GraphQLBoolean },
-        noOfReports: { type: GraphQLInt }
+        baseParent: {
+            type: BaseReportsType,
+            resolve(parent, args) {
+                return BaseReports.findById(parent.baseParent)
+            }
+        }
     })
 })
 
@@ -161,21 +241,39 @@ const CouponsType = new GraphQLObjectType({
         name: { type: GraphQLString },
         amount: { type: GraphQLString },
         validity: { type: GraphQLString },
+        assigned: { type: GraphQLBoolean },
         advertiserID: {
             type: AdvertisersType,
             resolve(parent, args) {
-                return _.find(advertisers, a => a.id === parent.advertiserID)
+                return Advertisers.findById(parent.advertiserID)
             }
         },
         userID: {
             type: UserType,
             resolve(parent, args) {
-                return _.find(users, a => a.id === parent.userID)
+                return User.findById(parent.userID)
             }
         },
     })
 })
 
+const AdvertisementType = new GraphQLObjectType({
+    name: "Advertisement",
+    fields: () => ({
+        id: { type: GraphQLID },
+        title: { type: GraphQLString }, // title
+        link: { type: GraphQLString }, //url
+        screentime: { type: GraphQLString }, //count total screen time?
+        when: { type: GraphQLBoolean }, //date and time
+        advertiserID: {
+            type: AdvertisersType,
+            resolve(parent, args) {
+                return Advertisers.findById(parent.advertiserID)
+            }
+        },
+        outreach: { type: GraphQLInt },  // to how many users it is shown to
+    })
+})
 
 
 
@@ -190,52 +288,54 @@ const RootQuery = new GraphQLObjectType({
             type: UserType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                return _.find(users, (a) => {
-                    if (a.id == args['id']) {
-                        return a
-                    }
-                });
+                // return _.find(users, (a) => {
+                //     if (a.id == args['id']) {
+                //         return a
+                //     }
+                // });
+                return User.findById(args['id'])
             }
         },
         admin: {
             type: AdminType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                return _.find(users, (a) => {
-                    if (a.id == args['id']) {
-                        return a
-                    }
-                });
+                // return _.find(users, (a) => {
+                //     if (a.id == args['id']) {
+                //         return a
+                //     }
+                // });
+                return Admin.findById(args['id'])
             }
         },
         users: {
             type: new GraphQLList(UserType),
             resolve(parent, args) {
-                return users;
+                return User.find();
             }
         },
         allReports: {
             type: new GraphQLList(ReportsType),
             resolve(parent, args) {
-                return reports
+                return Report.find()
             }
         },
         admins: {
             type: new GraphQLList(AdminType),
             resolve(parent, args) {
-                return admin
+                return Admin.find()
             }
         },
-        advertisers: {
+        allAdvertisers: {
             type: new GraphQLList(AdvertisersType),
             resolve(parent, args) {
-                return advertisers
+                return Advertisers.find()
             }
         },
-        coupons: {
+        allCoupons: {
             type: new GraphQLList(CouponsType),
             resolve(parent, args) {
-                return coupons
+                return Coupon.find()
             }
         },
         getReportsNearMe: {
@@ -263,10 +363,113 @@ const RootQuery = new GraphQLObjectType({
                         return true
                     }
                 })
-
                 return data;
             }
-        }
+        },
+        getNearestCoordinate: {
+            type: BaseReportsType,
+            args: {
+                latitude: { type: GraphQLString },
+                longitude: { type: GraphQLString },
+            },
+            async resolve(parent, args) {
+                let main = {
+                    latitude: Number(args['latitude']),
+                    longitude: Number(args['longitude'])
+                }
+                // one sec brb
+
+                //findNearest(point, arrayOfPoints)
+                let allCoords = await BaseReports.find();
+                console.log(allCoords);
+                let cleanedCoords = allCoords.map(c => {
+                    temp = c.location.split(" ")
+                    return { latitude: temp[0], longitude: temp[1] }
+                })
+                let res = geolib.findNearest(main, cleanedCoords);
+                res = _.find(allCoords, (a) => {
+                    if (a.location == `${res.latitude} ${res.longitude}`) return true
+                })
+                console.log("Result", res);
+                return res;
+            }
+        },
+        existingBaseCoordinate: {
+            type: BaseReportsType || GraphQLBoolean,
+            args: {
+                latitude: { type: GraphQLString },
+                longitude: { type: GraphQLString },
+            },
+            async resolve(parent, args) {
+                let main = {
+                    latitude: Number(args['latitude']),
+                    longitude: Number(args['longitude'])
+                }
+                console.log("args", main)
+
+                //findNearest(point, arrayOfPoints)
+                let allCoords = await BaseReports.find();
+                console.log(allCoords);
+                if (allCoords.length == 0) {
+                    return false
+                }
+                let cleanedCoords = allCoords.map(c => {
+                    temp = c.location.split(" ")
+                    return { latitude: temp[0], longitude: temp[1] }
+                })
+
+                // get the lat and long of the nearest coordinate
+                let res = geolib.findNearest(main, cleanedCoords);
+                res = {
+                    latitude: Number(res['latitude']),
+                    longitude: Number(res['longitude'])
+                }
+                // checking distance of this nearest coordinate with our coordinate
+                let disanceBet = geolib.getDistance(main, res)
+                console.log("Distance:", disanceBet)
+                if (disanceBet > 1000) {
+                    return false
+                } else {
+                    res = _.find(allCoords, (a) => {
+                        if (a.location == `${res.latitude} ${res.longitude}`) return true
+                    })
+                    console.log("ress", res)
+                    return res
+                }
+            }
+        },
+        allBaseReports: {
+            type: new GraphQLList(BaseReportsType),
+            resolve(parent, args) {
+                return BaseReports.find();
+            }
+        },
+        decrypt: {
+            type: UserType,
+            args: {
+                token: {
+                    type: GraphQLString
+                }
+            },
+            resolve(parent, args) {
+                console.log("CHECK: ", args.token)
+                if (args.token == "") return null;
+                let res = jwt.verify(args.token, JWT_SEC);
+                return User.findById(res._id);
+            }
+        },
+        decryptAdvertiser: {
+            type: AdvertisersType,
+            args: {
+                token: {
+                    type: GraphQLString
+                }
+            },
+            resolve(parent, args) {
+                let res = jwt.verify(args.token, JWT_SEC);
+                return Advertisers.findById(res._id);
+            }
+        },
     }
 })
 
@@ -319,6 +522,80 @@ const Mutation = new GraphQLObjectType({
 
             }
         }, //add user mutation
+
+        // TODO: this is Advertiser signup
+        addAdvertiser: {
+            type: AdvertisersType,
+            args: {
+                password: { type: new GraphQLNonNull(GraphQLString) },
+                email: { type: new GraphQLNonNull(GraphQLString) },
+                company: { type: new GraphQLNonNull(GraphQLString) },
+                website: { type: new GraphQLNonNull(GraphQLString) },
+                category: { type: new GraphQLNonNull(GraphQLString) },
+            },
+            async resolve(parent, args) {
+                if (!args.email || !args.company || !args.password || !args.website || !args.category) {
+                    // console.log("error?")
+                    throw new Error("Kindly provide all details");
+                }
+                return await Advertisers.findOne({ email: args.email }).then(async (res) => {
+                    console.log(args)
+                    if (res) {
+                        throw new Error("An account with the same email already exist! Try Logging in!");
+                    } else {
+                        // hashing passwords
+                        let hashedPwd = await bcrypt.hash(args.password, 15)
+                        if (!hashedPwd) {
+                            throw new Error('Our servers seems to be a lil busy today. Try again later?')
+                        }
+                        let newUser = new Advertisers({
+                            email: args.email,
+                            company: args.company,
+                            website: args.website,
+                            category: args.category,
+                            password: hashedPwd,
+                            coupons: [],
+                            advertisments: []
+                        })
+                        // saving to db
+                        let results = await newUser.save();
+                        console.log(results);
+                        if (!results) {
+                            throw new Error('Uh-oh! This wasn\'t meant to happen.Make sure your internet connection is strong.')
+                        }
+                        return results
+                    }
+                })
+            }
+        }, // * Advertiser signup done
+
+        // * Advertiser login
+        loginAdvertiser: {
+            type: AdvertisersType,
+            args: {
+                email: { type: new GraphQLNonNull(GraphQLString) },
+                password: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            async resolve(parent, args) {
+                if (!args.email || !args.password) {
+                    // console.log("error?")
+                    throw new Error("Kindly provide all details");
+                }
+                return await Advertisers.findOne({ email: args.email }).then(async (res) => {
+                    if (!res) {
+                        throw new Error("Yayzow! We can't find an account with that email. You gotta register first, you know ¯\_(ツ)_/¯");
+                    }
+                    // checking the password comparison
+                    let didMatch = await bcrypt.compare(args.password, res.password)
+                    if (!didMatch) {
+                        throw new Error("Invalid Email and Password combination :(")
+                    }
+                    const token = jwt.sign({ _id: res._id }, JWT_SEC);
+                    res['token'] = token;
+                    return res;
+                })
+            }
+        }, // * Advertiser login done
         login: {
             type: UserType,
             args: {
@@ -344,40 +621,176 @@ const Mutation = new GraphQLObjectType({
                     return res;
                 })
             }
-        }, //login mutation done
+        }, //* login mutation done
+        // * Add an advertisment
+        addAdvertisment: {
+            type: AdvertisementType,
+            args: {
+                title: { type: GraphQLString },
+                link: { type: GraphQLString },
+                screentime: { type: GraphQLString },
+                when: { type: GraphQLString },
+                advertiserID: { type: GraphQLID },
+                outreach: { type: GraphQLInt }
+            },
+            async resolve(parent, args) {
+                let newAdvertisment = new Advertisement({
+                    title: args.title,
+                    link: args.link,
+                    screentime: 0,
+                    when: args.when,
+                    advertiserID: args.advertiserID,
+                    outreach: 0
+                });
+
+                let results = await newAdvertisment.save();
+
+                // ? Saving this record in the advertisers record too
+                await Advertisers.findByIdAndUpdate(args.advertiserID, {
+                    $push: { "advertisments": results._id }
+                })
+                console.log(results);
+                if (!results) {
+                    throw new Error('Uh-oh! This wasn\'t meant to happen.Make sure your internet connection is strong.')
+                }
+                return results
+            }
+        }, //* add an advertisment done
+
+        // * add a new coupon
+        addCoupon: {
+            type: CouponsType,
+            args: {
+                name: { type: new GraphQLNonNull(GraphQLString) },
+                amount: { type: new GraphQLNonNull(GraphQLString) },
+                validity: { type: new GraphQLNonNull(GraphQLString) },
+                assigned: { type: new GraphQLNonNull(GraphQLBoolean) },
+                advertiserID: { type: new GraphQLNonNull(GraphQLID) },
+            },
+            async resolve(parent, args) {
+                let newCoupon = new Coupon({
+                    name: args.name,
+                    amount: args.amount,
+                    validity: args.validity,
+                    assigned: args.assigned,
+                    advertiserID: args.advertiserID,
+                    userID: ""
+                });
+                let results = newCoupon.save();
+
+                // ? Saving this record in the advertisers record too
+                await Advertisers.findByIdAndUpdate(args.advertiserID, {
+                    $push: { "coupons": results._id }
+                })
+                console.log(results);
+                if (!results) {
+                    throw new Error('Uh-oh! This wasn\'t meant to happen.Make sure your internet connection is strong.')
+                }
+                return results
+            }
+        },
         addReport: {
             type: ReportsType,
             args: {
                 image: { type: new GraphQLNonNull(GraphQLString) },
                 address: { type: new GraphQLNonNull(GraphQLString) },
                 location: { type: new GraphQLNonNull(GraphQLString) },
+                reportedAt: { type: new GraphQLNonNull(GraphQLString) },
+                reportedOn: { type: new GraphQLNonNull(GraphQLString) },
                 userID: { type: new GraphQLNonNull(GraphQLID) },
-                resolved: { type: new GraphQLNonNull(GraphQLBoolean) },
-                noOfReports: { type: new GraphQLNonNull(GraphQLInt) }
+                baseParent: { type: new GraphQLNonNull(GraphQLID) }, // do analysing part on front end and get the base parent id.
+                level: { type: new GraphQLNonNull(GraphQLString) } // can be beginner(1), intermediate(5), pro(10)
             },
             async resolve(parent, args) {
-                if (!args.image || !args.address || !args.location || !args.userID || args.resolved || args.noOfReports) {
+                if (!args.image || !args.address || !args.location || !args.userID || !args.baseParent || !args.reportedAt || !args.reportedOn) {
                     // console.log("error?")
                     throw new Error("Kindly provide all details");
                 } else {
+                    console.log("ARgs", args);
                     let newReport = new Report({
                         image: args.image,
                         address: args.address,
                         location: args.location,
                         userID: args.userID,
-                        resolved: args.resolved,
-                        noOfReports: args.noOfReports
+                        baseParent: args.baseParent,
+                        reportedAt: args.reportedAt,
+                        reportedOn: args.reportedOn
                     })
                     // saving to db
                     let results = await newReport.save();
-                    console.log(results);
+                    let points = 0;
+                    if (String(args.level).toLowerCase() == "beginner") {
+                        points = 1
+                    } else if (String(args.level).toLowerCase() == "intermediate") {
+                        points = 5;
+                    } else {
+                        points = 10;
+                    }
+
+                    // adding to the base reports data
+                    await BaseReports.findByIdAndUpdate(
+                        results.baseParent,
+                        {
+                            $push: { "similar": results._id },
+                            $inc: { "noOfReports": points }
+                        }
+                    );
+
+                    // adding to users data
+                    await User.findByIdAndUpdate(args.userID, {
+                        $push: { "reports": results._id }
+                    })
                     if (!results) {
                         throw new Error('Uh-oh! This wasn\'t meant to happen.Make sure your internet connection is strong.')
                     }
                     return results
                 }
             }
-        },
+        }, //depending mutation done
+        addBaseReport: {
+            type: BaseReportsType,
+            args: {
+                image: { type: new GraphQLNonNull(GraphQLString) },
+                address: { type: new GraphQLNonNull(GraphQLString) },
+                location: { type: new GraphQLNonNull(GraphQLString) },
+                reportedAt: { type: new GraphQLNonNull(GraphQLString) },
+                reportedOn: { type: new GraphQLNonNull(GraphQLString) },
+                userID: { type: new GraphQLNonNull(GraphQLID) },
+                noOfReports: { type: GraphQLNonNull(GraphQLInt) },
+            },
+            async resolve(parent, args) {
+                if (!args.image || !args.address || !args.location || !args.userID || !args.reportedAt || !args.reportedOn || !args.noOfReports) {
+                    console.log("Args", args)
+                    // console.log("error?")
+                    throw new Error("Kindly provide all details");
+                } else {
+                    let newReport = new BaseReports({
+                        image: args.image,
+                        address: args.address,
+                        location: args.location,
+                        userID: args.userID,
+                        baseParent: args.baseParent,
+                        reportedAt: args.reportedAt,
+                        reportedOn: args.reportedOn,
+                        noOfReports: args.noOfReports,
+                        resolved: false,
+                        similar: []
+                    })
+                    // saving to db
+                    let results = await newReport.save();
+                    console.log(results);
+
+                    // adding to users data
+                    await User.findByIdAndUpdate(args.userID, {
+                        $push: { "baseReports": results._id }
+                    })
+                    if (!results) {
+                        throw new Error('Uh-oh! This wasn\'t meant to happen.Make sure your internet connection is strong.')
+                    }
+                    return results
+                }
+            }
+        }
     }
 })
 

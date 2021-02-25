@@ -17,22 +17,9 @@ mutation($name: String!, $email: String!, $password: String!, $dob: String!, $ad
       name
       email
       password
-      address
     }
 }
 `
-// const addReport = gql`
-// mutation($image: String!, $address: String!, $location: String!, $userID: String!, $resolved: Boolean!, $noOfReports: int!){
-//     addReport(image: $image, address: $address, location: $location, userID: $userID, resolved: $resolved, noOfReports: $noOfReports){
-//      image,
-//      address,
-//      location,
-//      userID,
-//      resolved,
-//      noOfReports
-//     }
-// }
-// `
 
 const loginQuery = gql`
   mutation($email:String!, $password: String!){
@@ -40,12 +27,139 @@ const loginQuery = gql`
       name
       email
       password
-      address
       dob
       token
     }
   }
 `;
 
+const existingBaseCoordinate = gql`
+query($latitude: String!, $longitude: String!){
+  existingBaseCoordinate(latitude: $latitude, longitude: $longitude){
+    id
+    location
+    userID{
+			name
+      email
+      id
+    }
+  }
+}
+`;
 
-export { users, addUser, loginQuery };
+const addBaseReport = gql`
+mutation($image: String!, $address: String!, $location: String!, $reportedAt: String!, $reportedOn: String!, $userID: ID!, $noOfReports: Int!){
+  addBaseReport(image: $image, address: $address, location: $location, reportedAt: $reportedAt, reportedOn: $reportedOn, userID: $userID, noOfReports: $noOfReports){
+    id
+    location
+    userID{
+      id
+      name
+      email
+    }
+  }
+}
+`;
+
+const addReport = gql`
+mutation($image: String!, $address: String!, $location: String!, $reportedAt: String!, $reportedOn: String!, $userID: ID!, $baseParent: ID!, $level: String!){
+  addReport(image: $image, address: $address, location: $location, reportedAt: $reportedAt, reportedOn: $reportedOn, userID: $userID, baseParent: $baseParent, level: $level){
+    id
+    location
+    userID{
+      id
+      name
+      email
+    }
+    baseParent{
+      id
+      location
+      userID{
+        id
+        name
+        email
+      }
+    }
+  }
+}
+`;
+
+const decrypt = gql`
+query($token: String){
+  decrypt(token: $token){
+    name
+    email
+    id
+    level
+  }
+}
+`
+
+const decryptAdvertiser = gql`
+query($token: String!){
+  decryptAdvertiser(token: $token){
+    name
+    email
+    id
+    level
+  }
+}
+`
+
+const addAdvertiser = gql`
+mutation($company: String!, $email: String!, $password: String!, $website: String!, $category: String!){
+  addAdvertiser(company: $company, email: $email, password: $password, website: $website, category: $category){
+    email
+    company
+    website
+    category
+  }
+}
+`
+
+const loginAdvertiser = gql`
+mutation($email:String!, $password: String!){
+  loginAdvertiser(email:$email, password:$password){
+    email
+    company
+    website
+    category
+    token
+  }
+}
+`
+
+const allBaseReports = gql`
+{
+  allBaseReports{
+    id
+    location
+    similar{
+      id
+      reportedAt
+      reportedOn
+      location
+      userID{
+        name
+  			id
+        email
+      }
+      address
+    }
+  }
+}
+`
+
+export {
+  users,
+  addUser,
+  loginQuery,
+  existingBaseCoordinate,
+  addBaseReport,
+  addReport,
+  decrypt,
+  addAdvertiser,
+  loginAdvertiser,
+  decryptAdvertiser,
+  allBaseReports
+};

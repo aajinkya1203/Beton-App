@@ -23,11 +23,6 @@ import MapViewDirections from 'react-native-maps-directions';
 import getDirections from 'react-native-google-maps-directions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import BottomSheet from 'reanimated-bottom-sheet';
-import Animated, {
-    Extrapolate,
-    interpolate,
-    interpolateColors,
-} from 'react-native-reanimated';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
@@ -321,12 +316,27 @@ const DirectionsMap = (props) => {
     const renderContent = () => (
         <View
             style={{
-                backgroundColor: 'white',
+                backgroundColor: '#FFFFFA',
                 padding: 16,
                 height: 450,
             }}
         >
             <Text>Swipe down to close</Text>
+        </View>
+    );
+
+    const renderHeader = () => (
+        <View
+            style={{
+                backgroundColor: '#FFFFFA',
+                padding: 16,
+                borderTopLeftRadius: 12,
+                borderTopRightRadius: 12,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}
+        >
+            <View style={{height: 10, width: 30, backgroundColor: '#212121', borderRadius: 12}}></View>
         </View>
     );
 
@@ -373,8 +383,9 @@ const DirectionsMap = (props) => {
             <BottomSheet
                 //ref={sheetRef}
                 snapPoints={[400, 100]}
-                borderRadius={10}
                 renderContent={renderContent}
+                initialSnap={1}
+                renderHeader={renderHeader}
             />
         </>
     )

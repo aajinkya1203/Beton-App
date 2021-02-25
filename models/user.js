@@ -30,6 +30,14 @@ const userSchema = new mongoose.Schema({
         type: ObjectId,
         ref: "Reports"
     }],
+    baseReports:[{
+        type: ObjectId,
+        ref: "BaseReports"
+    }],
+    level: {
+        type: String,
+        require: true
+    }
 });
 
 module.exports = mongoose.model("User", userSchema);

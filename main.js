@@ -33,6 +33,7 @@ import {
 import Directions from './Maps/Directions'
 import * as Location from 'expo-location';
 import Testing from './Maps/Testing'
+import Acce from './Acce'
 
 const { width, height } = Dimensions.get("screen");
 const ASPECT_RATIO = width / height;
@@ -52,6 +53,7 @@ function Main(props) {
             let userToken = null
             try {
                 userToken = await AsyncStorage.getItem('userToken')
+                global.tempo = userToken
                 let { status } = await Location.requestPermissionsAsync();
                 if (status !== 'granted') {
                     setErrorMsg('Permission to access location was denied');
@@ -158,6 +160,7 @@ function Main(props) {
             // setIsLoading(false)
             try {
                 await AsyncStorage.removeItem('userToken')
+                global.tempo = ''
             } catch (err) {
                 console.log(err)
             }
@@ -235,7 +238,7 @@ function Main(props) {
                             <Tab.Screen name="Map" component={ClusterMap} />
                             <Tab.Screen name="Profile" component={Profile} />
                             <Tab.Screen name="Directions" component={Directions} />
-                            <Tab.Screen name="TestMap" component={Testing} />
+                            <Tab.Screen name="TestMap" component={Acce} />
                         </Tab.Navigator>
                     </NavigationContainer> : showSignIn ? <SignUp showLogin={showLogin} /> : <Login show={showSignInError} signInError={signInError} load={signInLoad} />
             }
