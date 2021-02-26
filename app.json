@@ -27,6 +27,11 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.levitation.beton",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w"
+        }
+      },
       "versionCode": 1
     },
     "web": {
