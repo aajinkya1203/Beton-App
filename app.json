@@ -19,6 +19,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.levitation.beton",
+      "config": {
+        "googleMapsApiKey": "AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w"
+      },
       "buildNumber": "1.0.0"
     },
     "android": {
@@ -29,7 +32,7 @@
       "package": "com.levitation.beton",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w"
+          "apiKey": "AIzaSyA9oC3dAMjBuhO-drR0Kwe3WIDREY5P-OY"
         }
       },
       "versionCode": 1
