@@ -150,6 +150,27 @@ const allBaseReports = gql`
 }
 `
 
+const findUsingZipCode = gql`
+query($zip:String!) {
+  findUsingZipCode(zip: $zip) {
+    id
+    location
+    similar{
+      id
+      reportedAt
+      reportedOn
+      location
+      userID{
+        name
+  			id
+        email
+      }
+      address
+    }
+  }
+}
+`
+
 export {
   users,
   addUser,
@@ -161,5 +182,6 @@ export {
   addAdvertiser,
   loginAdvertiser,
   decryptAdvertiser,
-  allBaseReports
+  allBaseReports,
+  findUsingZipCode
 };

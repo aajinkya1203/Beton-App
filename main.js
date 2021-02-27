@@ -2,7 +2,13 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, useMemo, useReducer } from 'react';
 import { Container, Footer, FooterTab, Button, Icon } from 'native-base'
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {
+    AnimatedTabBarNavigator,
+    DotSize, // optional
+    TabElementDisplayOptions, // optional
+    TabButtonLayout, // optional
+    IAppearenceOptions // optional
+} from 'react-native-animated-nav-tab-bar'
 import ReportPage from './layouts/ReportPage'
 import Test from './layouts/Test'
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -41,7 +47,7 @@ const ASPECT_RATIO = width / height;
 
 function Main(props) {
     const [showSignIn, setShowSignIn] = useState(false)
-    const Tab = createBottomTabNavigator();
+    const Tab = AnimatedTabBarNavigator();
     const [showSignInError, setShowSignInError] = useState(false)
     const [signInError, setSignInError] = useState(null)
     const [signInLoad, setSignInLoad] = useState(false)
@@ -69,6 +75,15 @@ function Main(props) {
                 })
                 console.log("Location in main: ", location)
                 await AsyncStorage.setItem('currLocation', JSON.stringify(location))
+                let value = location
+                let regionName = await Location.reverseGeocodeAsync({ longitude: value.longitude, latitude: value.latitude });
+                let area = regionName[0].name
+                let city = regionName[0].city
+                global.city = city
+                let district = regionName[0].subregion
+                let postalCode = regionName[0].postalCode
+                global.postCode = postalCode
+                console.log("WORK PLIS: ", global.postCode)
             } catch (err) {
                 console.log(err)
             }
@@ -205,7 +220,7 @@ function Main(props) {
 
             {
                 loginState.userToken !== null ?
-                    <NavigationContainer theme={DarkTheme}>
+                    <NavigationContainer>
                         <Tab.Navigator
                             screenOptions={({ route }) => ({
                                 tabBarIcon: ({ focused, color, size }) => {
@@ -221,6 +236,8 @@ function Main(props) {
                                         iconName = focused ? 'home-outline' : 'home-outline';
                                     } else if (route.name === 'Profile') {
                                         iconName = focused ? 'person-outline' : 'person-outline';
+                                    } else if (route.name === 'Directions') {
+                                        iconName = focused ? 'compass-outline' : 'compass-outline';
                                     }
 
                                     // You can return any component that you like here!
@@ -228,15 +245,19 @@ function Main(props) {
                                 },
                             })}
                             tabBarOptions={{
-                                activeTintColor: 'tomato',
-                                inactiveTintColor: 'gray',
+                                activeTintColor: 'black',
+                                inactiveTintColor: 'grey',
+                            }}
+                            appearence={{
+                                tabBarBackground: 'black',
+                                activeTabBackgrounds: ['#ffffff', '#e76f51', '#ffffff', '#ffffff', '#714FB6']
                             }}
                         >
                             <Tab.Screen name="Home" component={HomePage} />
                             <Tab.Screen name="Report" component={ReportPage} />
                             <Tab.Screen name="Map" component={ClusterMap} />
-                            <Tab.Screen name="Profile" component={Profile} />
                             <Tab.Screen name="Directions" component={Directions} />
+                            <Tab.Screen name="Profile" component={Profile} />
                             <Tab.Screen name="TestMap" component={Acce} />
                         </Tab.Navigator>
                     </NavigationContainer> : showSignIn ? <SignUp showLogin={showLogin} /> : <Login show={showSignInError} signInError={signInError} load={signInLoad} />

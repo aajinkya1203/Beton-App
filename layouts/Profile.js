@@ -8,12 +8,15 @@ import {
   Platform
 } from "react-native";
 import { Block, Text, theme } from "galio-framework";
+import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
 
 import { Button } from "../components";
 import { Images } from "../constants";
 import { HeaderHeight } from "../constants/utils";
 import { isRequiredArgument } from "graphql";
 import { AuthContext } from '../auth/context'
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo'
 
 const { width, height } = Dimensions.get("screen");
 
@@ -61,9 +64,11 @@ const Viewed = [
   'https://images.unsplash.com/photo-1482686115713-0fbcaced6e28?fit=crop&w=240&q=80',
 ];
 
-const Profile = () => {
+const Profile = (props) => {
 
   const { signOut } = useContext(AuthContext)
+
+  console.log("Props in profile: ", props)
 
   return (
     <Block flex style={styles.profile}>
@@ -143,12 +148,18 @@ const Profile = () => {
               </Block>
               <Block flex>
                 <Block middle style={styles.nameInfo}>
-                  <Text bold size={28} color="#ffffff">
-                    Pratit Bandiwadekar
-                    </Text>
-                  <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>
-                    Mumbai, India
-                    </Text>
+                  {
+                    props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
+                      <Text bold size={28} color="#ffffff">
+                        {props.decrypt.decrypt.name}
+                      </Text> : <Text bold size={28} color="#ffffff">Loading...</Text>
+                  }
+                  {
+                    props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
+                      <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>
+                        Pro
+                      </Text> : <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Loading...</Text>
+                  }
                 </Block>
                 <Block middle style={{ marginTop: 30, marginBottom: 16 }}>
                   <Block style={styles.divider} />
@@ -272,4 +283,16 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Profile;
+export default compose(
+  graphql(decrypt, {
+    name: "decrypt",
+    options: () => {
+      console.log("Global Tempo: ", global.tempo, typeof (global.tempo))
+      return {
+        variables: {
+          token: global.tempo
+        }
+      }
+    }
+  })
+)(Profile)

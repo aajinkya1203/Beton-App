@@ -72,8 +72,6 @@ function ReportPage(props) {
     );
 
     const handleReport = async () => {
-        console.log("Coords in Handle Report: ", coords)
-        console.log("Props in Handle Report: ", props)
         await existingBase();
         if (called && loading) {
             console.log("Loading...")
@@ -118,8 +116,9 @@ function ReportPage(props) {
                     })
                     console.log("res in dep", res);
                     console.log("res in base", res);
-                    if (res && res.data && res.data.addBaseReport) {
+                    if (res && res.data && res.data.addReport) {
                         alert("Report successfully submitted!");
+                        console.log("Report successfully submitted")
                     }
                     else {
                         alert("Uh-oh! Something went wrong!")

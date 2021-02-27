@@ -20,6 +20,9 @@ import {
     WaveIndicator,
 } from 'react-native-indicators';
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { allBaseReports } from '../queries/query';
+import { graphql } from 'react-apollo';
+import { flowRight as composey } from 'lodash';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
@@ -224,7 +227,7 @@ const lightStyle = [
     }
 ]
 
-export default function ClusterChild(props) {
+function ClusterChild(props) {
 
     const [initialRegion, setInitialRegion] = useState(props.initRegion)
     const [isLoading, setIsLoading] = useState(true)
@@ -289,6 +292,10 @@ export default function ClusterChild(props) {
         </MapView>
     )
 }
+
+export default composey(
+    graphql(allBaseReports, { name: "allBaseReports" })
+)(ClusterChild);
 
 const styles = StyleSheet.create({
     container: {
