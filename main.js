@@ -258,7 +258,7 @@ function Main(props) {
                             <Tab.Screen name="Map" component={ClusterMap} />
                             <Tab.Screen name="Directions" component={Directions} />
                             <Tab.Screen name="Profile" component={Profile} />
-                            <Tab.Screen name="TestMap" component={Acce} />
+                            {/*<Tab.Screen name="TestMap" component={Acce} />*/}
                         </Tab.Navigator>
                     </NavigationContainer> : showSignIn ? <SignUp showLogin={showLogin} /> : <Login show={showSignInError} signInError={signInError} load={signInLoad} />
             }

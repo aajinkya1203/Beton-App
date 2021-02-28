@@ -90,8 +90,13 @@ function HomePage(props) {
             <View style={{ height: height * 0.45 }}>
                 <Card style={{ height: height * 0.5, backgroundColor: item.color, borderRadius: 24, paddingLeft: width * 0.05 }} isDark>
                     <View style={{ height: height * 0.15 }}>
-                        <Text style={{ fontFamily: 'Lexand', fontSize: 70, marginTop: height * 0.02 }}>{item.text}{item.text === 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>pothole</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>potholes</Text>}</Text>
-                        <Text style={{ fontFamily: 'Lexand', fontSize: 15, marginTop: height * 0.005 }}>{item.text1}</Text>
+                        {
+                            loaded ?
+                                <>
+                                    <Text style={{ fontFamily: 'Lexand', fontSize: 70, marginTop: height * 0.02 }}>{item.text}{item.text === 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>pothole</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>potholes</Text>}</Text>
+                                    <Text style={{ fontFamily: 'Lexand', fontSize: 15, marginTop: height * 0.005 }}>{item.text1}</Text>
+                                </> : null
+                        }
                     </View>
                     <View style={{ flex: 1 }}>
                         <View>
@@ -148,8 +153,6 @@ function HomePage(props) {
         )
     }
 
-    console.log("Props in Homepage: ", props)
-
     useEffect(() => {
         if (!props.findUsingZipCode.loading) {
             setCarousalItems([
@@ -188,8 +191,13 @@ function HomePage(props) {
             parallaxHeaderHeight={height * 0.6}
             renderForeground={() => (
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontFamily: 'Lexand', fontSize: 50, marginTop: height * 0.02 }}>Beton</Text>
-                    <Text style={{ fontFamily: 'Lexand', fontSize: 20, marginTop: height * 0.005 }}>📍{global.city}</Text>
+                    {
+                        loaded ? 
+                        <>
+                            <Text style={{ fontFamily: 'Lexand', fontSize: 50, marginTop: height * 0.02 }}>Beton</Text>
+                            <Text style={{ fontFamily: 'Lexand', fontSize: 20, marginTop: height * 0.005 }}>📍{global.city}</Text>
+                        </> : null
+                    }
                 </View>
             )}
             renderBackground={() => (
@@ -212,10 +220,15 @@ function HomePage(props) {
                 />
                 <View style={{ height: height * 0.45 }}>
                     <View style={{ height: height * 0.2, width: width, backgroundColor: '#3C3735' }}>
+                    {
+                        loaded ? 
+                        <>
                         <Text style={{ fontFamily: 'Lexand', fontSize: 12, color: 'white', marginTop: height * 0.02, marginLeft: width * 0.08 }}>MY BETON REWARDS</Text>
                         <Text style={{ fontFamily: 'Lexand', fontSize: 60, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>0/<Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>5☆</Text></Text>
                         <ProgressBar progress={0.5} color={'grey'} style={{ height: height * 0.015, borderRadius: 12 }} />
                         <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>5☆ to Amatuer</Text>
+                        </> : null
+                    }
                     </View>
                 </View>
             </View>

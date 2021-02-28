@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import MapView from "react-native-map-clustering";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { Dimensions, View, StyleSheet, TouchableOpacity } from 'react-native'
+import { Dimensions, View, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import Constants from 'expo-constants';
 import Geocoder from 'react-native-geocoding';
 import { isEqual } from "lodash";
@@ -20,10 +20,6 @@ import {
     WaveIndicator,
 } from 'react-native-indicators';
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { allBaseReports } from '../queries/query';
-import { graphql } from 'react-apollo';
-import { flowRight as composey } from 'lodash';
-
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
 const { width, height } = Dimensions.get("screen");
@@ -244,7 +240,7 @@ function ClusterChild(props) {
 
     useEffect(() => {
         setTimeout(async () => {
-            try{
+            try {
                 let value = await AsyncStorage.getItem('currLocation')
                 console.log("Curr location: ", JSON.parse(value))
                 setTempRegion(JSON.parse(value))
@@ -274,15 +270,18 @@ function ClusterChild(props) {
                 }
             }}
             style={{ flex: 1 }} provider={PROVIDER_GOOGLE}>
-            <Marker coordinate={{ latitude: 52.4, longitude: 18.7 }} />
-            <Marker coordinate={{ latitude: 52.1, longitude: 18.4 }} />
-            <Marker coordinate={{ latitude: 52.6, longitude: 18.3 }} />
-            <Marker coordinate={{ latitude: 51.6, longitude: 18.0 }} />
-            <Marker coordinate={{ latitude: 53.1, longitude: 18.8 }} />
-            <Marker coordinate={{ latitude: 52.9, longitude: 19.4 }} />
-            <Marker coordinate={{ latitude: 52.2, longitude: 21 }} />
-            <Marker coordinate={{ latitude: 52.4, longitude: 21 }} />
-            <Marker coordinate={{ latitude: 51.8, longitude: 20 }} />
+            {
+                global.allMarkers.length > 0 ?
+                    global.allMarkers.map((marker, key) => {
+                        console.log("Type of marker: ", typeof (marker))
+                        if (typeof (marker) != 'undefined') {
+                            console.log("Marker: ", marker)
+                            return (
+                                <Marker key={key} coordinate={{ latitude: Number(marker.location.split(" ")[0]), longitude: Number(marker.location.split(" ")[1]) }}><Image source={require('../imgs/pothole.png')} style={{ height: 35, width: 35 }} /></Marker>
+                            )
+                        }
+                    }) : null
+            }
             <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
             <Switch
                 value={toggle}
@@ -293,9 +292,7 @@ function ClusterChild(props) {
     )
 }
 
-export default composey(
-    graphql(allBaseReports, { name: "allBaseReports" })
-)(ClusterChild);
+export default ClusterChild
 
 const styles = StyleSheet.create({
     container: {
@@ -309,13 +306,13 @@ const styles = StyleSheet.create({
     },
     overlay: {
         position: 'absolute',
-        bottom: 40,
-        backgroundColor: 'rgba(255, 255, 255, 1)',
+        top: height * 0.09,
+        backgroundColor: '#286FD4',
         justifyContent: 'center',
         alignItems: 'center',
-        height: height * 0.1,
-        width: width * 0.8,
-        left: width * 0.1,
+        height: height * 0.05,
+        width: width * 0.2,
+        right: width * 0.01,
         borderRadius: 24
     },
     plainView: {

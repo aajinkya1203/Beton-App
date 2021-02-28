@@ -10,6 +10,9 @@ import ClusterChild from './ClusterChild'
 import { h as height, w as width } from '../constants'
 import { Container, Header, Content, Icon, Text, Button } from 'native-base';
 import { FAB } from 'react-native-paper'
+import { allBaseReports } from '../queries/query';
+import { graphql } from 'react-apollo';
+import { flowRight as composey } from 'lodash';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
@@ -18,8 +21,10 @@ const ASPECT_RATIO = width / height;
 console.log("Width: ", width)
 console.log('Height: ', height)
 
+global.allMarkers = []
 
-const ClusterMap = () => {
+
+const ClusterMap = (props) => {
 
     Geocoder.init("AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w");
 
@@ -30,7 +35,7 @@ const ClusterMap = () => {
         longitudeDelta: 0.04 * ASPECT_RATIO,
     })
     const [tempRegion, setTempRegion] = useState(null)
-
+    const [markers, setMarkers] = useState([])
     const [showSearch, setShowSearch] = useState(false)
 
     const handleSearch = () => {
@@ -60,6 +65,32 @@ const ClusterMap = () => {
             })
             .catch(error => console.warn(error));
     }
+
+    useEffect(() => {
+        console.log("Useeffect for fetching")
+        if (props && props.allBaseReports && !props.allBaseReports.loading) {
+            let temp = []
+
+            temp = props.allBaseReports.allBaseReports.map(i => {
+                if (i.noOfReports < 3) {
+                    return;
+                }
+                let test = {
+                    ...i,
+                    key: i.id,
+                    latitude: Number(i.location.split(" ")[0]),
+                    longitude: Number(i.location.split(" ")[1])
+                }
+                return test;
+            })
+            global.allMarkers = temp
+            setMarkers(temp)
+            console.log("Markers: ", markers)
+        }
+        return () => {
+            setMarkers([])
+        }
+    }, [props])
 
     return (
         <>
@@ -134,7 +165,7 @@ const ClusterMap = () => {
                             onPress={() => setShowSearch(false)}
                         />
                     </GooglePlacesAutocomplete>
-                    : <ClusterChild initRegion={tempRegion} handleSearch={handleSearch} />
+                    : <ClusterChild initRegion={tempRegion} handleSearch={handleSearch}/>
             }
         </>
     )
@@ -164,4 +195,6 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ClusterMap;
+export default composey(
+    graphql(allBaseReports, { name: "allBaseReports" })
+)(ClusterMap);
