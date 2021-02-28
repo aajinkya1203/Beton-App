@@ -177,6 +177,14 @@ query($zip:String!) {
 }
 `
 
+const isOnLine = gql`
+mutation($encoded: [String]){
+  isOnLine(encoded: $encoded){
+    location
+  }
+}
+`
+
 export {
   users,
   addUser,
@@ -189,5 +197,6 @@ export {
   loginAdvertiser,
   decryptAdvertiser,
   allBaseReports,
-  findUsingZipCode
+  findUsingZipCode,
+  isOnLine
 };

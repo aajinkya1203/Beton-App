@@ -4,7 +4,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { Dimensions, View, StyleSheet, TouchableOpacity } from 'react-native'
 import Constants from 'expo-constants';
 import Geocoder from 'react-native-geocoding';
-import { isEqual } from "lodash";
+import { isEqual, set } from "lodash";
 import { Container, Header, Content, Icon, Text, Button } from 'native-base';
 import { Switch } from 'galio-framework';
 import * as Location from 'expo-location';
@@ -23,6 +23,12 @@ import MapViewDirections from 'react-native-maps-directions';
 import getDirections from 'react-native-google-maps-directions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import BottomSheet from 'reanimated-bottom-sheet';
+import Polyutil from 'polyline-encoded'
+import * as turf from '@turf/turf'
+import { graphql, useLazyQuery } from 'react-apollo';
+import { flowRight as compose } from 'lodash';
+import { isOnLine } from '../queries/query'
+
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
@@ -230,6 +236,8 @@ const lightStyle = [
     }
 ]
 
+var skrt = []
+
 const DirectionsMap = (props) => {
 
     const [initialRegion, setInitialRegion] = useState(props.from)
@@ -238,10 +246,20 @@ const DirectionsMap = (props) => {
     const [showStart, setShowStart] = useState(props.showStart)
     const [changeHeight, setChangeHeight] = useState(false)
     const [toggle, setToggle] = useState(true)
+    const [enc, setEnc] = useState(true)
 
     const handleButton = () => {
         props.handleSearch()
     }
+
+    // const [isOn, { called, loading, data }] = useLazyQuery(
+    //     isOnLine,
+    //     {
+    //         variables: {
+    //             location: "16.038612345464614 73.57858923198849"
+    //         }
+    //     }
+    // );
 
     // variables
     const snapPoints = useMemo(() => ['50%', '100%'], []);
@@ -257,7 +275,7 @@ const DirectionsMap = (props) => {
         }
     }, []);
 
-    const handleGetDirections = () => {
+    const handleGetDirections = async () => {
         const data = {
             source: {
                 latitude: props.from.latitude,
@@ -278,9 +296,66 @@ const DirectionsMap = (props) => {
                 }
             ],
         }
+        
+        
+        // var enc = encoded.map((e, key) => {
+        //     console.log("E: ", e, typeof (e))
+        //     return Polyutil.decode(e)
+        // })
 
+        // console.log("Enc: ", enc)
+        // setEnc(enc)
+
+        // var latlngs = Polyutil.decode(enc)
+
+        // console.log("Lat lngs: ", latlngs)
+        console.log("prarararap", props)
         getDirections(data)
     }
+
+    const checkTest = async() => {
+        // var merged = [].concat.apply([], enc);
+        // console.log("BRR; ", merged[merged.length - 1])
+        // var pt = turf.point([16.00039, 73.67176]);
+        // var line = turf.lineString(merged);
+        // var isPointOnLine = turf.booleanWithin(pt, line);
+        // console.log("Is Point on line: ", isPointOnLine)
+
+        // // merged.sort(([a, b], [c, d]) => c - a || b - d);
+        // // console.log("Merged is", merged)
+
+        // var array = [[123, 3], [745, 4], [643, 5], [643, 2]];
+        // array.sort(([a, b], [c, d]) => c - a || b - d);
+        // console.log(array)
+        
+        let resp = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=Kudal&destination=Malvan&mode=driving&key=AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w`)
+        let respJson = await resp.json()
+        console.log("JSON response: ", respJson)
+        console.log("Length of routes: ", respJson.routes.length)
+
+        var encoded = respJson.routes[0].legs[0].steps.map((obj, key) => {
+            return obj.polyline.points
+        })
+        props.isOnLine({
+            variables: {
+                encoded
+            }
+        });
+        // isOn();
+        // if(loading){
+        //     console.log("calledd and loading")
+        // }
+        // if(data){
+        //     console.log("Datatatatatatatatatatatat", data)
+        // }
+        var pt = turf.point([0, 0]);
+        var line = turf.lineString([[-1, -1], [1, 10], [1.5, 2.2]]);
+        var isPointOnLine = turf.booleanPointOnLine(pt, line);
+        console.log("Is Point on line: ", isPointOnLine)
+    }
+    
+
+
 
     // const [location, setLocation] = useState(null);
     // const [errorMsg, setErrorMsg] = useState(null);
@@ -336,7 +411,7 @@ const DirectionsMap = (props) => {
                 alignItems: 'center'
             }}
         >
-            <View style={{height: 10, width: 30, backgroundColor: '#212121', borderRadius: 12}}></View>
+            <View style={{ height: 10, width: 30, backgroundColor: '#212121', borderRadius: 12 }}></View>
         </View>
     );
 
@@ -376,7 +451,10 @@ const DirectionsMap = (props) => {
                         style={{ top: height * 0.09, left: width * 0.85 }}
                     />
                     {
-                        showStart ? <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.74, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button> : null
+                        <>
+                            <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.5, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button>
+                            <Button iconLeft onPress={() => checkTest()} style={{ top: height * 0.2, left: width * 0.82, width: 90 }} rounded><Text>Check</Text></Button>
+                        </>
                     }
                 </MapView>
             </View>
@@ -429,4 +507,8 @@ const styles = StyleSheet.create({
     },
 });
 
-export default DirectionsMap
+export default compose(
+    graphql(isOnLine, { 
+        name: "isOnLine"
+    })
+)(DirectionsMap)
