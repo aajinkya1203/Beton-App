@@ -178,10 +178,8 @@ query($zip:String!) {
 `
 
 const isOnLine = gql`
-mutation($encoded: [String]){
-  isOnLine(encoded: $encoded){
-    location
-  }
+query($encoded: [String]){
+  isOnLine(encoded: $encoded)
 }
 `
 
@@ -200,3 +198,8 @@ export {
   findUsingZipCode,
   isOnLine
 };
+
+
+
+
+

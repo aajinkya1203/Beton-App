@@ -21,6 +21,7 @@ const ASPECT_RATIO = width / height;
 console.log("Width: ", width)
 console.log('Height: ', height)
 
+var coords = []
 
 const Directions = (props) => {
 
@@ -44,6 +45,15 @@ const Directions = (props) => {
     setShowSearch(true)
   }
 
+  const [isOn, { called, loading, data }] = useLazyQuery(
+    isOnLine,
+    {
+      variables: {
+        encoded: coords
+      }
+    }
+  );
+  
   const handleFrom = (data) => {
 
     var region = null
@@ -79,30 +89,33 @@ const Directions = (props) => {
           longitude: location.lng,
         }
         setTo(region)
-
-
       })
       .catch(error => console.warn(error));
   }
 
-  const changeState = async() => {
+  const changeState = async () => {
     console.log("From: ", fromName)
     console.log("To: ", toName)
     let resp = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${fromName}&destination=${toName}&mode=driving&key=AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w`)
     let respJson = await resp.json()
     //console.log("JSON response: ", respJson)
-    console.log("Length of routes: ", respJson)
 
     var encoded = respJson.routes[0].legs[0].steps.map((obj, key) => {
       return obj.polyline.points
     })
-    props.isOnLine({
-      variables: {
-        encoded
-      }
-    });
+
+    coords = [...encoded]
+    isOn();
+
     setShowSearch(false)
     setShowStart(true)
+  }
+
+  if(called && loading){
+    console.log("Patience is virtue")
+  }
+  if(data){
+    console.log("CHEDJASB: ", data)
   }
 
   return (
@@ -245,7 +258,7 @@ const Directions = (props) => {
               />
             </GooglePlacesAutocomplete>
           </GooglePlacesAutocomplete>
-          : <DirectionsMap from={from} to={to} handleSearch={handleSearch} showStart={showStart} />
+          : <DirectionsMap from={from} to={to} handleSearch={handleSearch} showStart={showStart} isOnLine={data}/>
       }
     </>
   )

@@ -23,6 +23,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import getDirections from 'react-native-google-maps-directions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import BottomSheet from 'reanimated-bottom-sheet';
+import GradientCard from 'react-native-gradient-card-view'
 
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
@@ -246,45 +247,40 @@ const DirectionsMap = (props) => {
         props.handleSearch()
     }
 
-    // const [isOn, { called, loading, data }] = useLazyQuery(
-    //     isOnLine,
-    //     {
-    //         variables: {
-    //             location: "16.038612345464614 73.57858923198849"
-    //         }
-    //     }
-    // );
-
     // variables
     const snapPoints = useMemo(() => ['50%', '100%'], []);
 
     const handleGetDirections = async () => {
-        const data = {
-            source: {
-                latitude: props.from.latitude,
-                longitude: props.from.longitude
-            },
-            destination: {
-                latitude: props.to.latitude,
-                longitude: props.to.longitude
-            },
-            params: [
-                {
-                    key: "travelmode",
-                    value: "driving"        // may be "walking", "bicycling" or "transit" as well
+        if (props.from != null) {
+            const data = {
+                source: {
+                    latitude: props.from.latitude,
+                    longitude: props.from.longitude
                 },
-                {
-                    key: "dir_action",
-                    value: "navigate"       // this instantly initializes navigation using the given travel mode
-                }
-            ],
-        }
+                destination: {
+                    latitude: props.to.latitude,
+                    longitude: props.to.longitude
+                },
+                params: [
+                    {
+                        key: "travelmode",
+                        value: "driving"        // may be "walking", "bicycling" or "transit" as well
+                    },
+                    {
+                        key: "dir_action",
+                        value: "navigate"       // this instantly initializes navigation using the given travel mode
+                    }
+                ],
+            }
 
-        console.log("prarararap", props)
-        getDirections(data)
+            console.log("prarararap", props)
+            getDirections(data)
+        } else {
+            alert("Please select source and destinaton")
+        }
     }
 
-    const checkTest = async() => {
+    const checkTest = async () => {
         // var merged = [].concat.apply([], enc);
         // console.log("BRR; ", merged[merged.length - 1])
         // var pt = turf.point([16.00039, 73.67176]);
@@ -298,8 +294,8 @@ const DirectionsMap = (props) => {
         // var array = [[123, 3], [745, 4], [643, 5], [643, 2]];
         // array.sort(([a, b], [c, d]) => c - a || b - d);
         // console.log(array)
-        
-        
+
+
         // isOn();
         // if(loading){
         //     console.log("calledd and loading")
@@ -312,7 +308,7 @@ const DirectionsMap = (props) => {
         // var isPointOnLine = turf.booleanPointOnLine(pt, line);
         // console.log("Is Point on line: ", isPointOnLine)
     }
-    
+
 
     useEffect(() => {
         setTimeout(async () => {
@@ -350,7 +346,16 @@ const DirectionsMap = (props) => {
                 height: 450,
             }}
         >
-            <Text>Swipe down to close</Text>
+            {
+                props.isOnLine ?
+                    <Text>{props.isOnLine.isOnLine}</Text> : null
+            }
+            <GradientCard
+                style={{ marginTop: 16 }}
+                title={"Title"}
+                subtitle={"Subtitle"}
+                centerTitle={"Center title"}
+                centerSubtitle={"Center subtitle"} />
         </View>
     );
 
@@ -406,8 +411,7 @@ const DirectionsMap = (props) => {
                     />
                     {
                         <>
-                            <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.5, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button>
-                            <Button iconLeft onPress={() => checkTest()} style={{ top: height * 0.2, left: width * 0.82, width: 90 }} rounded><Text>Check</Text></Button>
+                            <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.12, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button>
                         </>
                     }
                 </MapView>
