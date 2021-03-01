@@ -582,10 +582,10 @@ const Mutation = new GraphQLObjectType({
                     let disanceBet = geolib.getDistance(temp, temp_awaiting)
                     console.log("Distance:", disanceBet)
                     if (disanceBet < 200) {
-                        console.log("eksiiiiiititttttttttttttiiiiiiitititttttttt")
+                        console.log("The pothole is on the path")
                         return true
                     } else {
-                        console.log("nbaaaaaaaaaaaaaaaaaaaawdawnnnnnnndawdawndawndnawd")
+                        console.log("Pothole not on the path")
                         return false
                     }
                 })

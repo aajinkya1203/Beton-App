@@ -9,19 +9,20 @@ import ApolloClient from 'apollo-boost';
 export default function App(props) {
 
   const client = new ApolloClient({
-    uri: 'https://beton-web.herokuapp.com/graphql',
+    uri: 'http://192.168.10.24:1000/graphql',
     onError: ({ response, operation, graphQLErrors, networkError }) => {
       if (operation.operationName === "IgnoreErrorsQuery") {
         response.errors = null;
       }
       if (graphQLErrors && graphQLErrors[0] && graphQLErrors[0].message) {
-        console.log("Kuch toh error 1: ", graphQLErrors)
+        console.log("Graphql error: ", graphQLErrors)
       }
       if (networkError) {
-        console.log("Kuch toh error 2")
+        alert("Couldnt connect to our servers! Please check you internet connection")
+        console.log("Network error")
       }
       if (response?.errors) {
-        console.log("Kuch toh error 3")
+        console.log("Response error")
       }
 
     }

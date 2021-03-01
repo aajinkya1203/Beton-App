@@ -10,6 +10,9 @@ import DirectionsMap from './DirectionsMap'
 import { h as height, w as width } from '../constants'
 import { Container, Header, Content, Icon, Text, Button } from 'native-base';
 import { FAB } from 'react-native-paper'
+import { graphql, useLazyQuery } from 'react-apollo';
+import { flowRight as compose } from 'lodash';
+import { isOnLine } from '../queries/query'
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
@@ -19,7 +22,7 @@ console.log("Width: ", width)
 console.log('Height: ', height)
 
 
-const Directions = () => {
+const Directions = (props) => {
 
   Geocoder.init("AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w");
 
@@ -32,10 +35,12 @@ const Directions = () => {
 
   const [showSearch, setShowSearch] = useState(false)
   const [from, setFrom] = useState(null)
+  const [fromName, setFromName] = useState(null)
   const [to, setTo] = useState(null)
+  const [toName, setToName] = useState(null)
   const [showStart, setShowStart] = useState(false)
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setShowSearch(true)
   }
 
@@ -46,15 +51,14 @@ const Directions = () => {
     Geocoder.from(data)
       .then(json => {
         var location = json.results[0].geometry.location;
-        console.log("From Location: ", from);
-
+        console.log("From Location: ", json.results[0].address_components[0].short_name);
+        setFromName(json.results[0].address_components[0].long_name)
         region = {
           latitude: location.lat,
           longitude: location.lng,
         }
 
         setFrom(region)
-        console.log("From : ", from)
       })
       .catch(error => console.warn(error));
   }
@@ -64,21 +68,41 @@ const Directions = () => {
     var region = null
 
     Geocoder.from(data)
-      .then(json => {
+      .then(async (json) => {
         var location = json.results[0].geometry.location;
-        console.log("To Location: ", to);
+        setToName(json.results[0].address_components[0].long_name)
+
+        console.log("tununu: ", json.results[0].address_components[0].long_name)
 
         region = {
           latitude: location.lat,
           longitude: location.lng,
         }
-
         setTo(region)
-        setShowSearch(false)
-        setShowStart(true)
-        console.log("To: ", to)
+
+
       })
       .catch(error => console.warn(error));
+  }
+
+  const changeState = async() => {
+    console.log("From: ", fromName)
+    console.log("To: ", toName)
+    let resp = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${fromName}&destination=${toName}&mode=driving&key=AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w`)
+    let respJson = await resp.json()
+    //console.log("JSON response: ", respJson)
+    console.log("Length of routes: ", respJson)
+
+    var encoded = respJson.routes[0].legs[0].steps.map((obj, key) => {
+      return obj.polyline.points
+    })
+    props.isOnLine({
+      variables: {
+        encoded
+      }
+    });
+    setShowSearch(false)
+    setShowStart(true)
   }
 
   return (
@@ -208,28 +232,34 @@ const Directions = () => {
               }}
             >
               <FAB
+                style={styles.fab1}
+                small
+                icon="close"
+                onPress={() => changeState()}
+              />
+              <FAB
                 style={styles.fab}
                 small
                 icon="close"
                 onPress={() => setShowSearch(false)}
               />
             </GooglePlacesAutocomplete>
-            </GooglePlacesAutocomplete>
-          : <DirectionsMap from={from} to={to} handleSearch={handleSearch} showStart={showStart}/>
+          </GooglePlacesAutocomplete>
+          : <DirectionsMap from={from} to={to} handleSearch={handleSearch} showStart={showStart} />
       }
     </>
   )
 };
 
 const styles = StyleSheet.create({
-        searchBox: {
-        padding: 10,
+  searchBox: {
+    padding: 10,
     paddingTop: Constants.statusBarHeight + 10,
     backgroundColor: '#ecf0f1',
     top: 50
   },
   overlay: {
-        position: 'absolute',
+    position: 'absolute',
     top: 70,
     backgroundColor: 'rgba(255, 255, 255, 1)',
     height: height * 0.1,
@@ -237,12 +267,23 @@ const styles = StyleSheet.create({
     left: width * 0.1
   },
   fab: {
-        position: 'absolute',
+    position: 'absolute',
     margin: 16,
     right: 0,
     bottom: 0,
     backgroundColor: 'white'
   },
+  fab1: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 50,
+    backgroundColor: 'white'
+  },
 });
 
-export default Directions;
+export default compose(
+  graphql(isOnLine, {
+    name: "isOnLine"
+  })
+)(Directions)
