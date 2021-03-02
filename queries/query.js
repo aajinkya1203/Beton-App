@@ -91,6 +91,10 @@ query($token: String){
     email
     id
     level
+    reports {
+      reportedAt
+      reportedOn
+    }
   }
 }
 `

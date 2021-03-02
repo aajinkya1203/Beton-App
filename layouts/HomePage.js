@@ -22,14 +22,7 @@ import { flowRight as compose } from 'lodash';
 import { findUsingZipCode } from '../queries/query';
 import { ProgressBar, Colors } from 'react-native-paper';
 import { useLazyQuery } from 'react-apollo';
-import {
-    LineChart,
-    BarChart,
-    PieChart,
-    ProgressChart,
-    ContributionGraph,
-    StackedBarChart
-} from "react-native-chart-kit";
+import Nearby from '../Charts/Nearby'
 
 const { width, height } = Dimensions.get('window');
 
@@ -100,52 +93,7 @@ function HomePage(props) {
                     </View>
                     <View style={{ flex: 1 }}>
                         <View>
-                            <LineChart
-                                data={{
-                                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-                                    datasets: [
-                                        {
-                                            data: [
-                                                Math.random() * 100,
-                                                Math.random() * 100,
-                                                Math.random() * 100,
-                                                Math.random() * 100,
-                                                Math.random() * 100,
-                                                Math.random() * 100
-                                            ]
-                                        }
-                                    ]
-                                }}
-                                width={width * 0.66} // from react-native
-                                height={height * 0.25}
-                                yAxisLabel="$"
-                                yAxisSuffix="k"
-                                withHorizontalLabels={false}
-                                withVerticalLabels={false}
-                                yAxisInterval={1} // optional, defaults to 1
-                                chartConfig={{
-                                    backgroundColor: "#e26a00",
-                                    backgroundGradientFrom: item.backgroundGradientFrom,
-                                    backgroundGradientTo: item.backgroundGradientTo,
-                                    decimalPlaces: 2, // optional, defaults to 2dp
-                                    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                                    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                                    style: {
-                                        borderRadius: 16
-                                    },
-                                    propsForDots: {
-                                        r: "6",
-                                        strokeWidth: "2",
-                                        stroke: "#ffa726"
-                                    }
-                                }}
-                                bezier
-                                style={{
-                                    marginVertical: 8,
-                                    borderRadius: 16,
-                                    paddingRight: 0,
-                                }}
-                            />
+                            <Nearby backgroundGradientFrom={item.backgroundGradientFrom} backgroundGradientTo={item.backgroundGradientTo}/>
                         </View>
                     </View>
                 </Card>
