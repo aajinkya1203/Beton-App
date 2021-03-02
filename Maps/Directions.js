@@ -247,7 +247,7 @@ const Directions = (props) => {
               <FAB
                 style={styles.fab1}
                 small
-                icon="close"
+                icon="magnify"
                 onPress={() => changeState()}
               />
               <FAB
@@ -258,7 +258,7 @@ const Directions = (props) => {
               />
             </GooglePlacesAutocomplete>
           </GooglePlacesAutocomplete>
-          : <DirectionsMap from={from} to={to} handleSearch={handleSearch} showStart={showStart} isOnLine={data}/>
+          : <DirectionsMap from={from} to={to} toName={toName} fromName={fromName}  handleSearch={handleSearch} showStart={showStart} isOnLine={data}/>
       }
     </>
   )

@@ -23,7 +23,9 @@ import MapViewDirections from 'react-native-maps-directions';
 import getDirections from 'react-native-google-maps-directions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import BottomSheet from 'reanimated-bottom-sheet';
-import GradientCard from 'react-native-gradient-card-view'
+import { Card, CardTitle, CardContent, CardAction, CardButton, CardImage } from 'react-native-material-cards'
+import AppleHeader from "react-native-apple-header";
+import { Col, Row, Grid } from "react-native-easy-grid";
 
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
@@ -242,6 +244,7 @@ const DirectionsMap = (props) => {
     const [changeHeight, setChangeHeight] = useState(false)
     const [toggle, setToggle] = useState(true)
     const [enc, setEnc] = useState(true)
+    const [isOpen, setIsOpen] = useState(false)
 
     const handleButton = () => {
         props.handleSearch()
@@ -280,35 +283,6 @@ const DirectionsMap = (props) => {
         }
     }
 
-    const checkTest = async () => {
-        // var merged = [].concat.apply([], enc);
-        // console.log("BRR; ", merged[merged.length - 1])
-        // var pt = turf.point([16.00039, 73.67176]);
-        // var line = turf.lineString(merged);
-        // var isPointOnLine = turf.booleanWithin(pt, line);
-        // console.log("Is Point on line: ", isPointOnLine)
-
-        // // merged.sort(([a, b], [c, d]) => c - a || b - d);
-        // // console.log("Merged is", merged)
-
-        // var array = [[123, 3], [745, 4], [643, 5], [643, 2]];
-        // array.sort(([a, b], [c, d]) => c - a || b - d);
-        // console.log(array)
-
-
-        // isOn();
-        // if(loading){
-        //     console.log("calledd and loading")
-        // }
-        // if(data){
-        //     console.log("Datatatatatatatatatatatat", data)
-        // }
-        // var pt = turf.point([0, 0]);
-        // var line = turf.lineString([[-1, -1], [1, 10], [1.5, 2.2]]);
-        // var isPointOnLine = turf.booleanPointOnLine(pt, line);
-        // console.log("Is Point on line: ", isPointOnLine)
-    }
-
 
     useEffect(() => {
         setTimeout(async () => {
@@ -327,42 +301,52 @@ const DirectionsMap = (props) => {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
                 <PulseIndicator color='white' />
-                <Text style={{ color: 'white' }}>Getting your current location...</Text>
+                <Text style={{ color: 'white' }}>Loading...</Text>
             </View>
         )
     }
 
-    //const sheetRef = React.useRef(null);
-
-    const renderInner = () => (
-        <Text>Hello</Text>
-    )
-
     const renderContent = () => (
         <View
             style={{
-                backgroundColor: '#FFFFFA',
-                padding: 16,
+                backgroundColor: '#F5F5F5',
+                paddingRight: 16,
+                paddingLeft: 16,
                 height: 450,
             }}
         >
-            {
-                props.isOnLine ?
-                    <Text>{props.isOnLine.isOnLine}</Text> : null
-            }
-            <GradientCard
-                style={{ marginTop: 16 }}
-                title={"Title"}
-                subtitle={"Subtitle"}
-                centerTitle={"Center title"}
-                centerSubtitle={"Center subtitle"} />
+            <View style={{ height: height * 0.25 }}>
+                <Card style={{ height: height * 0.2, backgroundColor: '#FFF', borderRadius: 24, justifyContent: 'center', alignItems: 'center' }}>
+                    {
+                        props.isOnLine ?
+                            <>
+                                <Text style={{ fontFamily: 'Lexand', fontSize: 70, color: '#454649' }}>{props.isOnLine.isOnLine}{props.isOnLine.isOnLine == 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>pothole on route</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>potholes on route</Text>}</Text>
+                                <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#454649' }}>{props.fromName}  •••••••  {props.toName}</Text>
+                                {
+                                    props.isOnLine.isOnLine == 0 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#dd2c00', marginTop: height * 0.01 }}>Smoooooth Operator!</Text> : null
+                                }
+                                {
+                                    props.isOnLine.isOnLine <= 5 && props.isOnLine.isOnLine > 0 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#1b5e20', marginTop: height * 0.01 }}>Should be a fairly smooth ride!</Text> : null
+                                }
+                                {
+                                    props.isOnLine.isOnLine > 5 && props.isOnLine.isOnLine < 20 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#b71c1c', marginTop: height * 0.01 }}>A few bumps, you should be fine!</Text> : null
+                                }
+                                {
+                                    props.isOnLine.isOnLine > 20 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#00c853', marginTop: height * 0.01 }}>You should consider an alternative route!</Text> : null
+                                }
+
+                            </> : <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: '#454649' }}>Select a route to view data</Text>
+                    }
+                </Card>
+            </View>
+
         </View>
     );
 
     const renderHeader = () => (
         <View
             style={{
-                backgroundColor: '#FFFFFA',
+                backgroundColor: '#F5F5F5',
                 padding: 16,
                 borderTopLeftRadius: 12,
                 borderTopRightRadius: 12,
@@ -370,7 +354,19 @@ const DirectionsMap = (props) => {
                 alignItems: 'center'
             }}
         >
-            <View style={{ height: 10, width: 30, backgroundColor: '#212121', borderRadius: 12 }}></View>
+            {
+                isOpen ? <View style={{ height: 10, width: 30, backgroundColor: '#212121', borderRadius: 12 }}></View> :
+                    <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#454649' }}>Swipe up for more details</Text>
+            }
+            <Grid style={{marginTop: height * 0.01}}>
+                <Col>
+                    <Button iconLeft onPress={() => handleButton()} style={{ width: '90%', justifyContent: 'center', alignItems: 'center'}}><Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Search</Text></Button>
+                </Col>
+                <Col>
+                    <Button iconLeft onPress={() => handleGetDirections()} style={{ width: '90%', justifyContent: 'center', alignItems: 'center', marginLeft: width * 0.04 }}><Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Start</Text></Button>
+                </Col>
+            </Grid>
+
         </View>
     );
 
@@ -403,17 +399,11 @@ const DirectionsMap = (props) => {
                         strokeWidth={3}
                         strokeColor="hotpink"
                     />
-                    <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
                     <Switch
                         value={toggle}
                         onChange={() => setToggle(!toggle)}
                         style={{ top: height * 0.09, left: width * 0.85 }}
                     />
-                    {
-                        <>
-                            <Button iconLeft onPress={() => handleGetDirections()} style={{ top: height * 0.12, left: width * 0.82, width: 90 }} rounded><Text>Start</Text></Button>
-                        </>
-                    }
                 </MapView>
             </View>
             <BottomSheet
@@ -422,6 +412,8 @@ const DirectionsMap = (props) => {
                 renderContent={renderContent}
                 initialSnap={1}
                 renderHeader={renderHeader}
+                onOpenStart={() => setIsOpen(true)}
+                onCloseStart={() => setIsOpen(false)}
             />
         </>
     )
