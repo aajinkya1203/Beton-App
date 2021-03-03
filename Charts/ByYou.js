@@ -10,7 +10,7 @@ import {
 } from "react-native-chart-kit";
 import { flowRight as compose } from 'lodash';
 import { graphql } from 'react-apollo'
-import { addBaseReport, addReport, decrypt, existingBaseCoordinate, findUsingZipCode } from '../queries/query'
+import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
 import { useLazyQuery } from 'react-apollo';
 
 const { width, height } = Dimensions.get('window');
@@ -37,9 +37,27 @@ const Nearby = (props) => {
 
         getChartData()
 
-        if (!props.findUsingZipCode.loading) {
-            if (typeof (props.findUsingZipCode.findUsingZipCode) != 'undefined') {
-                props.findUsingZipCode.findUsingZipCode.map((report, key) => {
+        if (data) {
+            if (typeof (data.decrypt.reports) != 'undefined') {
+                data.decrypt.reports.map((report, key) => {
+                    // *Sort according to month
+                    // var t = (report.reportedAt).split(" ")
+                    // console.log("t: ", t)
+                    // if (!(t[3] in temp)) {
+                    //     temp[t[3]] = {}
+                    //     if (!(t[1] in temp[t[3]])) {
+                    //         temp[t[3]][t[1]] = 0
+                    //     } else {
+                    //         temp[t[3]][t[1]] = temp[t[3]][t[1]] + 1
+                    //     }
+                    // } else {
+                    //     if (!(t[1] in temp[t[3]])) {
+                    //         temp[t[3]][t[1]] = 0
+                    //     } else {
+                    //         temp[t[3]][t[1]] = temp[t[3]][t[1]] + 1
+                    //     }
+                    // }
+
                     // *Sort according to day
                     var t = (report.reportedAt).split(" ")
                     var combined = t[1] + t[2] + t[3]
@@ -54,7 +72,7 @@ const Nearby = (props) => {
             }
         }
 
-    }, [props.findUsingZipCode.loading])
+    }, [data])
 
     return (
         <>
@@ -107,15 +125,4 @@ const Nearby = (props) => {
     )
 }
 
-export default compose(
-    graphql(findUsingZipCode, {
-        name: "findUsingZipCode",
-        options: () => {
-            return {
-                variables: {
-                    zip: global.postCode
-                }
-            }
-        }
-    }),
-)(Nearby)
+export default Nearby

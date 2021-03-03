@@ -22,7 +22,9 @@ import { flowRight as compose } from 'lodash';
 import { findUsingZipCode } from '../queries/query';
 import { ProgressBar, Colors } from 'react-native-paper';
 import { useLazyQuery } from 'react-apollo';
+import ByYou from '../Charts/ByYou'
 import Nearby from '../Charts/Nearby'
+import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
 
 const { width, height } = Dimensions.get('window');
 
@@ -93,7 +95,14 @@ function HomePage(props) {
                     </View>
                     <View style={{ flex: 1 }}>
                         <View>
-                            <Nearby backgroundGradientFrom={item.backgroundGradientFrom} backgroundGradientTo={item.backgroundGradientTo}/>
+                            {
+                                item.title == 'Item 3' ?
+                                    <ByYou backgroundGradientFrom={item.backgroundGradientFrom} backgroundGradientTo={item.backgroundGradientTo} /> : null
+                            }
+                            {
+                                item.title == 'Item 2' ?
+                                    <Nearby backgroundGradientFrom={item.backgroundGradientFrom} backgroundGradientTo={item.backgroundGradientTo} /> : null
+                            }
                         </View>
                     </View>
                 </Card>
@@ -102,6 +111,7 @@ function HomePage(props) {
     }
 
     useEffect(() => {
+        console.log("Props on homepage: ", props)
         if (!props.findUsingZipCode.loading) {
             setCarousalItems([
                 {
@@ -122,7 +132,7 @@ function HomePage(props) {
                 },
                 {
                     title: "Item 3",
-                    text: 10,
+                    text: props.decrypt.decrypt.reports.length,
                     text1: 'Reported by you',
                     color: "rgba(251, 188, 5, 0.4)",
                     backgroundGradientFrom: "#3ffbad",
@@ -140,11 +150,11 @@ function HomePage(props) {
             renderForeground={() => (
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                     {
-                        loaded ? 
-                        <>
-                            <Text style={{ fontFamily: 'Lexand', fontSize: 50, marginTop: height * 0.02 }}>Beton</Text>
-                            <Text style={{ fontFamily: 'Lexand', fontSize: 20, marginTop: height * 0.005 }}>📍{global.city}</Text>
-                        </> : null
+                        loaded ?
+                            <>
+                                <Text style={{ fontFamily: 'Lexand', fontSize: 50, marginTop: height * 0.02 }}>Beton</Text>
+                                <Text style={{ fontFamily: 'Lexand', fontSize: 20, marginTop: height * 0.005 }}>📍{global.city}</Text>
+                            </> : null
                     }
                 </View>
             )}
@@ -168,15 +178,15 @@ function HomePage(props) {
                 />
                 <View style={{ height: height * 0.45 }}>
                     <View style={{ height: height * 0.2, width: width, backgroundColor: '#3C3735' }}>
-                    {
-                        loaded ? 
-                        <>
-                        <Text style={{ fontFamily: 'Lexand', fontSize: 12, color: 'white', marginTop: height * 0.02, marginLeft: width * 0.08 }}>MY BETON REWARDS</Text>
-                        <Text style={{ fontFamily: 'Lexand', fontSize: 60, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>0/<Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>5☆</Text></Text>
-                        <ProgressBar progress={0.5} color={'grey'} style={{ height: height * 0.015, borderRadius: 12 }} />
-                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>5☆ to Amatuer</Text>
-                        </> : null
-                    }
+                        {
+                            loaded ?
+                                <>
+                                    <Text style={{ fontFamily: 'Lexand', fontSize: 12, color: 'white', marginTop: height * 0.02, marginLeft: width * 0.08 }}>MY BETON REWARDS</Text>
+                                    <Text style={{ fontFamily: 'Lexand', fontSize: 60, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>{props.decrypt.decrypt.karma}{ props.decrypt.decrypt.karma < 25 ? <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>/25☆</Text> : props.decrypt.decrypt.karma < 65 ? <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>/65☆</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>♾️</Text>}</Text>
+                                    <ProgressBar progress={0.5} color={'grey'} style={{ height: height * 0.015, borderRadius: 12 }} />
+                                    <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>5☆ to Amatuer</Text>
+                                </> : null
+                        }
                     </View>
                 </View>
             </View>
@@ -192,6 +202,17 @@ export default compose(
             return {
                 variables: {
                     zip: global.postCode
+                }
+            }
+        }
+    }),
+    graphql(decrypt, {
+        name: "decrypt",
+        options: () => {
+            console.log("Global Tempo: ", global.tempo, typeof (global.tempo))
+            return {
+                variables: {
+                    token: global.tempo
                 }
             }
         }

@@ -90,7 +90,7 @@ query($token: String){
     name
     email
     id
-    level
+    karma
     reports {
       reportedAt
       reportedOn
@@ -165,6 +165,8 @@ query($zip:String!) {
   findUsingZipCode(zip: $zip) {
     id
     location
+    reportedAt
+    reportedOn
     similar{
       id
       reportedAt

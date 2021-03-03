@@ -9,7 +9,7 @@ import ApolloClient from 'apollo-boost';
 export default function App(props) {
 
   const client = new ApolloClient({
-    uri: 'http://192.168.0.103:1000/graphql',
+    uri: 'http://192.168.10.29:1000/graphql',
     onError: ({ response, operation, graphQLErrors, networkError }) => {
       if (operation.operationName === "IgnoreErrorsQuery") {
         response.errors = null;
