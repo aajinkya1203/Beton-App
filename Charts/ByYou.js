@@ -19,8 +19,8 @@ const ASPECT_RATIO = width / height;
 
 const Nearby = (props) => {
 
-    const [chartLabels, setChartLabels] = useState(null)
-    const [chartData, setChartData] = useState(null)
+    const [chartLabels, setChartLabels] = useState()
+    const [chartData, setChartData] = useState()
 
     const [getChartData, { called, loading, data }] = useLazyQuery(
         decrypt,
@@ -38,7 +38,7 @@ const Nearby = (props) => {
         getChartData()
 
         if (data) {
-            if (typeof (data.decrypt.reports) != 'undefined') {
+            if (!loading) {
                 data.decrypt.reports.map((report, key) => {
                     // *Sort according to month
                     // var t = (report.reportedAt).split(" ")
@@ -65,10 +65,22 @@ const Nearby = (props) => {
                         temp[combined] = 1
                     } else {
                         temp[combined] = temp[combined] + 1
+                        console.log("ne  no: ", temp[combined])
                     }
                 })
-                setChartLabels(Object.keys(temp))
-                setChartData(Object.values(temp))
+                var te = Object.keys(temp)
+                console.log("te: ", te)
+
+                var tee = Object.values(temp)
+                console.log("tee: ", tee)
+
+                if (te.length === 0 || tee.length === 0) {
+                    setChartLabels([])
+                    setChartData([])
+                } else {
+                    setChartLabels(te)
+                    setChartData(tee)
+                }
             }
         }
 
@@ -119,7 +131,7 @@ const Nearby = (props) => {
                         onDataPointClick={() => {
                             console.log("Clicked")
                         }}
-                    /> : null
+                    /> : <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white' }}>No data</Text>
             }
         </>
     )

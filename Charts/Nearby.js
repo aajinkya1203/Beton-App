@@ -19,8 +19,9 @@ const ASPECT_RATIO = width / height;
 
 const Nearby = (props) => {
 
-    const [chartLabels, setChartLabels] = useState(null)
-    const [chartData, setChartData] = useState(null)
+    const [chartLabels, setChartLabels] = useState([0])
+    const [chartData, setChartData] = useState([0])
+    const [load, setLoad] = useState(true)
 
     const [getChartData, { called, loading, data }] = useLazyQuery(
         decrypt,
@@ -49,8 +50,20 @@ const Nearby = (props) => {
                         temp[combined] = temp[combined] + 1
                     }
                 })
-                setChartLabels(Object.keys(temp))
-                setChartData(Object.values(temp))
+
+                var te = Object.keys(temp)
+                console.log("te: ", te)
+
+                var tee = Object.values(temp)
+                console.log("tee: ", tee)
+
+                if (te.length === 0 || tee.length === 0) {
+                    setChartLabels([])
+                    setChartData([])
+                } else {
+                    setChartLabels(te)
+                    setChartData(tee)
+                }
             }
         }
 
@@ -59,7 +72,7 @@ const Nearby = (props) => {
     return (
         <>
             {
-                chartLabels && chartData ?
+                !load ?
                     <LineChart
                         data={{
                             labels: chartLabels,
@@ -101,7 +114,7 @@ const Nearby = (props) => {
                         onDataPointClick={() => {
                             console.log("Clicked")
                         }}
-                    /> : null
+                    /> : <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white' }}>No data</Text>
             }
         </>
     )
