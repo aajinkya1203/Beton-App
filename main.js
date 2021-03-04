@@ -58,7 +58,7 @@ function Main(props) {
             let userToken = null
             try {
                 userToken = await AsyncStorage.getItem('userToken')
-                global.tempo = userToken
+                // global.tempo = userToken
                 let { status } = await Location.requestPermissionsAsync();
                 if (status !== 'granted') {
                     setErrorMsg('Permission to access location was denied');
@@ -154,12 +154,12 @@ function Main(props) {
                 let cls = "";
                 if (result.data.login) {
                     cls = "success";
+                    global.tempo = result.data.login.token;
                     await AsyncStorage.setItem('userToken', result.data.login.token)
-                    setSignInLoad(false)
                 } else {
                     cls = "error";
-                    setSignInLoad(false)
                 }
+                setSignInLoad(false)
                 userToken = result.data.login.token
             } catch (err) {
                 console.log("Sign in error: ", err)
@@ -173,8 +173,8 @@ function Main(props) {
             // setUserToken(null)
             // setIsLoading(false)
             try {
-                await AsyncStorage.removeItem('userToken')
                 global.tempo = ''
+                await AsyncStorage.removeItem('userToken')
             } catch (err) {
                 console.log(err)
             }

@@ -261,34 +261,37 @@ function ClusterChild(props) {
     }
 
     return (
-        <MapView
-            customMapStyle={toggle ? darkStyle : lightStyle}
-            initialRegion={initialRegion ? initialRegion : tempRegion}
-            onRegionChangeComplete={reg => {
-                if (reg) {
-                    setInitialRegion(reg)
+        <View style={StyleSheet.absoluteFillObject}>
+            <MapView
+                customMapStyle={toggle ? darkStyle : lightStyle}
+                initialRegion={initialRegion ? initialRegion : tempRegion}
+                onRegionChangeComplete={reg => {
+                    if (reg) {
+                        setInitialRegion(reg)
+                    }
+                }}
+                style={{ ...StyleSheet.absoluteFillObject, flex: 1 }} provider={PROVIDER_GOOGLE}>
+                {
+                    global.allMarkers.length > 0 ?
+                        global.allMarkers.map((marker, key) => {
+                            console.log("Type of marker: ", typeof (marker))
+                            if (typeof (marker) != 'undefined') {
+                                console.log("Marker: ", marker)
+                                return (
+                                    <Marker key={key} coordinate={{ latitude: Number(marker.location.split(" ")[0]), longitude: Number(marker.location.split(" ")[1]) }}><Image source={require('../imgs/pothole.png')} style={{ height: 35, width: 35 }} /></Marker>
+                                )
+                            }
+                        }) : null
                 }
-            }}
-            style={{ flex: 1 }} provider={PROVIDER_GOOGLE}>
-            {
-                global.allMarkers.length > 0 ?
-                    global.allMarkers.map((marker, key) => {
-                        console.log("Type of marker: ", typeof (marker))
-                        if (typeof (marker) != 'undefined') {
-                            console.log("Marker: ", marker)
-                            return (
-                                <Marker key={key} coordinate={{ latitude: Number(marker.location.split(" ")[0]), longitude: Number(marker.location.split(" ")[1]) }}><Image source={require('../imgs/pothole.png')} style={{ height: 35, width: 35 }} /></Marker>
-                            )
-                        }
-                    }) : null
-            }
-            <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
-            <Switch
-                value={toggle}
-                onChange={() => setToggle(!toggle)}
-                style={{ top: height * 0.09, left: width * 0.85 }}
-            />
-        </MapView>
+                <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
+                <Switch
+                    value={toggle}
+                    onChange={() => setToggle(!toggle)}
+                    style={{ top: height * 0.09, left: width * 0.85 }}
+                />
+            </MapView>
+            <View style={{ position: 'absolute', top: 100, left: 50 }}/>
+        </View>
     )
 }
 

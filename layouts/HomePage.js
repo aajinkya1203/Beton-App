@@ -41,17 +41,17 @@ function HomePage(props) {
         }
     );
 
-    const chartData = {
-        labels: ["January", "February", "March", "April", "May", "June"],
-        datasets: [
-            {
-                data: [20, 45, 28, 80, 99, 43],
-                color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // optional
-                strokeWidth: 2 // optional
-            }
-        ],
-        legend: ["Rainy Days"] // optional
-    };
+    // const chartData = {
+    //     labels: ["January", "February", "March", "April", "May", "June"],
+    //     datasets: [
+    //         {
+    //             data: [20, 45, 28, 80, 99, 43],
+    //             color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // optional
+    //             strokeWidth: 2 // optional
+    //         }
+    //     ],
+    //     legend: ["Rainy Days"] // optional
+    // };
 
     const [loaded] = useFonts({
         Lexand: require('../assets/font/LexendDeca-Regular.ttf'),
@@ -121,7 +121,7 @@ function HomePage(props) {
 
     useEffect(() => {
         getChartData()
-        if (!props.findUsingZipCode.loading && !loading) {
+        if (!props.findUsingZipCode.loading && called && !loading) {
             console.log("Please work: ", data)
             setCarousalItems([
                 {
@@ -150,11 +150,9 @@ function HomePage(props) {
                 },
             ])
         }
-    }, [loading])
+    }, [])
 
-    useEffect(() => {
-
-    }, [loaded])
+    console.log("\n\ndadadadad", data)
 
     return (
         <>
@@ -196,7 +194,7 @@ function HomePage(props) {
                             <View style={{ height: height * 0.45 }}>
                                 <View style={{ height: height * 0.2, width: width, backgroundColor: '#3C3735' }}>
                                     {
-                                        !loading ?
+                                        called && !loading && data && data.decrypt ?
                                             <>
                                                 <Text style={{ fontFamily: 'Lexand', fontSize: 12, color: 'white', marginTop: height * 0.02, marginLeft: width * 0.08 }}>MY BETON REWARDS</Text>
                                                 <Text style={{ fontFamily: 'Lexand', fontSize: 60, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>{data.decrypt.karma}{data.decrypt.karma < 25 ? <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>/25☆</Text> : data.decrypt.karma < 65 ? <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>/65☆</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>♾️</Text>}</Text>
