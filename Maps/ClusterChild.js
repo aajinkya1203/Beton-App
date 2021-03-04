@@ -289,14 +289,14 @@ function ClusterChild(props) {
                             }
                         }) : null
                 }
-                <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
+                {/* // !This gives error on Android */}
+                {/* <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
                 <Switch
                     value={toggle}
                     onChange={() => setToggle(!toggle)}
                     style={{ top: height * 0.09, left: width * 0.85 }}
-                />
+                /> */}
             </MapView>
-            <View style={{ position: 'absolute', top: 100, left: 50 }} />
         </View>
     )
 }

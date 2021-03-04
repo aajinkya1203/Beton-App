@@ -38,9 +38,6 @@ const ClusterMap = (props) => {
     const [markers, setMarkers] = useState([])
     const [showSearch, setShowSearch] = useState(false)
 
-    const handleSearch = () => {
-        setShowSearch(true)
-    }
 
     const handleAddress = (data) => {
 
@@ -70,7 +67,6 @@ const ClusterMap = (props) => {
         console.log("Useeffect for fetching", props)
         if (props && props.allBaseReports && !props.allBaseReports.loading) {
             let temp = []
-
             temp = props.allBaseReports.allBaseReports.map(i => {
                 if (i.noOfReports < 3) {
                     return;
@@ -90,7 +86,7 @@ const ClusterMap = (props) => {
         }
     }, [props])
 
-    console.log("yayayay", global.tempo)
+    console.log("yayayay", global.allMarkers)
 
     useEffect(() => {
         return () => {
@@ -102,7 +98,6 @@ const ClusterMap = (props) => {
         <>
             {
                 showSearch ?
-
                     <GooglePlacesAutocomplete
                         placeholder="Search"
                         query={{
@@ -171,7 +166,7 @@ const ClusterMap = (props) => {
                             onPress={() => setShowSearch(false)}
                         />
                     </GooglePlacesAutocomplete>
-                    : <ClusterChild initRegion={tempRegion} handleSearch={handleSearch}/>
+                    : <ClusterChild initRegion={tempRegion} handleSearch={()=>setShowSearch(true)}/>
             }
         </>
     )
