@@ -67,7 +67,7 @@ const ClusterMap = (props) => {
     }
 
     useEffect(() => {
-        console.log("Useeffect for fetching")
+        console.log("Useeffect for fetching", props)
         if (props && props.allBaseReports && !props.allBaseReports.loading) {
             let temp = []
 
@@ -83,14 +83,20 @@ const ClusterMap = (props) => {
                 }
                 return test;
             })
+            console.log("markerererere", temp)
             global.allMarkers = temp
             setMarkers(temp)
             console.log("Markers: ", markers)
         }
+    }, [props])
+
+    console.log("yayayay", global.tempo)
+
+    useEffect(() => {
         return () => {
             setMarkers([])
         }
-    }, [props])
+    }, [])
 
     return (
         <>

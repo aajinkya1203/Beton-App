@@ -260,19 +260,25 @@ function ClusterChild(props) {
         )
     }
 
+    console.log("clustterr boahh", global.allMarkers)
     return (
         <View style={StyleSheet.absoluteFillObject}>
             <MapView
                 customMapStyle={toggle ? darkStyle : lightStyle}
-                initialRegion={initialRegion ? initialRegion : tempRegion}
+                loadingEnabled
+                initialRegion={initialRegion ? {
+                    ...initialRegion,
+                    latitudeDelta: 0.08,
+                    longitudeDelta: 0.08 * ASPECT_RATIO,
+                } : tempRegion}
                 onRegionChangeComplete={reg => {
                     if (reg) {
                         setInitialRegion(reg)
                     }
                 }}
-                style={{ ...StyleSheet.absoluteFillObject, flex: 1 }} provider={PROVIDER_GOOGLE}>
+                style={{ flex: 1 }} provider={PROVIDER_GOOGLE}>
                 {
-                    global.allMarkers.length > 0 ?
+                    global.allMarkers && global.allMarkers.length > 0 ?
                         global.allMarkers.map((marker, key) => {
                             console.log("Type of marker: ", typeof (marker))
                             if (typeof (marker) != 'undefined') {
@@ -290,7 +296,7 @@ function ClusterChild(props) {
                     style={{ top: height * 0.09, left: width * 0.85 }}
                 />
             </MapView>
-            <View style={{ position: 'absolute', top: 100, left: 50 }}/>
+            <View style={{ position: 'absolute', top: 100, left: 50 }} />
         </View>
     )
 }

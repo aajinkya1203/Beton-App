@@ -32,26 +32,15 @@ const ASPECT_RATIO = width / height;
 
 function HomePage(props) {
 
+    const [token, setToken] = useState(global.tempo);
     const [getChartData, { called, loading, data }] = useLazyQuery(
         decrypt,
         {
             variables: {
-                token: global.tempo
+                token: token || global.tempo
             }
         }
     );
-
-    // const chartData = {
-    //     labels: ["January", "February", "March", "April", "May", "June"],
-    //     datasets: [
-    //         {
-    //             data: [20, 45, 28, 80, 99, 43],
-    //             color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // optional
-    //             strokeWidth: 2 // optional
-    //         }
-    //     ],
-    //     legend: ["Rainy Days"] // optional
-    // };
 
     const [loaded] = useFonts({
         Lexand: require('../assets/font/LexendDeca-Regular.ttf'),
@@ -120,9 +109,28 @@ function HomePage(props) {
     }
 
     useEffect(() => {
+        // ! When refreshed, global parameters gets refreshed :/
+        // ! so get them from async storage
+        if(global.tempo == undefined){
+            async function getMyToken(){
+                let t_token = await AsyncStorage.getItem("userToken");
+                if(t_token != undefined){
+                    global.tempo = t_token;
+                    setToken(t_token)
+                }
+            }
+            getMyToken();
+        }else{
+            // console.log("Fucking hell, no token waitt now")
+        }
+    }, [])
+
+    useEffect(() => {
         getChartData()
-        if (!props.findUsingZipCode.loading && called && !loading) {
-            console.log("Please work: ", data)
+    }, [token])
+
+    useEffect(() => {
+        if (props.findUsingZipCode && !props.findUsingZipCode.loading && props.findUsingZipCode.findUsingZipCode && data && data.decrypt) {
             setCarousalItems([
                 {
                     title: "Item 1",
@@ -150,9 +158,7 @@ function HomePage(props) {
                 },
             ])
         }
-    }, [])
-
-    console.log("\n\ndadadadad", data)
+    }, [props.findUsingZipCode, data])
 
     return (
         <>
