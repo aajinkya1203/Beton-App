@@ -288,7 +288,6 @@ const DirectionsMap = (props) => {
         setTimeout(async () => {
             try {
                 let value = await AsyncStorage.getItem('currLocation')
-                console.log("Curr location: ", JSON.parse(value))
                 setTempRegion(JSON.parse(value))
                 setIsLoading(false)
             } catch (e) {
@@ -318,6 +317,7 @@ const DirectionsMap = (props) => {
             <View style={{ height: height * 0.25 }}>
                 <Card style={{ height: height * 0.2, backgroundColor: '#FFF', borderRadius: 24, justifyContent: 'center', alignItems: 'center' }}>
                     {
+                        console.log("Props isOnline: ", props.isOnLine),
                         props.isOnLine ?
                             <>
                                 <Text style={{ fontFamily: 'Lexand', fontSize: 70, color: '#454649' }}>{props.isOnLine.isOnLine}{props.isOnLine.isOnLine == 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>pothole on route</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>potholes on route</Text>}</Text>

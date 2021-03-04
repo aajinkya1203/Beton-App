@@ -79,10 +79,8 @@ const ClusterMap = (props) => {
                 }
                 return test;
             })
-            console.log("markerererere", temp)
             global.allMarkers = temp
             setMarkers(temp)
-            console.log("Markers: ", markers)
         }
     }, [props])
 

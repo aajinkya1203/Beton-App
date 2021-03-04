@@ -63,6 +63,7 @@ const Nearby = (props) => {
                 } else {
                     setChartLabels(te)
                     setChartData(tee)
+                    setLoad(false)
                 }
             }
         }

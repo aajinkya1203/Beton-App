@@ -285,7 +285,6 @@ class SelectMap extends React.Component {
         setTimeout(async () => {
             try {
                 let value = await AsyncStorage.getItem('currLocation')
-                console.log("Curr location: ", JSON.parse(value))
                 this.setState({
                     region: JSON.parse(value),
                     isLoading: false

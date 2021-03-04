@@ -242,7 +242,6 @@ function ClusterChild(props) {
         setTimeout(async () => {
             try {
                 let value = await AsyncStorage.getItem('currLocation')
-                console.log("Curr location: ", JSON.parse(value))
                 setTempRegion(JSON.parse(value))
                 setIsLoading(false)
             } catch (e) {
@@ -282,7 +281,6 @@ function ClusterChild(props) {
                         global.allMarkers.map((marker, key) => {
                             console.log("Type of marker: ", typeof (marker))
                             if (typeof (marker) != 'undefined') {
-                                console.log("Marker: ", marker)
                                 return (
                                     <Marker key={key} coordinate={{ latitude: Number(marker.location.split(" ")[0]), longitude: Number(marker.location.split(" ")[1]) }}><Image source={require('../imgs/pothole.png')} style={{ height: 35, width: 35 }} /></Marker>
                                 )

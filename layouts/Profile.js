@@ -188,7 +188,7 @@ const Profile = (props) => {
                   row
                   space="between"
                 >
-                  <Text bold size={16} color="#525F7F" style={{ marginTop: 12 }}>
+                  {/*<Text bold size={16} color="#525F7F" style={{ marginTop: 12 }}>
                     Album
                     </Text>
                   <Button
@@ -197,10 +197,10 @@ const Profile = (props) => {
                     textStyle={{ color: "#5E72E4", fontSize: 12, marginLeft: 24 }}
                   >
                     View all
-                    </Button>
+                  </Button>*/}
                 </Block>
                 <Block style={{ paddingBottom: -HeaderHeight * 2 }}>
-                  <Block row space="between" style={{ flexWrap: "wrap" }}>
+                  {/*<Block row space="between" style={{ flexWrap: "wrap" }}>
                     {Viewed.map((img, imgIndex) => (
                       <Image
                         source={{ uri: img }}
@@ -209,7 +209,7 @@ const Profile = (props) => {
                         style={styles.thumb}
                       />
                     ))}
-                  </Block>
+                    </Block>*/}
                 </Block>
               </Block>
             </Block>

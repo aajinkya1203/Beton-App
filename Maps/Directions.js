@@ -105,7 +105,10 @@ const Directions = (props) => {
     })
 
     coords = [...encoded]
+    console.log("This check: ", coords)
     isOn();
+
+    console.log("Data: ", data)
 
     setShowSearch(false)
     setShowStart(true)
@@ -295,8 +298,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default compose(
-  graphql(isOnLine, {
-    name: "isOnLine"
-  })
-)(Directions)
+export default Directions
