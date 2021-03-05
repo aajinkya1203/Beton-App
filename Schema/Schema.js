@@ -14,7 +14,7 @@ const Advertisement = require('../models/advertisments')
 const Report = require('../models/reports')
 const BaseReports = require('../models/baseReports');
 const Polyutil = require('polyline-encoded');
-
+const { resolve } = require('path');
 // https://www.figma.com/file/4bAC5AKUM1VmxyAaRhiLrs/BETON-ER-Diagram?node-id=0%3A1
 
 const {
@@ -265,8 +265,9 @@ const AdvertisementType = new GraphQLObjectType({
         id: { type: GraphQLID },
         title: { type: GraphQLString }, // title
         link: { type: GraphQLString }, //url
-        screentime: { type: GraphQLString }, //count total screen time?
-        when: { type: GraphQLBoolean }, //date and time
+        image: { type: GraphQLString }, //image url
+        screentime: { type: GraphQLInt }, //count total screen time?
+        when: { type: GraphQLString }, //date and time
         advertiserID: {
             type: AdvertisersType,
             resolve(parent, args) {
@@ -340,34 +341,34 @@ const RootQuery = new GraphQLObjectType({
                 return Coupon.find()
             }
         },
-        getReportsNearMe: {
-            type: new GraphQLList(ReportsType),
-            args: {
-                latitude: { type: GraphQLString },
-                longitude: { type: GraphQLString },
-            },
-            resolve(parent, args) {
-                let main = {
-                    latitude: Number(args['latitude']),
-                    longitude: Number(args['longitude'])
-                }
-                let data = reports.filter(r => {
-                    let coords = r.location.split(" ");
-                    let tempPoint = {
-                        latitude: Number(coords[0]),
-                        longitude: Number(coords[1])
-                    }
-                    let disanceBet = geolib.getDistance(main, tempPoint)
-                    console.log("Distance:", disanceBet)
-                    if (disanceBet > 5000) {
-                        return false
-                    } else {
-                        return true
-                    }
-                })
-                return data;
-            }
-        },
+        // getReportsNearMe: {
+        //     type: new GraphQLList(ReportsType),
+        //     args: {
+        //         latitude: { type: GraphQLString },
+        //         longitude: { type: GraphQLString },
+        //     },
+        //     resolve(parent, args) {
+        //         let main = {
+        //             latitude: Number(args['latitude']),
+        //             longitude: Number(args['longitude'])
+        //         }
+        //         let data = reports.filter(r => {
+        //             let coords = r.location.split(" ");
+        //             let tempPoint = {
+        //                 latitude: Number(coords[0]),
+        //                 longitude: Number(coords[1])
+        //             }
+        //             let disanceBet = geolib.getDistance(main, tempPoint)
+        //             console.log("Distance:", disanceBet)
+        //             if (disanceBet > 5000) {
+        //                 return false
+        //             } else {
+        //                 return true
+        //             }
+        //         })
+        //         return data;
+        //     }
+        // },
         getNearestCoordinate: {
             type: BaseReportsType,
             args: {
@@ -454,7 +455,7 @@ const RootQuery = new GraphQLObjectType({
                 }
             },
             resolve(parent, args) {
-                if(args.token == "") return null;
+                if (args.token == "") return null;
                 let res = jwt.verify(args.token, JWT_SEC);
                 return User.findById(res._id);
             }
@@ -467,6 +468,7 @@ const RootQuery = new GraphQLObjectType({
                 }
             },
             resolve(parent, args) {
+                if (args.token == "") return null;
                 let res = jwt.verify(args.token, JWT_SEC);
                 return Advertisers.findById(res._id);
             }
@@ -474,7 +476,7 @@ const RootQuery = new GraphQLObjectType({
         findUsingZipCode: {
             type: new GraphQLList(BaseReportsType),
             args: { zip: { type: GraphQLString } },
-            async resolve(parent, args){
+            async resolve(parent, args) {
                 console.log(args.zip)
                 var regEx = new RegExp(args.zip, 'gi');
 
@@ -483,13 +485,22 @@ const RootQuery = new GraphQLObjectType({
                 return res
             }
         },
+        allMyAds: {
+            type: new GraphQLList(AdvertisementType),
+            args: { token: { type: GraphQLString } },
+            async resolve(parent, args) {
+                if (args.token == "") return null;
+                let res = jwt.verify(args.token, JWT_SEC);
+                return await Advertisement.find({ "advertiserID": res._id });
+            }
+        },
         isOnLine: {
             type: GraphQLInt,
             args: {
                 // location: { type: GraphQLString },
                 encoded: { type: new GraphQLList(GraphQLString) }
             },
-            async resolve(parent, args){
+            async resolve(parent, args) {
                 var noOfPotholes = 0
                 console.log(args)
                 var enc = args.encoded.map((e, key) => {
@@ -498,12 +509,12 @@ const RootQuery = new GraphQLObjectType({
                 })
 
                 console.log("Enc1", enc)
-                enc = enc.map(e=>{
-                    var objs = e.map(function(x) { 
-                        return { 
-                          latitude: x[0], 
-                          longitude: x[1] 
-                        }; 
+                enc = enc.map(e => {
+                    var objs = e.map(function (x) {
+                        return {
+                            latitude: x[0],
+                            longitude: x[1]
+                        };
                     });
                     return objs
                 })
@@ -512,7 +523,7 @@ const RootQuery = new GraphQLObjectType({
                 // return true;
                 var res = await BaseReports.find();
                 console.log(res)
-                res.forEach(r=>{
+                res.forEach(r => {
                     let temp = {
                         latitude: Number(r.location.split(" ")[0]),
                         longitude: Number(r.location.split(" ")[1])
@@ -694,17 +705,22 @@ const Mutation = new GraphQLObjectType({
         addAdvertisment: {
             type: AdvertisementType,
             args: {
+                id: { type: GraphQLID },
                 title: { type: GraphQLString },
                 link: { type: GraphQLString },
-                screentime: { type: GraphQLString },
+                image: { type: GraphQLString },
                 when: { type: GraphQLString },
                 advertiserID: { type: GraphQLID },
-                outreach: { type: GraphQLInt }
             },
             async resolve(parent, args) {
+                console.log(args)
+                if(!args.title || !args.link || !args.image || !args.when || !args.advertiserID){
+                    throw new Error("Kindly provide all details");
+                }
                 let newAdvertisment = new Advertisement({
                     title: args.title,
                     link: args.link,
+                    image: args.image,
                     screentime: 0,
                     when: args.when,
                     advertiserID: args.advertiserID,
@@ -740,7 +756,7 @@ const Mutation = new GraphQLObjectType({
                     name: args.name,
                     amount: args.amount,
                     validity: args.validity,
-                    assigned: args.assigned,
+                    assigned: false,
                     advertiserID: args.advertiserID,
                     userID: ""
                 });

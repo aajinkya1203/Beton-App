@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Schema.Types;
 
 const couponsSchema = new mongoose.Schema({
-    id:{
-        type: String,
-        require:true
-    },
     title :{
         type: String,
         require:true,
     },
     link :{
+        type: String,
+        require:true,
+    },
+    image :{
         type: String,
         require:true,
     },

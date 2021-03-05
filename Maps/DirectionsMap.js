@@ -261,6 +261,7 @@ const DirectionsMap = (props) => {
 
     // variables
     const snapPoints = useMemo(() => ['50%', '100%'], []);
+    const [showMessage, setShowMessage] = useState(false)
 
     const handleGetDirections = async () => {
         if (props.from != null) {
@@ -293,9 +294,10 @@ const DirectionsMap = (props) => {
                   setData(accelerometerData);
                   console.log("Zoom zoom: ", accelerometerData)
                   if (accelerometerData.y >= 2 || accelerometerData.y <= -2) {
-                    setShowMessage(true)
+                    //setShowMessage(true)
+                    console.log("Pothole detected!")
                   } else {
-                    setShowMessage(false)
+                    //setShowMessage(false)
                   }
                 })
               );
@@ -340,7 +342,6 @@ const DirectionsMap = (props) => {
             <View style={{ height: height * 0.25 }}>
                 <Card style={{ height: height * 0.2, backgroundColor: '#FFF', borderRadius: 24, justifyContent: 'center', alignItems: 'center' }}>
                     {
-                        console.log("Props isOnline: ", props.isOnLine),
                         props.isOnLine ?
                             <>
                                 <Text style={{ fontFamily: 'Lexand', fontSize: 70, color: '#454649' }}>{props.isOnLine.isOnLine}{props.isOnLine.isOnLine == 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>pothole on route</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>potholes on route</Text>}</Text>

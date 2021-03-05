@@ -9,7 +9,7 @@ import ApolloClient from 'apollo-boost';
 export default function App(props) {
 
   const client = new ApolloClient({
-    uri: 'http://beton-web.herokuapp.com/graphql',
+    uri: 'https://beton-web.herokuapp.com/graphql',
     onError: ({ response, operation, graphQLErrors, networkError }) => {
       if (operation.operationName === "IgnoreErrorsQuery") {
         response.errors = null;

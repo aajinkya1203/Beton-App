@@ -180,8 +180,6 @@ query($zip:String!) {
   findUsingZipCode(zip: $zip) {
     id
     location
-    reportedAt
-    reportedOn
     similar{
       id
       reportedAt
@@ -199,8 +197,10 @@ query($zip:String!) {
 `
 
 const isOnLine = gql`
-query($encoded: [String]){
-  isOnLine(encoded: $encoded)
+mutation($encoded: [String]){
+  isOnLine(encoded: $encoded){
+    location
+  }
 }
 `
 
@@ -299,8 +299,3 @@ export {
   allMyAds,
   addCoupon
 };
-
-
-
-
-
