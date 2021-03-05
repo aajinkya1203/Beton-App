@@ -25,6 +25,7 @@ import { useLazyQuery } from 'react-apollo';
 import ByYou from '../Charts/ByYou'
 import Nearby from '../Charts/Nearby'
 import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
+import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 
 const { width, height } = Dimensions.get('window');
 
@@ -84,11 +85,15 @@ function HomePage(props) {
                 <Card style={{ height: height * 0.5, backgroundColor: item.color, borderRadius: 24, paddingLeft: width * 0.05 }} isDark>
                     <View style={{ height: height * 0.15 }}>
                         {
-                            loaded ?
+                            called && !loading && data && data.decrypt ?
                                 <>
                                     <Text style={{ fontFamily: 'Lexand', fontSize: 70, marginTop: height * 0.02 }}>{item.text}{item.text === 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>pothole</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>potholes</Text>}</Text>
                                     <Text style={{ fontFamily: 'Lexand', fontSize: 15, marginTop: height * 0.005 }}>{item.text1}</Text>
-                                </> : null
+                                </> :
+                                <SkeletonPlaceholder highlightColor={'#ffffff'}>
+                                    <View style={{ width: width * 0.4, height: height * 0.05, marginTop: height * 0.02, borderRadius: 12 }}></View>
+                                    <View style={{ width: width * 0.6, height: height * 0.03, marginTop: height * 0.02, borderRadius: 6 }}></View>
+                                </SkeletonPlaceholder>
                         }
                     </View>
                     <View style={{ flex: 1 }}>
@@ -111,16 +116,16 @@ function HomePage(props) {
     useEffect(() => {
         // ! When refreshed, global parameters gets refreshed :/
         // ! so get them from async storage
-        if(global.tempo == undefined){
-            async function getMyToken(){
+        if (global.tempo == undefined) {
+            async function getMyToken() {
                 let t_token = await AsyncStorage.getItem("userToken");
-                if(t_token != undefined){
+                if (t_token != undefined) {
                     global.tempo = t_token;
                     setToken(t_token)
                 }
             }
             getMyToken();
-        }else{
+        } else {
             // console.log("Fucking hell, no token waitt now")
         }
     }, [])
@@ -207,10 +212,17 @@ function HomePage(props) {
                                                 <ProgressBar progress={0.5} color={'grey'} style={{ height: height * 0.015, borderRadius: 12 }} />
                                                 {
                                                     data.decrypt.karma < 25 ?
-                                                    <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>{25 - data.decrypt.karma}☆ to Intermediate</Text> : data.decrypt.karma < 65 ? <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>{65 - data.decrypt.karma}☆ to Pro</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>You are a God</Text>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>{25 - data.decrypt.karma}☆ to Intermediate</Text> : data.decrypt.karma < 65 ? <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>{65 - data.decrypt.karma}☆ to Pro</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>You are a God</Text>
                                                 }
-                                                
-                                            </> : null
+
+                                            </> :
+                                            <SkeletonPlaceholder highlightColor={'#ffffff'}>
+                                                <View style={{ paddingLeft: width * 0.05 }}>
+                                                    <View style={{ width: width * 0.2, height: height * 0.02, marginTop: height * 0.01, borderRadius: 6 }}></View>
+                                                    <View style={{ width: width * 0.4, height: height * 0.07, marginTop: height * 0.02, borderRadius: 12 }}></View>
+                                                    <View style={{ width: width * 0.6, height: height * 0.03, marginTop: height * 0.02, borderRadius: 6 }}></View>
+                                                </View>
+                                            </SkeletonPlaceholder>
                                     }
                                 </View>
                             </View>

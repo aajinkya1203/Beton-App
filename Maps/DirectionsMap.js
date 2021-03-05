@@ -26,6 +26,7 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import { Card, CardTitle, CardContent, CardAction, CardButton, CardImage } from 'react-native-material-cards'
 import AppleHeader from "react-native-apple-header";
 import { Col, Row, Grid } from "react-native-easy-grid";
+import { Accelerometer } from 'expo-sensors';
 
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
@@ -250,6 +251,14 @@ const DirectionsMap = (props) => {
         props.handleSearch()
     }
 
+    const [data, setData] = useState({
+        x: 0,
+        y: 0,
+        z: 0,
+    });
+
+    const [subscription, setSubscription] = useState(null);
+
     // variables
     const snapPoints = useMemo(() => ['50%', '100%'], []);
 
@@ -277,6 +286,20 @@ const DirectionsMap = (props) => {
             }
 
             console.log("prarararap", props)
+
+            // this will start the accelerometer
+            setSubscription(
+                Accelerometer.addListener(accelerometerData => {
+                  setData(accelerometerData);
+                  console.log("Zoom zoom: ", accelerometerData)
+                  if (accelerometerData.y >= 2 || accelerometerData.y <= -2) {
+                    setShowMessage(true)
+                  } else {
+                    setShowMessage(false)
+                  }
+                })
+              );
+
             getDirections(data)
         } else {
             alert("Please select source and destinaton")
@@ -358,9 +381,9 @@ const DirectionsMap = (props) => {
                 isOpen ? <View style={{ height: 10, width: 30, backgroundColor: '#212121', borderRadius: 12 }}></View> :
                     <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#454649' }}>Swipe up for more details</Text>
             }
-            <Grid style={{marginTop: height * 0.01}}>
+            <Grid style={{ marginTop: height * 0.01 }}>
                 <Col>
-                    <Button iconLeft onPress={() => handleButton()} style={{ width: '90%', justifyContent: 'center', alignItems: 'center'}}><Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Search</Text></Button>
+                    <Button iconLeft onPress={() => handleButton()} style={{ width: '90%', justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Search</Text></Button>
                 </Col>
                 <Col>
                     <Button iconLeft onPress={() => handleGetDirections()} style={{ width: '90%', justifyContent: 'center', alignItems: 'center', marginLeft: width * 0.04 }}><Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Start</Text></Button>
