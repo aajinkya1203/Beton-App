@@ -89,7 +89,8 @@
     "react-navigation": "^4.4.3",
     "react-navigation-stack": "^2.10.2",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
-    "recompose": "^0.30.0"
+    "recompose": "^0.30.0",
+    "expo-task-manager": "~8.6.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"
