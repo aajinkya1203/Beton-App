@@ -267,7 +267,7 @@ mutation($name: String!, $amount: String!, $validity: String!, $advertiserID: ID
     validity
     assigned
     advertiserID{
-      company
+      company 
       email
       id
     }
@@ -276,6 +276,17 @@ mutation($name: String!, $amount: String!, $validity: String!, $advertiserID: ID
       email
       id
     }
+  }
+}
+`
+
+const AddAccReport = gql`
+mutation($coords: [InputAccReport]!){
+  AddAccReport(coords: $coords){
+    id
+    location
+    reportedAt
+    reportedOn
   }
 }
 `
@@ -297,7 +308,8 @@ export {
   allAdvertisers,
   addAdvertisment,
   allMyAds,
-  addCoupon
+  addCoupon,
+  AddAccReport
 };
 
 

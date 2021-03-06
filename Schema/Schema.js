@@ -11,6 +11,7 @@ const Admin = require('../models/admin')
 const Advertisers = require('../models/advertisers')
 const Coupon = require('../models/coupons')
 const Advertisement = require('../models/advertisments')
+const AccReport = require('../models/AccReport')
 const Report = require('../models/reports')
 const BaseReports = require('../models/baseReports');
 const Polyutil = require('polyline-encoded');
@@ -25,7 +26,8 @@ const {
     GraphQLInt,
     GraphQLList,
     GraphQLNonNull,
-    GraphQLBoolean
+    GraphQLBoolean,
+    GraphQLInputObjectType
 } = graphql
 
 // dummy data
@@ -234,6 +236,33 @@ const ReportsType = new GraphQLObjectType({
             }
         }
     })
+});
+
+
+const InputAccReport = new GraphQLInputObjectType({
+    name: "InputAccReport",
+    fields: () => ({
+        location: { type: GraphQLString },
+        userID: { type: GraphQLID },
+        reportedAt: { type: GraphQLString },
+        reportedOn: { type: GraphQLString },
+    })
+})
+
+const AccReports = new GraphQLObjectType({
+    name: "AccReports",
+    fields: () => ({
+        id: { type: GraphQLID },
+        location: { type: GraphQLString },
+        userID: {
+            type: UserType,
+            async resolve(parent, args){
+                return await User.findById(parent.userID);
+            }
+        },
+        reportedAt: { type: GraphQLString }, // date
+        reportedOn: { type: GraphQLString }  // time
+    })
 })
 
 const CouponsType = new GraphQLObjectType({
@@ -339,6 +368,12 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(CouponsType),
             resolve(parent, args) {
                 return Coupon.find()
+            }
+        },
+        allAccReports: {
+            type: new GraphQLList(AccReports),
+            async resolve(parent, args){
+                return await AccReport.find();
             }
         },
         // getReportsNearMe: {
@@ -515,7 +550,7 @@ const RootQuery = new GraphQLObjectType({
                             latitude: x[0],
                             longitude: x[1]
                         };
-                    });
+                    });3
                     return objs
                 })
                 enc = [].concat.apply([], enc);
@@ -771,6 +806,33 @@ const Mutation = new GraphQLObjectType({
                     throw new Error('Uh-oh! This wasn\'t meant to happen.Make sure your internet connection is strong.')
                 }
                 return results
+            }
+        },
+        // * adding AccReport
+        AddAccReport: {
+            type: GraphQLBoolean,
+            args: {     
+                coords: { type: new GraphQLList(InputAccReport) }
+            },
+            async resolve(parent, args){
+                console.log("pargsg", args);
+                let newItems = args.coords.map(c=>{
+                    let temp = {
+                        insertOne: {
+                            "document": {
+                                ...c
+                            }
+                        }
+                    }
+                    return temp;
+                });
+                let result = await AccReport.bulkWrite(newItems);
+                console.log("resulty boahhh", result);
+                if (!result) {
+                    // throw new Error('Uh-oh! This wasn\'t meant to happen.Make sure your internet connection is strong.')
+                    return false;
+                }
+                return true;
             }
         },
         addReport: {

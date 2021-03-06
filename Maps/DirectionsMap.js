@@ -29,12 +29,18 @@ import { Col, Row, Grid } from "react-native-easy-grid";
 import { Accelerometer } from 'expo-sensors';
 import * as TaskManager from "expo-task-manager";
 import { Audio } from 'expo-av';
+import { flowRight as compose } from 'lodash';
+import { graphql } from 'react-apollo'
+import { decrypt, AddAccReport} from '../queries/query'
+
 
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 
 const { width, height } = Dimensions.get("screen");
 const ASPECT_RATIO = width / height;
+
+const normalArray = []
 
 console.log("Width: ", width)
 console.log('Height: ', height)
@@ -305,36 +311,48 @@ const DirectionsMap = (props) => {
             }
             if (data) {
                 console.log("Background task working")
-                try{
-
+                try {
                     const { sound } = await Audio.Sound.createAsync(
                         require('../assets/Sounds/donefor.mp3')
                     );
                     await sound.playAsync();
                 } catch {
-                    console.log("Error playing sound")
+                    console.log("Error playing sound!")
                 }
-                setSubscription(
+                try {
                     Accelerometer.addListener(async (accelerometerData) => {
-                        setData(accelerometerData);
                         console.log("Zoom zoom: ", accelerometerData)
-                        if (accelerometerData.y >= 2 || accelerometerData.y <= -2) {
-                            try{
+                        if (accelerometerData.y <= -1.25) {
+                            let newLocation = await Location.getCurrentPositionAsync({
+                                maximumAge: 60000, // only for Android
+                                accuracy: Location.Accuracy.Lowest,
+                            })
+                            if (!newLocation) {
+                                let obj = {
+                                    location: newLocation,
+                                    userID: props.decrypt.decrypt.id,
+                                    reportedAt: new Date().toDateString(),
+                                    reportedOn: new Date().toLocaleString().split(", ")[1]
+                                }
 
-                                const { sound } = await Audio.Sound.createAsync(
-                                    require('../assets/Sounds/swiftly.mp3')
-                                );
-                                await sound.playAsync();
-                            } catch {
-                                console.log("Error playing sound")
+                                normalArray.push(obj);
+                                console.log("Pothole detected!")
                             }
-                            console.log("Pothole detected!")
                         } else {
                             //setShowMessage(false)
                             console.log("Pothole not detected!")
                         }
                     })
-                );
+                } catch {
+                    console.log("Array hai ye", normalArray);
+                    props.AddAccReport({
+                        variables:{
+                            coords: normalArray
+                        }
+                    })
+                    console.log("Document write here!")
+                }
+
             }
         }
     );
@@ -355,8 +373,8 @@ const DirectionsMap = (props) => {
     useEffect(() => {
         Location.startLocationUpdatesAsync("LOCATION_TASK_NAME", {
             accuracy: Location.Accuracy.Balanced,
-            timeInterval: 1000,
-            distanceInterval: 20,
+            timeInterval: 500,
+            distanceInterval: 10,
         });
     })
 
@@ -475,8 +493,8 @@ const DirectionsMap = (props) => {
                 renderContent={renderContent}
                 initialSnap={1}
                 renderHeader={renderHeader}
-                onOpenEnd={() => setIsOpen(true)}
-                onCloseEnd={() => setIsOpen(false)}
+            // onOpenStart={() => setIsOpen(true)}
+            // onCloseStart={() => setIsOpen(false)}
             />
         </>
     )
@@ -520,4 +538,19 @@ const styles = StyleSheet.create({
     },
 });
 
-export default DirectionsMap
+export default compose(
+    graphql(decrypt, {
+        name: "decrypt",
+        options: () => {
+            console.log("Global Tempo: ", global.tempo, typeof (global.tempo))
+            return {
+                variables: {
+                    token: global.tempo
+                }
+            }
+        }
+    }),
+    graphql(AddAccReport, { name: "AddAccReport" })
+)(DirectionsMap)
+
+
