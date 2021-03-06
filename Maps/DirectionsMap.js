@@ -305,16 +305,20 @@ const DirectionsMap = (props) => {
             }
             if (data) {
                 console.log("Background task working")
+                const { sound } = await Audio.Sound.createAsync(
+                    require('../assets/Sounds/donefor.mp3')
+                );
+                await sound.playAsync();
                 setSubscription(
-                    Accelerometer.addListener(async(accelerometerData) => {
+                    Accelerometer.addListener(async (accelerometerData) => {
                         setData(accelerometerData);
                         console.log("Zoom zoom: ", accelerometerData)
                         if (accelerometerData.y >= 2 || accelerometerData.y <= -2) {
                             //setShowMessage(true)
                             const { sound } = await Audio.Sound.createAsync(
                                 require('../assets/Sounds/swiftly.mp3')
-                             );
-                             await sound.playAsync();
+                            );
+                            await sound.playAsync();
                             console.log("Pothole detected!")
                         } else {
                             //setShowMessage(false)
