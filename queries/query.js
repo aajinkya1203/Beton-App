@@ -282,12 +282,7 @@ mutation($name: String!, $amount: String!, $validity: String!, $advertiserID: ID
 
 const AddAccReport = gql`
 mutation($coords: [InputAccReport]!){
-  AddAccReport(coords: $coords){
-    id
-    location
-    reportedAt
-    reportedOn
-  }
+  AddAccReport(coords: $coords)
 }
 `
 

@@ -31,7 +31,7 @@ import * as TaskManager from "expo-task-manager";
 import { Audio } from 'expo-av';
 import { flowRight as compose } from 'lodash';
 import { graphql } from 'react-apollo'
-import { decrypt, AddAccReport} from '../queries/query'
+import { decrypt, AddAccReport } from '../queries/query'
 
 
 
@@ -40,7 +40,7 @@ const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
 const { width, height } = Dimensions.get("screen");
 const ASPECT_RATIO = width / height;
 
-const normalArray = []
+var normalArray = []
 
 console.log("Width: ", width)
 console.log('Height: ', height)
@@ -320,37 +320,41 @@ const DirectionsMap = (props) => {
                     console.log("Error playing sound!")
                 }
                 try {
-                    Accelerometer.addListener(async (accelerometerData) => {
-                        console.log("Zoom zoom: ", accelerometerData)
-                        if (accelerometerData.y <= -1.25) {
+                    Accelerometer.addListener(async(accelerometerData) => {
+                        if(accelerometerData <= -1.25) {
                             let newLocation = await Location.getCurrentPositionAsync({
                                 maximumAge: 60000, // only for Android
                                 accuracy: Location.Accuracy.Lowest,
                             })
-                            if (!newLocation) {
+                            console.log("New location: ", newLocation)
+                            if (newLocation) {
                                 let obj = {
                                     location: newLocation,
                                     userID: props.decrypt.decrypt.id,
                                     reportedAt: new Date().toDateString(),
                                     reportedOn: new Date().toLocaleString().split(", ")[1]
                                 }
-
+                                console.log("boah boah boah boah boah", obj)
                                 normalArray.push(obj);
                                 console.log("Pothole detected!")
                             }
-                        } else {
-                            //setShowMessage(false)
-                            console.log("Pothole not detected!")
                         }
                     })
+                    // console.log("Zoom zoom: ", accelerometerData)
                 } catch {
                     console.log("Array hai ye", normalArray);
-                    props.AddAccReport({
-                        variables:{
-                            coords: normalArray
-                        }
-                    })
-                    console.log("Document write here!")
+                    if(normalArray != []){
+                        let res = await props.AddAccReport({
+                            variables:{
+                                coords: normalArray
+                            }
+                        })
+                        console.log("AFter mathttt ----", res);
+                        console.log("Document write here!");
+                        normalArray = []
+                    }else{
+                        console.log("this shits empty dawg.")
+                    }
                 }
 
             }
@@ -493,8 +497,8 @@ const DirectionsMap = (props) => {
                 renderContent={renderContent}
                 initialSnap={1}
                 renderHeader={renderHeader}
-            // onOpenStart={() => setIsOpen(true)}
-            // onCloseStart={() => setIsOpen(false)}
+                onOpenEnd={() => setIsOpen(true)}
+                onCloseEnd={() => setIsOpen(false)}
             />
         </>
     )

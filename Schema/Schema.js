@@ -816,6 +816,7 @@ const Mutation = new GraphQLObjectType({
             },
             async resolve(parent, args){
                 console.log("pargsg", args);
+                if(args.coords == []) return false;
                 let newItems = args.coords.map(c=>{
                     let temp = {
                         insertOne: {
