@@ -61,7 +61,12 @@ const Nearby = (props) => {
                     setChartLabels([])
                     setChartData([])
                 } else {
-                    setChartLabels(te)
+                    const c = te.map((t, key) => {
+                        let v = t.substr(0, 5)
+                        return v
+                    })
+                    c.slice(c.length - 5, c.length)
+                    setChartLabels(c)
                     setChartData(tee)
                     setLoad(false)
                 }
@@ -87,8 +92,8 @@ const Nearby = (props) => {
                         height={height * 0.25}
                         yAxisLabel="$"
                         yAxisSuffix="k"
-                        withHorizontalLabels={false}
-                        withVerticalLabels={false}
+                        // withHorizontalLabels={false}
+                        // withVerticalLabels={false}
                         yAxisInterval={1} // optional, defaults to 1
                         chartConfig={{
                             backgroundColor: "#e26a00",

@@ -100,7 +100,7 @@ const Profile = (props) => {
                     small
                     style={{ backgroundColor: argonTheme.COLORS.INFO }}
                   >
-                    CONNECT
+                    Rewards
                     </Button>
                   <Button
                     onPress={() => signOut()}
@@ -112,37 +112,40 @@ const Profile = (props) => {
                 </Block>
                 <Block row space="between">
                   <Block middle>
-                    <Text
-                      bold
-                      size={18}
-                      color="#ffffff"
-                      style={{ marginBottom: 4 }}
-                    >
-                      2K
-                      </Text>
-                    <Text size={12} color="#ffffff">Reports</Text>
+                    {
+                      props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
+                        <Text
+                          bold
+                          size={18}
+                          color="#ffffff"
+                          style={{ marginBottom: 4, fontFamily: 'Lexand' }}
+                        >
+                          {props.decrypt.decrypt.reports.length}
+                        </Text> : null
+                    }
+                    <Text size={12} color="#ffffff" style={{fontFamily: 'Lexand'}}>Reports</Text>
                   </Block>
                   <Block middle>
                     <Text
                       bold
                       color="#ffffff"
                       size={18}
-                      style={{ marginBottom: 4 }}
+                      style={{ marginBottom: 4, fontFamily: 'Lexand' }}
                     >
                       10
                       </Text>
-                    <Text size={12} color="#ffffff">Completed</Text>
+                    <Text size={12} color="#ffffff" style={{fontFamily: 'Lexand'}}>Completed</Text>
                   </Block>
                   <Block middle>
                     <Text
                       bold
                       color="#ffffff"
                       size={18}
-                      style={{ marginBottom: 4 }}
+                      style={{ marginBottom: 4, fontFamily: 'Lexand' }}
                     >
                       89
                       </Text>
-                    <Text size={12} color="#ffffff">Rewards</Text>
+                    <Text size={12} color="#ffffff" style={{fontFamily: 'Lexand'}}>Rewards</Text>
                   </Block>
                 </Block>
               </Block>
@@ -150,14 +153,20 @@ const Profile = (props) => {
                 <Block middle style={styles.nameInfo}>
                   {
                     props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
-                      <Text bold size={28} color="#ffffff">
+                      <Text bold size={28} color="#ffffff" style={{fontFamily: 'Lexand'}}>
                         {props.decrypt.decrypt.name}
-                      </Text> : <Text bold size={28} color="#ffffff">Loading...</Text>
+                      </Text> : <Text bold size={28} color="#ffffff" style={{fontFamily: 'Lexand'}}>Loading...</Text>
                   }
                   {
                     props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
                       <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>
-                        Pro
+                        {
+                          props.decrypt.decrypt.karma < 25 ?
+                            <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Beginner</Text> :
+                            props.decrypt.decrypt.karma < 65 ?
+                              <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Intermediate</Text> :
+                              <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Pro</Text>
+                        }
                       </Text> : <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Loading...</Text>
                   }
                 </Block>

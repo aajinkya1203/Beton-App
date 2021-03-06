@@ -28,6 +28,7 @@ import AppleHeader from "react-native-apple-header";
 import { Col, Row, Grid } from "react-native-easy-grid";
 import { Accelerometer } from 'expo-sensors';
 import * as TaskManager from "expo-task-manager";
+import { Audio } from 'expo-av';
 
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
@@ -303,12 +304,17 @@ const DirectionsMap = (props) => {
                 return;
             }
             if (data) {
+                console.log("Background task working")
                 setSubscription(
-                    Accelerometer.addListener(accelerometerData => {
+                    Accelerometer.addListener(async(accelerometerData) => {
                         setData(accelerometerData);
                         console.log("Zoom zoom: ", accelerometerData)
                         if (accelerometerData.y >= 2 || accelerometerData.y <= -2) {
                             //setShowMessage(true)
+                            const { sound } = await Audio.Sound.createAsync(
+                                require('../assets/Sounds/swiftly.mp3')
+                             );
+                             await sound.playAsync();
                             console.log("Pothole detected!")
                         } else {
                             //setShowMessage(false)
@@ -336,8 +342,8 @@ const DirectionsMap = (props) => {
     useEffect(() => {
         Location.startLocationUpdatesAsync("LOCATION_TASK_NAME", {
             accuracy: Location.Accuracy.Balanced,
-            timeInterval: 1000,
-            distanceInterval: 1,
+            timeInterval: 500,
+            distanceInterval: 10,
         });
     })
 
