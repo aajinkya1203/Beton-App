@@ -305,20 +305,29 @@ const DirectionsMap = (props) => {
             }
             if (data) {
                 console.log("Background task working")
-                const { sound } = await Audio.Sound.createAsync(
-                    require('../assets/Sounds/donefor.mp3')
-                );
-                await sound.playAsync();
+                try{
+
+                    const { sound } = await Audio.Sound.createAsync(
+                        require('../assets/Sounds/donefor.mp3')
+                    );
+                    await sound.playAsync();
+                } catch {
+                    console.log("Error playing sound")
+                }
                 setSubscription(
                     Accelerometer.addListener(async (accelerometerData) => {
                         setData(accelerometerData);
                         console.log("Zoom zoom: ", accelerometerData)
                         if (accelerometerData.y >= 2 || accelerometerData.y <= -2) {
-                            //setShowMessage(true)
-                            const { sound } = await Audio.Sound.createAsync(
-                                require('../assets/Sounds/swiftly.mp3')
-                            );
-                            await sound.playAsync();
+                            try{
+
+                                const { sound } = await Audio.Sound.createAsync(
+                                    require('../assets/Sounds/swiftly.mp3')
+                                );
+                                await sound.playAsync();
+                            } catch {
+                                console.log("Error playing sound")
+                            }
                             console.log("Pothole detected!")
                         } else {
                             //setShowMessage(false)
@@ -346,8 +355,8 @@ const DirectionsMap = (props) => {
     useEffect(() => {
         Location.startLocationUpdatesAsync("LOCATION_TASK_NAME", {
             accuracy: Location.Accuracy.Balanced,
-            timeInterval: 500,
-            distanceInterval: 10,
+            timeInterval: 1000,
+            distanceInterval: 20,
         });
     })
 
@@ -466,8 +475,8 @@ const DirectionsMap = (props) => {
                 renderContent={renderContent}
                 initialSnap={1}
                 renderHeader={renderHeader}
-                onOpenStart={() => setIsOpen(true)}
-                onCloseStart={() => setIsOpen(false)}
+                onOpenEnd={() => setIsOpen(true)}
+                onCloseEnd={() => setIsOpen(false)}
             />
         </>
     )
