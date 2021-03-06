@@ -22,7 +22,7 @@
       "config": {
         "googleMapsApiKey": "AIzaSyBxFN97CAHBgcjppdSfxd8CZOT7x1JL_dI"
       },
-      "buildNumber": "1.0.3",
+      "buildNumber": "1.0.4",
       "infoPlist": {
         "UIBackgroundModes": [
           "location",
