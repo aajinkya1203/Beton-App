@@ -320,16 +320,19 @@ const DirectionsMap = (props) => {
                     console.log("Error playing sound!")
                 }
                 try {
-                    Accelerometer.addListener(async(accelerometerData) => {
-                        if(accelerometerData <= -1.25) {
+                    Accelerometer.addListener(async (accelerometerData) => {
+                        if (accelerometerData.y <= -1.25) {
+                            console.log("New location: ", newLocation)
                             let newLocation = await Location.getCurrentPositionAsync({
                                 maximumAge: 60000, // only for Android
                                 accuracy: Location.Accuracy.Lowest,
                             })
                             console.log("New location: ", newLocation)
                             if (newLocation) {
+                                var x = newLocation.coords.latitude + ' ' + newLocation.coords.longitude
+                                console.log("X: ", x)
                                 let obj = {
-                                    location: newLocation,
+                                    location: x,
                                     userID: props.decrypt.decrypt.id,
                                     reportedAt: new Date().toDateString(),
                                     reportedOn: new Date().toLocaleString().split(", ")[1]
@@ -337,26 +340,37 @@ const DirectionsMap = (props) => {
                                 console.log("boah boah boah boah boah", obj)
                                 normalArray.push(obj);
                                 console.log("Pothole detected!")
+                                if (normalArray != []) {
+                                    let res = await props.AddAccReport({
+                                        variables: {
+                                            coords: normalArray
+                                        }
+                                    })
+                                    console.log("AFter mathttt ----", res);
+                                    console.log("Document write here!");
+                                    normalArray = []
+                                } else {
+                                    console.log("this shits empty dawg.")
+                                }
                             }
                         }
                     })
                     // console.log("Zoom zoom: ", accelerometerData)
                 } catch {
                     console.log("Array hai ye", normalArray);
-                    if(normalArray != []){
+                    if (normalArray != []) {
                         let res = await props.AddAccReport({
-                            variables:{
+                            variables: {
                                 coords: normalArray
                             }
                         })
                         console.log("AFter mathttt ----", res);
                         console.log("Document write here!");
                         normalArray = []
-                    }else{
+                    } else {
                         console.log("this shits empty dawg.")
                     }
                 }
-
             }
         }
     );
