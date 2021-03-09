@@ -50,6 +50,7 @@
     "jpeg-js": "^0.4.3",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
+    "lottie-react-native": "~2.6.1",
     "mongoose": "^5.11.16",
     "native-base": "^2.15.2",
     "polyline-encoded": "0.0.9",
@@ -89,11 +90,11 @@
     "react-native-svg": "^12.1.0",
     "react-native-vector-icons": "^8.0.0",
     "react-native-web": "~0.13.12",
+    "react-native-webview": "^11.0.0",
     "react-navigation": "^4.4.3",
     "react-navigation-stack": "^2.10.2",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
-    "recompose": "^0.30.0",
-    "lottie-react-native": "~2.6.1"
+    "recompose": "^0.30.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"

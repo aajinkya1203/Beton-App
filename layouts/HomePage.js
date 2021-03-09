@@ -209,7 +209,13 @@ function HomePage(props) {
                                             <>
                                                 <Text style={{ fontFamily: 'Lexand', fontSize: 12, color: 'white', marginTop: height * 0.02, marginLeft: width * 0.08 }}>MY BETON REWARDS</Text>
                                                 <Text style={{ fontFamily: 'Lexand', fontSize: 60, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>{data.decrypt.karma}{data.decrypt.karma < 25 ? <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>/25☆</Text> : data.decrypt.karma < 65 ? <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>/65☆</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: 'white' }}>♾️</Text>}</Text>
-                                                <ProgressBar progress={0.5} color={'grey'} style={{ height: height * 0.015, borderRadius: 12 }} />
+                                                {
+                                                    data.decrypt.karma < 25 ?
+                                                    <ProgressBar progress={data.decrypt.karma * 4} color={'grey'} style={{ height: height * 0.015, borderRadius: 12 }} /> : 
+                                                    data.decrypt.karma < 65 ?
+                                                    <ProgressBar progress={data.decrypt.karma/65} color={'grey'} style={{ height: height * 0.015, borderRadius: 12 }} /> : 
+                                                    <ProgressBar progress={data.decrypt.karma/500} color={'grey'} style={{ height: height * 0.015, borderRadius: 12 }} />
+                                                }
                                                 {
                                                     data.decrypt.karma < 25 ?
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>{25 - data.decrypt.karma}☆ to Intermediate</Text> : data.decrypt.karma < 65 ? <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>{65 - data.decrypt.karma}☆ to Pro</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white', marginTop: height * 0.01, marginLeft: width * 0.08 }}>You are a God</Text>

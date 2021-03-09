@@ -1,22 +1,27 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   StyleSheet,
   Dimensions,
   ScrollView,
   Image,
   ImageBackground,
-  Platform
+  Platform,
+  View,
 } from "react-native";
 import { Block, Text, theme } from "galio-framework";
-import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
 
 import { Button } from "../components";
 import { Images } from "../constants";
 import { HeaderHeight } from "../constants/utils";
 import { isRequiredArgument } from "graphql";
 import { AuthContext } from '../auth/context'
+import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
 import { flowRight as compose } from 'lodash';
 import { graphql } from 'react-apollo'
+import { List, ListItem } from 'native-base';
+import { Card, CardTitle, CardContent, CardAction, CardButton, CardImage } from 'react-native-material-cards'
+import { TouchableOpacity } from "react-native-gesture-handler";
+import AllReports from "./AllReports";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -67,113 +72,121 @@ const Viewed = [
 const Profile = (props) => {
 
   const { signOut } = useContext(AuthContext)
+  const [showAllReports, setShowAllReports] = useState(false)
+
+  const changeView = (check) => {
+    setShowAllReports(check)
+  }
 
   console.log("Props in profile: ", props)
 
   return (
-    <Block flex style={styles.profile}>
-      <Block flex>
-        <ImageBackground
-          source={require('../imgs/profile-screen-bg.png')}
-          style={styles.profileContainer}
-          imageStyle={styles.profileBackground}
-        >
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={{ width, marginTop: '25%' }}
-          >
-            <Block flex style={styles.profileCard}>
-              <Block middle style={styles.avatarContainer}>
-                <Image
-                  source={require('../imgs/prof.jpg')}
-                  style={styles.avatar}
-                />
-              </Block>
-              <Block style={styles.info}>
-                <Block
-                  middle
-                  row
-                  space="evenly"
-                  style={{ marginTop: 20, paddingBottom: 24 }}
-                >
-                  <Button
-                    small
-                    style={{ backgroundColor: argonTheme.COLORS.INFO }}
-                  >
-                    Rewards
+    <>
+      {
+        !showAllReports ?
+        <Block flex style={styles.profile}>
+          <Block flex>
+            <ImageBackground
+              source={require('../imgs/profile-screen-bg.png')}
+              style={styles.profileContainer}
+              imageStyle={styles.profileBackground}
+            >
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                style={{ width, marginTop: '25%' }}
+              >
+                <Block flex style={styles.profileCard}>
+                  <Block middle style={styles.avatarContainer}>
+                    <Image
+                      source={require('../imgs/prof.jpg')}
+                      style={styles.avatar}
+                    />
+                  </Block>
+                  <Block style={styles.info}>
+                    <Block
+                      middle
+                      row
+                      space="evenly"
+                      style={{ marginTop: 20, paddingBottom: 24 }}
+                    >
+                      <Button
+                        small
+                        style={{ backgroundColor: argonTheme.COLORS.INFO }}
+                      >
+                        Rewards
                     </Button>
-                  <Button
-                    onPress={() => signOut()}
-                    small
-                    style={{ backgroundColor: argonTheme.COLORS.DEFAULT }}
-                  >
-                    Log Out
+                      <Button
+                        onPress={() => signOut()}
+                        small
+                        style={{ backgroundColor: argonTheme.COLORS.DEFAULT }}
+                      >
+                        Log Out
                     </Button>
-                </Block>
-                <Block row space="between">
-                  <Block middle>
-                    {
-                      props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
+                    </Block>
+                    <Block row space="between">
+                      <Block middle>
+                        {
+                          props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
+                            <Text
+                              bold
+                              size={18}
+                              color="#ffffff"
+                              style={{ marginBottom: 4, fontFamily: 'Lexand' }}
+                            >
+                              {props.decrypt.decrypt.reports.length}
+                            </Text> : null
+                        }
+                        <Text size={12} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Reports</Text>
+                      </Block>
+                      <Block middle>
                         <Text
                           bold
-                          size={18}
                           color="#ffffff"
+                          size={18}
                           style={{ marginBottom: 4, fontFamily: 'Lexand' }}
                         >
-                          {props.decrypt.decrypt.reports.length}
-                        </Text> : null
-                    }
-                    <Text size={12} color="#ffffff" style={{fontFamily: 'Lexand'}}>Reports</Text>
-                  </Block>
-                  <Block middle>
-                    <Text
-                      bold
-                      color="#ffffff"
-                      size={18}
-                      style={{ marginBottom: 4, fontFamily: 'Lexand' }}
-                    >
-                      10
+                          10
                       </Text>
-                    <Text size={12} color="#ffffff" style={{fontFamily: 'Lexand'}}>Completed</Text>
-                  </Block>
-                  <Block middle>
-                    <Text
-                      bold
-                      color="#ffffff"
-                      size={18}
-                      style={{ marginBottom: 4, fontFamily: 'Lexand' }}
-                    >
-                      89
+                        <Text size={12} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Completed</Text>
+                      </Block>
+                      <Block middle>
+                        <Text
+                          bold
+                          color="#ffffff"
+                          size={18}
+                          style={{ marginBottom: 4, fontFamily: 'Lexand' }}
+                        >
+                          89
                       </Text>
-                    <Text size={12} color="#ffffff" style={{fontFamily: 'Lexand'}}>Rewards</Text>
+                        <Text size={12} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Rewards</Text>
+                      </Block>
+                    </Block>
                   </Block>
-                </Block>
-              </Block>
-              <Block flex>
-                <Block middle style={styles.nameInfo}>
-                  {
-                    props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
-                      <Text bold size={28} color="#ffffff" style={{fontFamily: 'Lexand'}}>
-                        {props.decrypt.decrypt.name}
-                      </Text> : <Text bold size={28} color="#ffffff" style={{fontFamily: 'Lexand'}}>Loading...</Text>
-                  }
-                  {
-                    props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
-                      <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>
-                        {
-                          props.decrypt.decrypt.karma < 25 ?
-                            <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Beginner</Text> :
-                            props.decrypt.decrypt.karma < 65 ?
-                              <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Intermediate</Text> :
-                              <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Pro</Text>
-                        }
-                      </Text> : <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Loading...</Text>
-                  }
-                </Block>
-                <Block middle style={{ marginTop: 30, marginBottom: 16 }}>
-                  <Block style={styles.divider} />
-                </Block>
-                {/*<Block middle>
+                  <Block flex>
+                    <Block middle style={styles.nameInfo}>
+                      {
+                        props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
+                          <Text bold size={28} color="#ffffff" style={{ fontFamily: 'Lexand' }}>
+                            {props.decrypt.decrypt.name}
+                          </Text> : <Text bold size={28} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Loading...</Text>
+                      }
+                      {
+                        props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
+                          <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>
+                            {
+                              props.decrypt.decrypt.karma < 25 ?
+                                <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Beginner</Text> :
+                                props.decrypt.decrypt.karma < 65 ?
+                                  <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Intermediate</Text> :
+                                  <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Pro</Text>
+                            }
+                          </Text> : <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Loading...</Text>
+                      }
+                    </Block>
+                    <Block middle style={{ marginTop: 30, marginBottom: 16 }}>
+                      <Block style={styles.divider} />
+                    </Block>
+                    {/*<Block middle>
                     <Text
                       size={16}
                       color="#525F7F"
@@ -193,11 +206,11 @@ const Profile = (props) => {
                       Show more
                     </Button>
                     </Block>*/}
-                <Block
-                  row
-                  space="between"
-                >
-                  {/*<Text bold size={16} color="#525F7F" style={{ marginTop: 12 }}>
+                    <Block
+                      row
+                      space="between"
+                    >
+                      {/*<Text bold size={16} color="#525F7F" style={{ marginTop: 12 }}>
                     Album
                     </Text>
                   <Button
@@ -207,25 +220,27 @@ const Profile = (props) => {
                   >
                     View all
                   </Button>*/}
+                    </Block>
+                    <Block style={{ paddingBottom: -HeaderHeight * 2 }}>
+                      <TouchableOpacity onPress={() => changeView(true)}>
+                        <View style={{ height: height * 0.13, widthL: width * 0.8 }}>
+                          <Card style={{ borderRadius: 24, backgroundColor: '#F5F5F5' }}>
+                            <CardTitle
+                              title="Your Reports"
+                              subtitle="Click to view all your reports"
+                            />
+                          </Card>
+                        </View>
+                      </TouchableOpacity>
+                    </Block>
+                  </Block>
                 </Block>
-                <Block style={{ paddingBottom: -HeaderHeight * 2 }}>
-                  {/*<Block row space="between" style={{ flexWrap: "wrap" }}>
-                    {Viewed.map((img, imgIndex) => (
-                      <Image
-                        source={{ uri: img }}
-                        key={`viewed-${img}`}
-                        resizeMode="cover"
-                        style={styles.thumb}
-                      />
-                    ))}
-                    </Block>*/}
-                </Block>
-              </Block>
-            </Block>
-          </ScrollView>
-        </ImageBackground>
-      </Block>
-    </Block>
+              </ScrollView>
+            </ImageBackground>
+          </Block>
+        </Block> : <AllReports changeView={changeView} decrypt={props.decrypt}/>
+      }
+    </>
   );
 }
 
@@ -260,7 +275,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOpacity: 0.2,
     zIndex: 2,
-    backgroundColor: "#212121"
+    backgroundColor: "#212121",
+    borderRadius: 24
   },
   info: {
     paddingHorizontal: 40
