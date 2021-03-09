@@ -245,6 +245,13 @@ const lightStyle = [
     }
 ]
 
+var prevLocation = {
+    coords: {
+        latitude: 9999,
+        longitude: 9999
+    }
+}
+
 
 const DirectionsMap = (props) => {
 
@@ -297,11 +304,57 @@ const DirectionsMap = (props) => {
                 ],
             }
 
-            console.log("prarararap", props)
-
-            
-
             //getDirections(data)
+
+
+            Accelerometer.addListener(async (accelerometerData) => {
+                if (accelerometerData.y <= -1.3) {
+                    console.log("New location: ", newLocation)
+                    let newLocation = await Location.getCurrentPositionAsync({
+                        maximumAge: 60000, // only for Android
+                        accuracy: Location.Accuracy.Lowest,
+                    })
+                    console.log("Hmmmm: ", newLocation, prevLocation)
+                    if ((newLocation.coords.latitude).toFixed(4) != (prevLocation.coords.latitude).toFixed(4)) {
+                        console.log("New location: ", newLocation)
+                        console.log("LOCATION CHANGEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+                        if (newLocation) {
+                            var x = newLocation.coords.latitude + ' ' + newLocation.coords.longitude
+                            console.log("X: ", x)
+                            let obj = {
+                                location: x,
+                                userID: props.decrypt.decrypt.id,
+                                reportedAt: new Date().toDateString(),
+                                reportedOn: new Date().toLocaleString().split(", ")[1]
+                            }
+                            console.log("boah boah boah boah boah", obj)
+                            normalArray.push(obj);
+                            console.log("Pothole detected!")
+                        }
+                        if (normalArray.length > 20) {
+                            var newArr = normalArray.slice(normalArray.length - 10, normalArray.length)
+                            console.log("NewArr: ", newArr)
+                            let res = await props.AddAccReport({
+                                variables: {
+                                    coords: newArr
+                                }
+                            })
+                            console.log("AFter mathttt ----", res);
+                            console.log("Document write here!");
+                            normalArray = []
+                        } else {
+                            console.log("Length: ", normalArray.length)
+                        }
+                        prevLocation = {
+                            ...newLocation
+                        }
+                    } else {
+                        console.log("Location not changed")
+                    }
+
+                }
+            })
+            // console.log("Zoom zoom: ", accelerometerData)
             setShowMap(true)
         } else {
             alert("Please select source and destinaton")
@@ -514,7 +567,7 @@ const DirectionsMap = (props) => {
                             <StatusBar style="dark" />
                             <WebView
                                 source={{
-                                    uri: 'https://maps.google.com/?saddr=Kudal&daddr=Malvan'
+                                    uri: `https://maps.google.com/?saddr=${props.fromName}&daddr=${props.toName}`
                                 }}
                             />
                             <Button iconLeft onPress={() => resetting()} style={{ width: width * 0.1, justifyContent: 'center', alignItems: 'center', position: 'absolute', marginTop: height * 0.01, marginLeft: width * 0.01 }} color={"#4B85F2"}><Text style={{ fontSize: 20, color: 'black' }}>{'<'}</Text></Button>
