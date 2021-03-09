@@ -511,8 +511,8 @@ const DirectionsMap = (props) => {
                 renderContent={renderContent}
                 initialSnap={1}
                 renderHeader={renderHeader}
-                onOpenEnd={() => setIsOpen(true)}
-                onCloseEnd={() => setIsOpen(false)}
+                // onOpenEnd={() => setIsOpen(true)}
+                // onCloseEnd={() => setIsOpen(false)}
             />
         </>
     )

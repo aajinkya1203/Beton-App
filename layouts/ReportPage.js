@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react'
+import React, { useState, useEffect, useReducer, useRef } from 'react'
 import { StyleSheet, Text, View, Alert, Image, Dimensions, StatusBar } from 'react-native';
 import { Container, Header, Content, Footer, FooterTab, Button, Icon, Body, Left, Right, Title, Toast } from 'native-base'
 import { Col, Row, Grid } from "react-native-easy-grid";
@@ -19,6 +19,7 @@ import GradientButton from 'react-native-gradient-buttons';
 import { useLazyQuery } from 'react-apollo';
 import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import LottieView from 'lottie-react-native';
 
 
 const { width, height } = Dimensions.get("screen");
@@ -33,10 +34,12 @@ function ReportPage(props) {
     const [userLocation, setUserLocation] = useState(null)
     const [potholeDetector, setPotholeDetector] = useState(true)
     const [uploading, setUploading] = useState(false)
-    const [coords, setCoords] = useState([0,0])
+    const [coords, setCoords] = useState([0, 0])
     const [address, setAddress] = useState(null)
     //const [imagePickerResult, setImagePickerResult] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [complete, setComplete] = useState(false)
+    const animation = useRef(null);
 
     // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
     Geocode.setApiKey("AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w");
@@ -53,12 +56,19 @@ function ReportPage(props) {
     }
 
     if (isLoading) {
+        console.log("Lottie?")
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
                 <PulseIndicator color='white' />
                 <Text style={{ color: 'white' }}>Fetching...</Text>
             </View>
         )
+    }
+
+    const onBruh = () => {
+        setTimeout(() => {
+            animation.current.play();
+        }, 200);
     }
 
     const [existingBase, { called, loading, data }] = useLazyQuery(
@@ -93,9 +103,13 @@ function ReportPage(props) {
                             noOfReports: 1
                         }
                     })
-                    console.log("res in base", res);
+                    console.log("res in", res);
                     if (res && res.data && res.data.addBaseReport) {
-                        alert("Report successfully submitted!");
+                        next()
+                        setTimeout(() => {
+                            animation.current.play();
+                        }, 200);
+                        console.log("Report successfully submitted")
                     }
                     else {
                         alert("Uh-oh! Something went wrong!")
@@ -111,13 +125,16 @@ function ReportPage(props) {
                             reportedOn: new Date().toLocaleString().split(", ")[1],
                             userID: props.decrypt.decrypt.id,
                             baseParent: data.existingBaseCoordinate.id,
-                            level: props.decrypt.decrypt.level
+                            karma: props.decrypt.decrypt.karma + 1
                         }
                     })
                     console.log("res in dep", res);
                     console.log("res in base", res);
                     if (res && res.data && res.data.addReport) {
-                        alert("Report successfully submitted!");
+                        next()
+                        setTimeout(() => {
+                            animation.current.play();
+                        }, 200);
                         console.log("Report successfully submitted")
                     }
                     else {
@@ -253,6 +270,7 @@ function ReportPage(props) {
         details: { text: 'Details', action: () => { console.log("Details entered"); next() } },
         location: { text: 'Select', action: () => selectLocation() },
         complete: { text: 'Complete', action: () => { } },
+        success: { text: 'Success', action: () => { } },
     }
 
     useEffect(() => {
@@ -266,12 +284,13 @@ function ReportPage(props) {
             console.log("[+] Model Loaded")
         }
         loadModel()
-    }, []);
+    }, [setComplete]);
 
 
     const [loaded] = useFonts({
         Lexand: require('../assets/font/LexendDeca-Regular.ttf'),
     });
+
 
     const renderContent = () => (
         <View
@@ -410,6 +429,13 @@ function ReportPage(props) {
                     :
                     null
             }
+            {
+                nextPress[state].text === 'Success' ?
+                    <View style={{ height: height, width: width, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+                        <LottieView ref={animation} source={require('../assets/Lottie/success.json')} loop={false} />
+                        <Text onPress={() => resetting()} style={{ fontFamily: 'Lexand', fontSize: 20, color: '#000', marginTop: h * 0.45 }}>Go back</Text>
+                    </View> : null
+            }
         </Container>
     )
 }
@@ -420,7 +446,7 @@ export default compose(
     graphql(decrypt, {
         name: "decrypt",
         options: () => {
-            console.log("Global Tempo: ", global.tempo, typeof(global.tempo))
+            console.log("Global Tempo: ", global.tempo, typeof (global.tempo))
             return {
                 variables: {
                     token: global.tempo
