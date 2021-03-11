@@ -20,6 +20,10 @@ import { useLazyQuery } from 'react-apollo';
 import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import LottieView from 'lottie-react-native';
+var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+var today = new Date()
+import AppleHeader from "react-native-apple-header";
+
 
 
 const { width, height } = Dimensions.get("screen");
@@ -40,6 +44,7 @@ function ReportPage(props) {
     const [isLoading, setIsLoading] = useState(false)
     const [complete, setComplete] = useState(false)
     const animation = useRef(null);
+    const [identifying, setIdentifying] = useState(false)
 
     // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
     Geocode.setApiKey("AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w");
@@ -63,12 +68,6 @@ function ReportPage(props) {
                 <Text style={{ color: 'white' }}>Fetching...</Text>
             </View>
         )
-    }
-
-    const onBruh = () => {
-        setTimeout(() => {
-            animation.current.play();
-        }, 200);
     }
 
     const [existingBase, { called, loading, data }] = useLazyQuery(
@@ -230,18 +229,23 @@ function ReportPage(props) {
     const identify = async () => {
 
         console.log("Identify is running")
-
+        setIdentifying(true)
+        setTimeout(() => {
+            animation.current.play();
+        }, 200);
         const response = await fetch(url, {}, { isBinary: true });
         const rawImageData = await response.arrayBuffer();
         const imageTensor = imageToTensor(rawImageData).resizeBilinear([224, 224]).reshape([1, 224, 224, 3])
-        let result = await potholeDetector.predict(imageTensor).data()
+        await potholeDetector.predict(imageTensor).data().then((result) => {
+            setIdentifying(false)
+            console.log("Result: ", result)
+            next()
+        }).catch((err) => {
+            console.log("Error in identifying: ", err)
+        })
 
         // console.log("No Pothole: ", result[0])
         // console.log("Pothole: ", result[1])
-
-        console.log("Result: ", result)
-        next()
-
     }
 
     const confirmation = async () => {
@@ -352,23 +356,26 @@ function ReportPage(props) {
 
             {
                 nextPress[state].text === 'Upload' ?
-                    <Grid style={{ backgroundColor: '#264653' }}>
-                        <Row onPress={pickImage} style={{ backgroundColor: '#e76f51', borderRadius: 24, marginTop: h * 0.06, marginLeft: w * 0.07, marginRight: w * 0.07 }}>
-                            <View style={styles.iconWrapper}>
-                                <Icon style={styles.uploadIcon} name='cloud-upload-outline' type='Ionicons' />
-                            </View>
-                        </Row>
-                        <Row onPress={pickImageFromCamera} style={{ backgroundColor: '#e76f51', marginTop: h * 0.02, marginLeft: w * 0.07, marginRight: w * 0.07, marginBottom: h * 0.02, borderRadius: 24 }}>
-                            <View style={styles.iconWrapper}>
-                                <Icon style={styles.uploadIcon} name='camera-outline' type='Ionicons' />
-                            </View>
-                        </Row>
-                    </Grid> : null
+                    <>
+                        <AppleHeader dateTitle={today.toLocaleDateString("en-US", options)} containerStyle={{ paddingTop: height * 0.07, height: height * 0.15, paddingLeft: width * 0.04, backgroundColor: 'black' }} largeTitle='Quick Reports' largeTitleFontColor='#fff' />
+                        <Grid style={{ backgroundColor: '#232124' }}>
+                            <Row onPress={pickImage} style={{ backgroundColor: '#000', borderRadius: 24, marginTop: h * 0.02, marginLeft: w * 0.07, marginRight: w * 0.07 }}>
+                                <View style={styles.iconWrapper}>
+                                    <Icon style={styles.uploadIcon} name='cloud-upload-outline' type='Ionicons' />
+                                </View>
+                            </Row>
+                            <Row onPress={pickImageFromCamera} style={{ backgroundColor: '#000', marginTop: h * 0.02, marginLeft: w * 0.07, marginRight: w * 0.07, marginBottom: h * 0.02, borderRadius: 24 }}>
+                                <View style={styles.iconWrapper}>
+                                    <Icon style={styles.uploadIcon} name='camera-outline' type='Ionicons' />
+                                </View>
+                            </Row>
+                        </Grid>
+                    </> : null
             }
             {
                 nextPress[state].text === 'Confirm' ?
-                    <Grid >
-                        <Row style={{ backgroundColor: '#ffffff' }}>
+                    <Grid style={{ backgroundColor: '#232124' }}>
+                        <Row>
                             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                                 <Image
                                     style={{ width: w * 0.8, height: h * 0.4, borderRadius: 24, marginBottom: h * 0.2, marginTop: h * 0.3, marginLeft: w * 0.2, marginRight: w * 0.2 }}
@@ -379,27 +386,52 @@ function ReportPage(props) {
                             </View>
                         </Row>
                         <Col>
-                            <Row size={1}>
+                            <Row size={2}>
                                 <Col>
                                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text>Do you confirm you have to upload this photo?</Text>
+                                        <Text style={{ fontFamily: 'Lexand', fontSize: 17, marginTop: height * 0.02, color: 'white' }}>Do you confirm you have to upload this photo?</Text>
                                     </View>
                                 </Col>
                             </Row>
-                            <Row size={3}>
-                                <Col>
-                                    <View>
-                                        <Button onPress={nextPress[state].action} style={{ width: 0.25 * w, marginLeft: w * 0.22, justifyContent: 'center' }} primary><Text> Confirm </Text></Button>
-                                    </View>
+                            <Row size={2}>
+                                <Col style={{ marginLeft: width * 0.07, marginRight: width * 0.1 }}>
+                                    <GradientButton
+                                        text="Confirm"
+                                        gradientBegin="#F21B3F"
+                                        gradientEnd="#D9594C"
+                                        gradientDirection="diagonal"
+                                        width={'100%'}
+                                        height={'40%'}
+                                        impactStyle='Heavy'
+                                        onPressAction={() => confirmation()}
+                                        style={{ marginTop: 20 }}
+                                        blueViolet impact
+                                    />
                                 </Col>
-                                <Col>
-                                    <View>
-                                        <Button onPress={() => resetting()} style={{ width: 0.25 * w, marginLeft: w * 0.03, justifyContent: 'center' }} danger><Text> Cancel </Text></Button>
-                                    </View>
+                                <Col style={{ marginRight: width * 0.1 }}>
+                                    <GradientButton
+                                        text="Cancel"
+                                        gradientBegin="#F21B3F"
+                                        gradientEnd="#D9594C"
+                                        gradientDirection="diagonal"
+                                        width={'100%'}
+                                        height={'40%'}
+                                        impact
+                                        impactStyle='Heavy'
+                                        onPressAction={() => resetting()}
+                                        style={{ marginTop: 20 }}
+                                    />
                                 </Col>
                             </Row>
                         </Col>
                     </Grid> : null
+            }
+            {
+                identifying ?
+                    <View style={{ height: height, width: width, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+                        <LottieView ref={animation} source={require('../assets/Lottie/scanning.json')} loop={true} />
+                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#000', marginTop: h * 0.45 }}>Identifying</Text>
+                    </View> : null
             }
             {
                 nextPress[state].text === 'Select' ?
@@ -463,7 +495,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     uploadIcon: {
-        fontSize: 100
+        fontSize: 100,
+        color: 'white',
     },
     spinnerTextStyle: {
         color: '#FFF'

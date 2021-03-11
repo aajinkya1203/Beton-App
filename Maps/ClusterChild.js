@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MapView from "react-native-map-clustering";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { Dimensions, View, StyleSheet, TouchableOpacity, Image } from 'react-native'
+import { Dimensions, View, StyleSheet, TouchableOpacity, Image, StatusBar } from 'react-native'
 import Constants from 'expo-constants';
 import Geocoder from 'react-native-geocoding';
 import { isEqual } from "lodash";
@@ -21,9 +21,13 @@ import {
 } from 'react-native-indicators';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 const GOOGLE_PLACES_API_KEY = 'AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w';
+import AppleHeader from "react-native-apple-header";
 
 const { width, height } = Dimensions.get("screen");
 const ASPECT_RATIO = width / height;
+
+var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+var today = new Date()
 
 const darkStyle = [
     {
@@ -261,6 +265,10 @@ function ClusterChild(props) {
 
     return (
         <View style={StyleSheet.absoluteFillObject}>
+            <StatusBar
+                animated={true}
+                barStyle='light-content' />
+            <AppleHeader dateTitle={today.toLocaleDateString("en-US", options)} containerStyle={{ paddingTop: height * 0.07, height: height * 0.15, paddingLeft: width * 0.04, backgroundColor: 'black' }} largeTitle='All Reports' largeTitleFontColor='#fff' />
             <MapView
                 customMapStyle={toggle ? darkStyle : lightStyle}
                 loadingEnabled
@@ -285,11 +293,11 @@ function ClusterChild(props) {
                             }
                         }) : null
                 }
-                <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.07, left: width * 0.82, width: 90 }} rounded><Icon name='search-outline' /></Button>
+                <Button iconLeft onPress={() => handleButton()} style={{ top: height * 0.001, width: width * 0.2, left: 0.02 }} rounded><Icon name='search-outline' /></Button>
                 <Switch
                     value={toggle}
                     onChange={() => setToggle(!toggle)}
-                    style={{ top: height * 0.09, left: width * 0.85 }}
+                    style={{ left: width * 0.02, top: height * 0.02 }}
                 />
             </MapView>
         </View>

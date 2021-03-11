@@ -249,8 +249,8 @@ function Main(props) {
                                 inactiveTintColor: 'grey',
                             }}
                             appearence={{
-                                tabBarBackground: 'black',
-                                activeTabBackgrounds: ['#ffffff', '#e76f51', '#ffffff', '#ffffff', '#714FB6']
+                                tabBarBackground: '#000',
+                                activeTabBackgrounds: ['#ffffff', '#e76f51', '#ffffff', '#ffffff', '#714FB6'],
                             }}
                         >
                             <Tab.Screen name="Home" component={HomePage} />
