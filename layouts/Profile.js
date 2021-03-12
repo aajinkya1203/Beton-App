@@ -80,12 +80,6 @@ const Profile = (props) => {
     setShowAllReports(check)
   }
 
-  useEffect(() => {
-    setTimeout(() => {
-      animation.current.play();
-    }, 200);
-  })
-
   console.log("Props in profile: ", props)
 
   return (
@@ -94,104 +88,108 @@ const Profile = (props) => {
         !showAllReports ?
           <>
             <Block flex style={styles.profile}>
-              <Block>
-                <LottieView ref={animation} source={require('../assets/Lottie/topWave.json')} loop={true} />
-                <ScrollView
-                  showsVerticalScrollIndicator={false}
-                  style={{ width, marginTop: '25%' }}
+              <Block flex>
+                <ImageBackground
+                  source={require('../imgs/profile-screen-bg.png')}
+                  style={styles.profileContainer}
+                  imageStyle={styles.profileBackground}
                 >
-                  <Block flex style={styles.profileCard}>
-                    <Block middle style={styles.avatarContainer}>
-                      <Image
-                        source={require('../imgs/prof.jpg')}
-                        style={styles.avatar}
-                      />
-                    </Block>
-                    <Block style={styles.info}>
-                      <Block
-                        middle
-                        row
-                        space="evenly"
-                        style={{ marginTop: 20, paddingBottom: 24 }}
-                      >
-                        <Button
-                          small
-                          style={{ backgroundColor: argonTheme.COLORS.INFO }}
-                        >
-                          Rewards
-                    </Button>
-                        <Button
-                          onPress={() => signOut()}
-                          small
-                          style={{ backgroundColor: argonTheme.COLORS.DEFAULT }}
-                        >
-                          Log Out
-                    </Button>
+                  <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    style={{ width, marginTop: '25%' }}
+                  >
+                    <Block flex style={styles.profileCard}>
+                      <Block middle style={styles.avatarContainer}>
+                        <Image
+                          source={require('../imgs/prof.jpg')}
+                          style={styles.avatar}
+                        />
                       </Block>
-                      <Block row space="between">
-                        <Block middle>
+                      <Block style={styles.info}>
+                        <Block
+                          middle
+                          row
+                          space="evenly"
+                          style={{ marginTop: 20, paddingBottom: 24 }}
+                        >
+                          <Button
+                            small
+                            style={{ backgroundColor: argonTheme.COLORS.INFO }}
+                          >
+                            Rewards
+                    </Button>
+                          <Button
+                            onPress={() => signOut()}
+                            small
+                            style={{ backgroundColor: argonTheme.COLORS.DEFAULT }}
+                          >
+                            Log Out
+                    </Button>
+                        </Block>
+                        <Block row space="between">
+                          <Block middle>
+                            {
+                              props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
+                                <Text
+                                  bold
+                                  size={18}
+                                  color="#ffffff"
+                                  style={{ marginBottom: 4, fontFamily: 'Lexand' }}
+                                >
+                                  {props.decrypt.decrypt.reports.length}
+                                </Text> : null
+                            }
+                            <Text size={12} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Reports</Text>
+                          </Block>
+                          <Block middle>
+                            <Text
+                              bold
+                              color="#ffffff"
+                              size={18}
+                              style={{ marginBottom: 4, fontFamily: 'Lexand' }}
+                            >
+                              10
+                      </Text>
+                            <Text size={12} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Completed</Text>
+                          </Block>
+                          <Block middle>
+                            <Text
+                              bold
+                              color="#ffffff"
+                              size={18}
+                              style={{ marginBottom: 4, fontFamily: 'Lexand' }}
+                            >
+                              89
+                      </Text>
+                            <Text size={12} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Rewards</Text>
+                          </Block>
+                        </Block>
+                      </Block>
+                      <Block flex>
+                        <Block middle style={styles.nameInfo}>
                           {
                             props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
-                              <Text
-                                bold
-                                size={18}
-                                color="#ffffff"
-                                style={{ marginBottom: 4, fontFamily: 'Lexand' }}
-                              >
-                                {props.decrypt.decrypt.reports.length}
-                              </Text> : null
+                              <Text bold size={28} color="#ffffff" style={{ fontFamily: 'Lexand' }}>
+                                {props.decrypt.decrypt.name}
+                              </Text> : <Text bold size={28} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Loading...</Text>
                           }
-                          <Text size={12} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Reports</Text>
+                          {
+                            props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
+                              <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>
+                                {
+                                  props.decrypt.decrypt.karma < 25 ?
+                                    <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Beginner</Text> :
+                                    props.decrypt.decrypt.karma < 65 ?
+                                      <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Intermediate</Text> :
+                                      <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Pro</Text>
+                                }
+                              </Text> : <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Loading...</Text>
+                          }
                         </Block>
-                        <Block middle>
-                          <Text
-                            bold
-                            color="#ffffff"
-                            size={18}
-                            style={{ marginBottom: 4, fontFamily: 'Lexand' }}
-                          >
-                            10
-                      </Text>
-                          <Text size={12} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Completed</Text>
+                        <Block middle style={{ marginTop: 30, marginBottom: 16 }}>
+                          <Block style={styles.divider} />
                         </Block>
-                        <Block middle>
-                          <Text
-                            bold
-                            color="#ffffff"
-                            size={18}
-                            style={{ marginBottom: 4, fontFamily: 'Lexand' }}
-                          >
-                            89
-                      </Text>
-                          <Text size={12} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Rewards</Text>
-                        </Block>
-                      </Block>
-                    </Block>
-                    <Block flex>
-                      <Block middle style={styles.nameInfo}>
-                        {
-                          props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
-                            <Text bold size={28} color="#ffffff" style={{ fontFamily: 'Lexand' }}>
-                              {props.decrypt.decrypt.name}
-                            </Text> : <Text bold size={28} color="#ffffff" style={{ fontFamily: 'Lexand' }}>Loading...</Text>
-                        }
-                        {
-                          props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
-                            <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>
-                              {
-                                props.decrypt.decrypt.karma < 25 ?
-                                  <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Beginner</Text> :
-                                  props.decrypt.decrypt.karma < 65 ?
-                                    <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Intermediate</Text> :
-                                    <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Pro</Text>
-                              }
-                            </Text> : <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Loading...</Text>
-                        }
-                      </Block>
-                      <Block middle style={{ marginTop: 30, marginBottom: 16 }}>
-                        <Block style={styles.divider} />
-                      </Block>
-                      {/*<Block middle>
+                        {/*<Block middle>
                     <Text
                       size={16}
                       color="#525F7F"
@@ -211,11 +209,11 @@ const Profile = (props) => {
                       Show more
                     </Button>
                     </Block>*/}
-                      <Block
-                        row
-                        space="between"
-                      >
-                        {/*<Text bold size={16} color="#525F7F" style={{ marginTop: 12 }}>
+                        <Block
+                          row
+                          space="between"
+                        >
+                          {/*<Text bold size={16} color="#525F7F" style={{ marginTop: 12 }}>
                     Album
                     </Text>
                   <Button
@@ -225,22 +223,23 @@ const Profile = (props) => {
                   >
                     View all
                   </Button>*/}
-                      </Block>
-                      <Block style={{ paddingBottom: -HeaderHeight * 2 }}>
-                        <TouchableOpacity onPress={() => changeView(true)}>
-                          <View style={{ height: height * 0.13, widthL: width * 0.8 }}>
-                            <Card style={{ borderRadius: 24, backgroundColor: '#F5F5F5' }}>
-                              <CardTitle
-                                title="Your Reports"
-                                subtitle="Click to view all your reports"
-                              />
-                            </Card>
-                          </View>
-                        </TouchableOpacity>
+                        </Block>
+                        <Block style={{ paddingBottom: -HeaderHeight * 2 }}>
+                          <TouchableOpacity onPress={() => changeView(true)}>
+                            <View style={{ height: height * 0.13, widthL: width * 0.8 }}>
+                              <Card style={{ borderRadius: 24, backgroundColor: '#F5F5F5' }}>
+                                <CardTitle
+                                  title="Your Reports"
+                                  subtitle="Click to view all your reports"
+                                />
+                              </Card>
+                            </View>
+                          </TouchableOpacity>
+                        </Block>
                       </Block>
                     </Block>
-                  </Block>
-                </ScrollView>
+                  </ScrollView>
+                </ImageBackground>
               </Block>
             </Block>
 
@@ -254,7 +253,7 @@ const Profile = (props) => {
 const styles = StyleSheet.create({
   profile: {
     flex: 1,
-    backgroundColor: "#000"
+    backgroundColor: "#fff"
   },
   profileContainer: {
     width: width,

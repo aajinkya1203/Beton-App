@@ -268,8 +268,8 @@ export default function Individual(props) {
             {
                 props && props.indData ?
                     <ParallaxScrollView
-                        backgroundColor="white"
-                        contentBackgroundColor="white"
+                        backgroundColor="#0D1117"
+                        contentBackgroundColor="#0D1117"
                         parallaxHeaderHeight={height * 0.55}
                         renderForeground={() => (
                             <Switch
@@ -301,8 +301,8 @@ export default function Individual(props) {
                             </View>
                         )}
                     >
-                        <View style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
-                            <Card style={{ borderRadius: 24 }}>
+                        <View style={{ flex: 1, backgroundColor: '#0D1117' }}>
+                            <Card style={{ borderRadius: 24, backgroundColor: '#161B22' }} isDark>
                                 <CardTitle
                                     title={title}
                                     subtitle={props.indData.reportAt}

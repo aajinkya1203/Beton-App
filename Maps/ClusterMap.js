@@ -65,6 +65,13 @@ const ClusterMap = (props) => {
             .catch(error => console.warn(error));
     }
 
+    const handleSearch = () => {
+        setShowSearch(true)
+        setTimeout(() => {
+            animation.current.play();
+        }, 200);
+    }
+
     useEffect(() => {
         console.log("Useeffect for fetching", props)
         if (props && props.allBaseReports && !props.allBaseReports.loading) {
@@ -79,13 +86,11 @@ const ClusterMap = (props) => {
                     latitude: Number(i.location.split(" ")[0]),
                     longitude: Number(i.location.split(" ")[1])
                 }
+
                 return test;
             })
             global.allMarkers = temp
             setMarkers(temp)
-            setTimeout(() => {
-                animation.current.play();
-            }, 200);
         }
     }, [props])
 
@@ -172,7 +177,7 @@ const ClusterMap = (props) => {
                             onPress={() => setShowSearch(false)}
                         />
                     </GooglePlacesAutocomplete>
-                    : <ClusterChild initRegion={tempRegion} handleSearch={() => setShowSearch(true)} />
+                    : <ClusterChild initRegion={tempRegion} handleSearch={handleSearch} />
             }
         </>
     )

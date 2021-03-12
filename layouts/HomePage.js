@@ -166,12 +166,12 @@ function HomePage(props) {
     }, [props.findUsingZipCode, data])
 
     return (
-        <>
+        <View style={{flex: 1, backgroundColor: '#F5F5F5'}}>
             {
                 loaded ?
                     <ParallaxScrollView
-                        backgroundColor="white"
-                        contentBackgroundColor="white"
+                        backgroundColor="#F5F5F5"
+                        contentBackgroundColor="#F5F5F5"
                         parallaxHeaderHeight={height * 0.6}
                         renderForeground={() => (
                             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -190,7 +190,7 @@ function HomePage(props) {
                             </View>
                         )}
                     >
-                        <View style={{ height: height * 0.95, paddingTop: height * 0.02 }}>
+                        <View style={{ height: height * 0.95, paddingTop: height * 0.02, backgroundColor: '#F5F5F5'}}>
                             <Carousel
                                 layout={"default"}
                                 data={carouselItems}
@@ -235,7 +235,7 @@ function HomePage(props) {
                         </View>
                     </ParallaxScrollView> : null
             }
-        </>
+        </View>
     )
 }
 
