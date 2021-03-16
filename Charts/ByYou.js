@@ -12,6 +12,7 @@ import { flowRight as compose } from 'lodash';
 import { graphql } from 'react-apollo'
 import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
 import { useLazyQuery } from 'react-apollo';
+import { Spinner } from 'native-base'
 
 const { width, height } = Dimensions.get('window');
 
@@ -66,7 +67,7 @@ const Nearby = (props) => {
                         temp[combined] = 1
                     } else {
                         temp[combined] = temp[combined] + 1
-                        console.log("ne  no: ", temp[combined])
+                        console.log("ne  no: ", temp)
                     }
                 })
                 var te = Object.keys(temp)
@@ -83,9 +84,12 @@ const Nearby = (props) => {
                         let v = t.substr(0, 5)
                         return v
                     })
-                    c.slice(c.length - 5, c.length)
-                    setChartLabels(c)
-                    setChartData(tee)
+                    console.log("C before: ", c)
+                    var b = c.slice(c.length - 5, c.length)
+                    var x = tee.slice(tee.length - 5, tee.length)
+                    console.log("B: ", b)
+                    setChartLabels(b)
+                    setChartData(x)
                     setLoad(false)
                 }
             }
@@ -138,7 +142,7 @@ const Nearby = (props) => {
                         onDataPointClick={() => {
                             console.log("Clicked")
                         }}
-                    /> : <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white' }}>No data</Text>
+                    /> : <Spinner color='blue' />
             }
         </>
     )

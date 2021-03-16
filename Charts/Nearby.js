@@ -12,6 +12,7 @@ import { flowRight as compose } from 'lodash';
 import { graphql } from 'react-apollo'
 import { addBaseReport, addReport, decrypt, existingBaseCoordinate, findUsingZipCode } from '../queries/query'
 import { useLazyQuery } from 'react-apollo';
+import { Spinner } from 'native-base'
 
 const { width, height } = Dimensions.get('window');
 
@@ -120,7 +121,7 @@ const Nearby = (props) => {
                         onDataPointClick={() => {
                             console.log("Clicked")
                         }}
-                    /> : <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: 'white' }}>No data</Text>
+                    /> : <Spinner color='blue' />
             }
         </>
     )

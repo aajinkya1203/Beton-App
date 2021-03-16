@@ -53,7 +53,7 @@ const Directions = (props) => {
       }
     }
   );
-  
+
   const handleFrom = (data) => {
 
     var region = null
@@ -105,7 +105,6 @@ const Directions = (props) => {
     })
 
     coords = [...encoded]
-    console.log("This check: ", coords)
     isOn();
 
     console.log("Data: ", data)
@@ -114,10 +113,10 @@ const Directions = (props) => {
     setShowStart(true)
   }
 
-  if(called && loading){
+  if (called && loading) {
     console.log("Patience is virtue")
   }
-  if(data){
+  if (data) {
     console.log("CHEDJASB: ", data)
   }
 
@@ -261,7 +260,7 @@ const Directions = (props) => {
               />
             </GooglePlacesAutocomplete>
           </GooglePlacesAutocomplete>
-          : <DirectionsMap from={from} to={to} toName={toName} fromName={fromName}  handleSearch={handleSearch} showStart={showStart} isOnLine={data}/>
+          : <DirectionsMap from={from} to={to} toName={toName} fromName={fromName} handleSearch={handleSearch} showStart={showStart} isOnLine={data} />
       }
     </>
   )
