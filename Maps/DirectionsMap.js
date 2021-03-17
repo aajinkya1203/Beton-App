@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView from "react-native-map-clustering";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { Dimensions, View, StyleSheet, TouchableOpacity } from 'react-native'
+import { Dimensions, View, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import Constants from 'expo-constants';
 import Geocoder from 'react-native-geocoding';
 import { isEqual, set } from "lodash";
@@ -474,43 +475,45 @@ const DirectionsMap = (props) => {
         )
     }
 
-    const renderContent = () => (
-        <View
-            style={{
-                backgroundColor: '#F5F5F5',
-                paddingRight: 16,
-                paddingLeft: 16,
-                height: 450,
-            }}
-        >
-            <StatusBar style="light" />
-            <View style={{ height: height * 0.25 }}>
-                <Card style={{ height: height * 0.2, backgroundColor: '#FFF', borderRadius: 24, justifyContent: 'center', alignItems: 'center' }}>
-                    {
-                        props.isOnLine ?
-                            <>
-                                <Text style={{ fontFamily: 'Lexand', fontSize: 70, color: '#454649' }}>{props.isOnLine.isOnLine}{props.isOnLine.isOnLine == 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>pothole on route</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>potholes on route</Text>}</Text>
-                                <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#454649' }}>{props.fromName}  •••••••  {props.toName}</Text>
-                                {
-                                    props.isOnLine.isOnLine == 0 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#dd2c00', marginTop: height * 0.01 }}>Smoooooth Operator!</Text> : null
-                                }
-                                {
-                                    props.isOnLine.isOnLine <= 5 && props.isOnLine.isOnLine > 0 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#1b5e20', marginTop: height * 0.01 }}>Should be a fairly smooth ride!</Text> : null
-                                }
-                                {
-                                    props.isOnLine.isOnLine > 5 && props.isOnLine.isOnLine < 20 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#b71c1c', marginTop: height * 0.01 }}>A few bumps, you should be fine!</Text> : null
-                                }
-                                {
-                                    props.isOnLine.isOnLine > 20 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#00c853', marginTop: height * 0.01 }}>You should consider an alternative route!</Text> : null
-                                }
+    const renderContent = () => {
+        return (
+            <View
+                style={{
+                    backgroundColor: '#F5F5F5',
+                    paddingRight: 16,
+                    paddingLeft: 16,
+                    height: 450,
+                }}
+            >
+                <StatusBar style="light" />
+                <View style={{ height: height * 0.25 }}>
+                    <Card style={{ height: height * 0.2, backgroundColor: '#FFF', borderRadius: 24, justifyContent: 'center', alignItems: 'center' }}>
+                        {
+                            props && props.isOnLine && props.isOnLine.isOnLine && props.isOnLine.isOnLine.length != 0 ?
+                                <>
+                                    <Text style={{ fontFamily: 'Lexand', fontSize: 70, color: '#454649' }}>{props.isOnLine.isOnLine.length}{props.isOnLine.isOnLine.length == 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>pothole on route</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 15 }}>potholes on route</Text>}</Text>
+                                    <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#454649' }}>{props.fromName}  •••••••  {props.toName}</Text>
+                                    {
+                                        props.isOnLine.isOnLine.length == 0 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#dd2c00', marginTop: height * 0.01 }}>Smoooooth Operator!</Text> : null
+                                    }
+                                    {
+                                        props.isOnLine.isOnLine.length <= 5 && props.isOnLine.isOnLine.length > 0 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#1b5e20', marginTop: height * 0.01 }}>Should be a fairly smooth ride!</Text> : null
+                                    }
+                                    {
+                                        props.isOnLine.isOnLine.length > 5 && props.isOnLine.isOnLine.length < 20 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#b71c1c', marginTop: height * 0.01 }}>A few bumps, you should be fine!</Text> : null
+                                    }
+                                    {
+                                        props.isOnLine.isOnLine.length > 20 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#00c853', marginTop: height * 0.01 }}>You should consider an alternative route!</Text> : null
+                                    }
 
-                            </> : <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: '#454649' }}>Select a route to view data</Text>
-                    }
-                </Card>
+                                </> : <Text style={{ fontFamily: 'Lexand', fontSize: 25, color: '#454649' }}>Select a route to view data</Text>
+                        }
+                    </Card>
+                </View>
+                <Button iconLeft onPress={() => startNavigation()} style={{ width: '90%', justifyContent: 'center', alignItems: 'center', margin: width * 0.04 }}><Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Start Navigation</Text></Button>
             </View>
-            <Button iconLeft onPress={() => startNavigation()} style={{ width: '90%', justifyContent: 'center', alignItems: 'center', margin: width * 0.04 }}><Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Start Navigation</Text></Button>
-        </View>
-    );
+        )
+    };
 
     const renderHeader = () => (
         <View
@@ -540,7 +543,7 @@ const DirectionsMap = (props) => {
     );
 
     //const sheetRef = React.useRef(null);
-
+    console.log("PRAPS IDHAR HAI", props.isOnLine);
     return (
         <>
             <View
@@ -575,6 +578,16 @@ const DirectionsMap = (props) => {
                                 onChange={() => setToggle(!toggle)}
                                 style={{ top: height * 0.09, left: width * 0.85 }}
                             />
+                            {
+                                props && props.isOnLine && props.isOnLine.isOnLine && props.isOnLine.isOnLine.length != 0 ?
+                                    props.isOnLine.isOnLine.map((marker, key) => {
+                                        console.log("Marker: ", marker)
+                                        return (
+                                            <Marker key={key} coordinate={{ latitude: Number(marker.latitude), longitude: Number(marker.longitude) }}><Image source={require('../imgs/pothole.png')} style={{ height: 35, width: 35 }} /></Marker>
+                                        )
+
+                                    }) : null
+                            }
                         </MapView> :
                         <View style={{ marginTop: height * 0.05, height: height * 0.78 }}>
                             <StatusBar style="dark" />

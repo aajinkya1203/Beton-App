@@ -92,9 +92,6 @@ query($token: String){
     id
     karma
     reports {
-      id
-      address
-      location
       reportedAt
       reportedOn
     }
@@ -123,6 +120,10 @@ query($token: String){
       name
       validity
       amount
+      assigned
+      userID{
+        name
+      }
     }
   }
 }
@@ -203,7 +204,10 @@ query($zip:String!) {
 
 const isOnLine = gql`
 query($encoded: [String]){
-  isOnLine(encoded: $encoded)
+  isOnLine(encoded: $encoded){
+    latitude
+    longitude
+  }
 }
 `
 
@@ -263,23 +267,8 @@ query($token: String!){
 `
 
 const addCoupon = gql`
-mutation($name: String!, $amount: String!, $validity: String!, $advertiserID: ID!){
-  addCoupon(name: $name, amount: $amount, validity: $validity, advertiserID: $advertiserID){
-    name
-    amount
-    validity
-    assigned
-    advertiserID{
-      company 
-      email
-      id
-    }
-    userID{
-      name
-      email
-      id
-    }
-  }
+mutation($coupons: [CouponsInput]!, $advertiserID: ID!){
+  addCoupon(coupons: $coupons, advertiserID: $advertiserID)
 }
 `
 

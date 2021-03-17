@@ -112,7 +112,9 @@ const Directions = (props) => {
     coords = [...encoded]
     isOn();
 
-    console.log("Data: ", data)
+    if (data) {
+      console.log("CHEDJASB: ", data)
+    }
 
     setShowSearch(false)
     setShowStart(true)
@@ -268,8 +270,13 @@ const Directions = (props) => {
               />
             </GooglePlacesAutocomplete>
           </GooglePlacesAutocomplete>
-          : <DirectionsMap from={from} to={to} toName={toName} fromName={fromName} handleSearch={handleSearch} showStart={showStart} isOnLine={data} />
-      }
+          : (
+            data && data.length != 0 ? (
+              <DirectionsMap from={from} to={to} toName={toName} fromName={fromName} handleSearch={handleSearch} showStart={showStart} isOnLine={data} />
+              ) : (
+              <DirectionsMap from={from} to={to} toName={toName} fromName={fromName} handleSearch={handleSearch} showStart={showStart} isOnLine={[]} />
+            )
+          )}
     </>
   )
 };

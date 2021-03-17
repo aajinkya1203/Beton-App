@@ -173,6 +173,8 @@ function HomePage(props) {
         }
     }, [props.findUsingZipCode, data])
 
+    console.log("Props in homepage: ", props.homepage)
+
     return (
         <View style={{ flex: 1, backgroundColor: '#171A1F' }}>
             {
@@ -183,15 +185,7 @@ function HomePage(props) {
                         parallaxHeaderHeight={height * 0.4}
                         renderForeground={() => (
                             <>
-                                {/*<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                                {
-                                    loaded ?
-                                        <>
-                                            <Text style={{ fontFamily: 'Lexand', fontSize: 50, marginTop: height * 0.02 }}>Beton</Text>
-                                            <Text style={{ fontFamily: 'Lexand', fontSize: 20, marginTop: height * 0.005 }}>📍{global.city}</Text>
-                                        </> : null
-                                }
-                            </View>*/}
+                                <View onPress={() => props.navigation.navigate('Profile')} style={{ position: 'absolute', height: height * 0.07, width: width * 0.15, borderRadius: 24, marginLeft: width * 0.75, marginTop: height * 0.095 }}><Image style={{ height: '100%', width: '100%', borderRadius: 24 }} source={require('../imgs/prof.jpg')} /></View>
                             </>
                         )}
                         renderBackground={() => (
@@ -218,7 +212,6 @@ function HomePage(props) {
                                         }
                                     </View>
                                 </View>
-                                <View style={{ position: 'absolute', height: height * 0.07, width: width * 0.15, borderRadius: 24 , marginLeft: width * 0.75, marginTop: height * 0.095 }}><Image style={{ height: '100%', width: '100%', borderRadius: 24 }} source={require('../imgs/prof.jpg')} /></View>
                             </>
                         )}
                     >
@@ -234,8 +227,8 @@ function HomePage(props) {
                                 activeSlideAlignment={'center'}
                                 firstItem={1}
                             />
-                            <View style={{ height: height * 0.45}}>
-                                <View style={{ height: height * 0.2, width: width, backgroundColor: 'rgb(35, 37, 47)', borderRadius:24 }}>
+                            <View style={{ height: height * 0.45 }}>
+                                <View style={{ height: height * 0.2, width: width, backgroundColor: 'rgb(35, 37, 47)', borderRadius: 24 }}>
                                     {
                                         called && !loading && data && data.decrypt ?
                                             <>
