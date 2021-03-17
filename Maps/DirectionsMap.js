@@ -286,6 +286,14 @@ const DirectionsMap = (props) => {
         setSubscription(null);
     };
 
+    const startNavigation = () => {
+        if (props.from != null) {
+            getDirections()
+        } else {
+            alert("Please select source and destinaton")
+        }
+    }
+
     const handleGetDirections = async () => {
         if (props.from != null) {
             const data = {
@@ -500,7 +508,7 @@ const DirectionsMap = (props) => {
                     }
                 </Card>
             </View>
-
+            <Button iconLeft onPress={() => startNavigation()} style={{ width: '90%', justifyContent: 'center', alignItems: 'center', margin: width * 0.04 }}><Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Start Navigation</Text></Button>
         </View>
     );
 
