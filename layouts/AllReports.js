@@ -41,6 +41,7 @@ export default function AllReports(props) {
                                     <List style={{ backgroundColor: '#0D1117', borderRadius: 24 }}>
                                         {
                                             props.decrypt.decrypt.reports.map((report, key) => {
+                                                console.log("Check Report: ", report)
                                                 var title = report.address.split(',')
                                                 return (
                                                     <View style={{ flex: 1 }} key={key}>
