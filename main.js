@@ -250,7 +250,7 @@ function Main(props) {
                             }}
                             appearance={{
                                 tabBarBackground: '#000000',
-                                activeTabBackgrounds: ['#ffffff', '#f44336', '#ffffff', '#ffffff', '#714FB6'],
+                                activeTabBackgrounds: ['#ffffff', '#f44336', '#ffffff', '#ffffff', '#7768D8'],
                             }}
                         >
                             <Tab.Screen name="Home" component={HomePage} />
@@ -258,7 +258,7 @@ function Main(props) {
                             <Tab.Screen name="Map" component={ClusterMap} />
                             <Tab.Screen name="Directions" component={Directions} />
                             <Tab.Screen name="Profile" component={Profile} />
-                            {/*<Tab.Screen name="TestMap" component={Acce} />*/}
+                            {/*<Tab.Screen name="TestMap" component={Test} />*/}
                         </Tab.Navigator>
                     </NavigationContainer> : showSignIn ? <SignUp showLogin={showLogin} /> : <Login show={showSignInError} signInError={signInError} load={signInLoad} />
             }

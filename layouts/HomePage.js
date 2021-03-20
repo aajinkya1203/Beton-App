@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Image, Dimensions } from 'react-native'
+import { View, Image, Dimensions, StyleSheet } from 'react-native'
 import ParallaxScrollView from 'react-native-parallax-scroll-view';
 import Carousel from 'react-native-snap-carousel';
 import { useFonts } from 'expo-font';
@@ -30,6 +30,7 @@ import AppleHeader from "react-native-apple-header";
 var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 var today = new Date()
 import { Container, Header, Content, Icon, Button, Text } from 'native-base';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const { width, height } = Dimensions.get('window');
 
@@ -124,6 +125,7 @@ function HomePage(props) {
     useEffect(() => {
         // ! When refreshed, global parameters gets refreshed :/
         // ! so get them from async storage
+
         if (global.tempo == undefined) {
             async function getMyToken() {
                 let t_token = await AsyncStorage.getItem("userToken");
@@ -173,8 +175,6 @@ function HomePage(props) {
         }
     }, [props.findUsingZipCode, data])
 
-    console.log("Props in homepage: ", props.homepage)
-
     return (
         <View style={{ flex: 1, backgroundColor: '#171A1F' }}>
             {
@@ -185,7 +185,7 @@ function HomePage(props) {
                         parallaxHeaderHeight={height * 0.4}
                         renderForeground={() => (
                             <>
-                                <View onPress={() => props.navigation.navigate('Profile')} style={{ position: 'absolute', height: height * 0.07, width: width * 0.15, borderRadius: 24, marginLeft: width * 0.79, marginTop: height * 0.08 }}><Image style={{ height: '100%', width: '100%', borderRadius: 24 }} source={require('../imgs/prof.jpg')} /></View>
+                                <Button onPress={() => props.navigation.navigate('Profile')} style={{ position: 'absolute', height: height * 65 / height, width: width * 65 / width, borderRadius: 65, marginLeft: width * 0.79, marginTop: height * 0.08, backgroundColor: 'none' }}><Image style={{ height: height * 65 / height, width: width * 65 / width, borderRadius: 50 }} source={require('../imgs/prof.jpg')} /></Button>
                             </>
                         )}
                         renderBackground={() => (
@@ -195,12 +195,18 @@ function HomePage(props) {
                                     <Image style={{ height: height, width: width }} source={require('../imgs/solidBack.jpeg')} />
                                     <View style={{ position: 'absolute', paddingLeft: width * 0.05, paddingRight: width * 0.05, paddingBottom: height * 0.02, backgroundColor: 'rgb(35, 37, 47)', borderTopRightRadius: 24, borderBottomRightRadius: 24 }}>
                                         {
-                                            console.log("Data inside", data),
                                             loaded1 && data ?
                                                 <>
                                                     <Text style={{ fontFamily: 'mplus', fontSize: 40, marginTop: height * 0.02, color: '#fff' }}>Hello,</Text>
                                                     <Text style={{ fontFamily: 'mplus', fontSize: 40, color: '#fff' }}>{data.decrypt.name} 👋</Text>
-                                                </> : null
+                                                </> :
+                                                <SkeletonPlaceholder highlightColor={'#ffffff'}>
+                                                    <View style={{ paddingLeft: width * 0.05 }}>
+                                                        <View style={{ width: width * 0.2, height: height * 0.02, marginTop: height * 0.01, borderRadius: 6 }}></View>
+                                                        <View style={{ width: width * 0.4, height: height * 0.07, marginTop: height * 0.02, borderRadius: 12 }}></View>
+                                                        <View style={{ width: width * 0.6, height: height * 0.03, marginTop: height * 0.02, borderRadius: 6 }}></View>
+                                                    </View>
+                                                </SkeletonPlaceholder>
                                         }
                                     </View>
                                     <View style={{ position: 'absolute', paddingLeft: width * 0.05, marginTop: height * 0.12 }}>
@@ -264,6 +270,17 @@ function HomePage(props) {
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    avatar: {
+        width: width / 2.5,
+        height: height / 5.413,
+        borderRadius: 75,
+        borderWidth: 0,
+        marginTop: height * 0.11,
+        marginLeft: width * 0.31
+    },
+});
 
 export default compose(
     graphql(findUsingZipCode, {
