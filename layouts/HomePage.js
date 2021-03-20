@@ -185,7 +185,7 @@ function HomePage(props) {
                         parallaxHeaderHeight={height * 0.4}
                         renderForeground={() => (
                             <>
-                                <View onPress={() => props.navigation.navigate('Profile')} style={{ position: 'absolute', height: height * 0.07, width: width * 0.15, borderRadius: 24, marginLeft: width * 0.75, marginTop: height * 0.095 }}><Image style={{ height: '100%', width: '100%', borderRadius: 24 }} source={require('../imgs/prof.jpg')} /></View>
+                                <View onPress={() => props.navigation.navigate('Profile')} style={{ position: 'absolute', height: height * 0.07, width: width * 0.15, borderRadius: 24, marginLeft: width * 0.79, marginTop: height * 0.08 }}><Image style={{ height: '100%', width: '100%', borderRadius: 24 }} source={require('../imgs/prof.jpg')} /></View>
                             </>
                         )}
                         renderBackground={() => (
@@ -195,10 +195,11 @@ function HomePage(props) {
                                     <Image style={{ height: height, width: width }} source={require('../imgs/solidBack.jpeg')} />
                                     <View style={{ position: 'absolute', paddingLeft: width * 0.05, paddingRight: width * 0.05, paddingBottom: height * 0.02, backgroundColor: 'rgb(35, 37, 47)', borderTopRightRadius: 24, borderBottomRightRadius: 24 }}>
                                         {
-                                            loaded1 ?
+                                            console.log("Data inside", data),
+                                            loaded1 && data ?
                                                 <>
                                                     <Text style={{ fontFamily: 'mplus', fontSize: 40, marginTop: height * 0.02, color: '#fff' }}>Hello,</Text>
-                                                    <Text style={{ fontFamily: 'mplus', fontSize: 40, color: '#fff' }}>Fat Thampi</Text>
+                                                    <Text style={{ fontFamily: 'mplus', fontSize: 40, color: '#fff' }}>{data.decrypt.name} 👋</Text>
                                                 </> : null
                                         }
                                     </View>
