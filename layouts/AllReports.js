@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
 import { flowRight as compose } from 'lodash';
 import { graphql } from 'react-apollo'
@@ -6,6 +6,7 @@ import { List, ListItem, Button, Text } from 'native-base';
 import { ScrollView, Dimensions, View } from 'react-native'
 import { Card, CardTitle, CardContent, CardAction, CardButton, CardImage } from 'react-native-material-cards'
 import Individual from './Individual'
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get("screen");
 
@@ -25,6 +26,14 @@ export default function AllReports(props) {
         setShowInd(true)
     }
 
+    useFocusEffect(
+        useCallback(() => {
+            // Do something when the screen is focused
+            return () => {
+                props.changeView(false)
+            };
+        }, [])
+    );
 
     const goBack = (check) => {
         props.changeView(check)

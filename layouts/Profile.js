@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react'
+import React, { useState, useRef, useEffect, useContext, useCallback } from 'react'
 import { StyleSheet, View, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { Container, Header, Content, Footer, FooterTab, Button, Icon, Text } from 'native-base'
 import { Col, Row, Grid } from "react-native-easy-grid";
@@ -10,6 +10,7 @@ import { flowRight as compose } from 'lodash';
 import { graphql } from 'react-apollo'
 import AllReports from "./AllReports";
 import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get("screen");
 
@@ -22,6 +23,15 @@ function Profile(props) {
     const changeView = (check) => {
         setShowAllReports(check)
     }
+
+    useFocusEffect(
+        useCallback(() => {
+            // Do something when the screen is focused
+            return () => {
+                setShowAllReports(false)
+            };
+        }, [])
+    );
 
     useEffect(() => {
         setTimeout(() => {
@@ -101,8 +111,8 @@ function Profile(props) {
 
 const styles = StyleSheet.create({
     avatar: {
-        width: width * 150/width,
-        height: height * 150/height,
+        width: width * 150 / width,
+        height: height * 150 / height,
         borderRadius: 75,
         borderWidth: 0,
         marginTop: height * 0.11,

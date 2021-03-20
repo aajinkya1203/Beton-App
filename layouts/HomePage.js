@@ -24,7 +24,7 @@ import { ProgressBar, Colors } from 'react-native-paper';
 import { useLazyQuery } from 'react-apollo';
 import ByYou from '../Charts/ByYou'
 import Nearby from '../Charts/Nearby'
-import { addBaseReport, addReport, decrypt, existingBaseCoordinate } from '../queries/query'
+import { addBaseReport, addReport, decrypt, existingBaseCoordinate, allAdvertisers } from '../queries/query'
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 import AppleHeader from "react-native-apple-header";
 var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -55,6 +55,8 @@ function HomePage(props) {
     const [loaded1] = useFonts({
         mplus: require('../assets/font/mplus.ttf'),
     });
+
+    console.log("Props in homepage: ", props.allAdvertisers)
 
     const [carouselItems, setCarousalItems] = useState(
         [
@@ -293,5 +295,8 @@ export default compose(
                 }
             }
         }
+    }),
+    graphql(allAdvertisers, {
+        name: "allAdvertisers",
     })
 )(HomePage)

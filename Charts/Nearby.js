@@ -54,10 +54,8 @@ const Nearby = (props) => {
                 })
 
                 var te = Object.keys(temp)
-                console.log("te: ", te)
 
                 var tee = Object.values(temp)
-                console.log("tee: ", tee)
 
                 if (te.length === 0 || tee.length === 0) {
                     setChartLabels([])

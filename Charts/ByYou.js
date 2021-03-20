@@ -68,14 +68,11 @@ const Nearby = (props) => {
                         temp[combined] = 1
                     } else {
                         temp[combined] = temp[combined] + 1
-                        console.log("ne  no: ", temp)
                     }
                 })
                 var te = Object.keys(temp)
-                console.log("te: ", te)
 
                 var tee = Object.values(temp)
-                console.log("tee: ", tee)
 
                 if (te.length === 0 || tee.length === 0) {
                     setChartLabels([])
@@ -85,10 +82,8 @@ const Nearby = (props) => {
                         let v = t.substr(0, 5)
                         return v
                     })
-                    console.log("C before: ", c)
                     var b = c.slice(c.length - 5, c.length)
                     var x = tee.slice(tee.length - 5, tee.length)
-                    console.log("B: ", b)
                     setChartLabels(b)
                     setChartData(x)
                     setLoad(false)
