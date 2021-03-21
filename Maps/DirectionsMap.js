@@ -321,51 +321,83 @@ const DirectionsMap = (props) => {
             //getDirections(data)
 
             setSubscription(
+                // Accelerometer.addListener(async (accelerometerData) => {
+                //     if (accelerometerData.y <= -1.3) {
+                //         let newLocation = await Location.getCurrentPositionAsync({
+                //             maximumAge: 60000, // only for Android
+                //             accuracy: Location.Accuracy.Lowest,
+                //         })
+                //         console.log("Hmmmm: ", newLocation, prevLocation)
+                //         if ((newLocation.coords.latitude) != (prevLocation.coords.latitude)) {
+                //             console.log("LOCATION CHANGEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+                //             if (newLocation) {
+                //                 var x = newLocation.coords.latitude + ' ' + newLocation.coords.longitude
+                //                 console.log("X: ", x)
+                //                 let obj = {
+                //                     location: x,
+                //                     userID: props.decrypt.decrypt.id,
+                //                     reportedAt: new Date().toDateString(),
+                //                     reportedOn: new Date().toLocaleString().split(", ")[1]
+                //                 }
+                //                 console.log("boah boah boah boah boah", obj)
+                //                 normalArray.push(obj);
+                //                 console.log("Pothole detected!")
+                //             }
+
+                //             let res = await props.AddAccReport({
+                //                 variables: {
+                //                     coords: normalArray
+                //                 }
+                //             })
+                //             console.log("AFter mathttt ----", res);
+                //             console.log("Document write here!");
+                //             normalArray = []
+
+                //             prevLocation = {
+                //                 ...newLocation
+                //             }
+                //         } else {
+                //             console.log("Location not changed")
+                //         }
+
+                //     }
+                // })
                 Accelerometer.addListener(async (accelerometerData) => {
-                    if (accelerometerData.y <= -1.3) {
+                    if (accelerometerData.y <= -1.25) {
+                        console.log("New location: ", newLocation)
                         let newLocation = await Location.getCurrentPositionAsync({
                             maximumAge: 60000, // only for Android
                             accuracy: Location.Accuracy.Lowest,
                         })
-                        console.log("Hmmmm: ", newLocation, prevLocation)
-                        if ((newLocation.coords.latitude) != (prevLocation.coords.latitude)) {
-                            console.log("LOCATION CHANGEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
-                            if (newLocation) {
-                                var x = newLocation.coords.latitude + ' ' + newLocation.coords.longitude
-                                console.log("X: ", x)
-                                let obj = {
-                                    location: x,
-                                    userID: props.decrypt.decrypt.id,
-                                    reportedAt: new Date().toDateString(),
-                                    reportedOn: new Date().toLocaleString().split(", ")[1]
-                                }
-                                console.log("boah boah boah boah boah", obj)
-                                normalArray.push(obj);
-                                console.log("Pothole detected!")
+                        console.log("New location: ", newLocation)
+                        if (newLocation) {
+                            var x = newLocation.coords.latitude + ' ' + newLocation.coords.longitude
+                            console.log("X: ", x)
+                            let obj = {
+                                location: x,
+                                userID: props.decrypt.decrypt.id,
+                                reportedAt: new Date().toDateString(),
+                                reportedOn: new Date().toLocaleString().split(", ")[1]
                             }
-                            if (normalArray.length > 20) {
-                                var newArr = normalArray.slice(normalArray.length - 10, normalArray.length)
-                                console.log("NewArr: ", newArr)
+                            console.log("boah boah boah boah boah", obj)
+                            normalArray.push(obj);
+                            console.log("Pothole detected!")
+                            if (normalArray != []) {
                                 let res = await props.AddAccReport({
                                     variables: {
-                                        coords: newArr
+                                        coords: normalArray
                                     }
                                 })
                                 console.log("AFter mathttt ----", res);
                                 console.log("Document write here!");
                                 normalArray = []
                             } else {
-                                console.log("Length: ", normalArray.length)
+                                console.log("this shits empty dawg.")
                             }
-                            prevLocation = {
-                                ...newLocation
-                            }
-                        } else {
-                            console.log("Location not changed")
                         }
-
                     }
-                }))
+                })
+            )
             // console.log("Zoom zoom: ", accelerometerData)
             setShowMap(true)
         } else {
