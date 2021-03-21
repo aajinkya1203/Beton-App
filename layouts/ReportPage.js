@@ -357,14 +357,14 @@ function ReportPage(props) {
             {
                 nextPress[state].text === 'Upload' ?
                     <>
-                        <AppleHeader dateTitle={today.toLocaleDateString("en-US", options)} containerStyle={{ paddingTop: height * 0.07, height: height * 0.15, paddingLeft: width * 0.04, backgroundColor: 'black' }} largeTitle='Quick Reports' largeTitleFontColor='#fff' />
-                        <Grid style={{ backgroundColor: '#232124' }}>
-                            <Row onPress={pickImage} style={{ backgroundColor: '#000', borderRadius: 24, marginTop: h * 0.02, marginLeft: w * 0.07, marginRight: w * 0.07 }}>
+                        <AppleHeader dateTitle={today.toLocaleDateString("en-US", options)} containerStyle={{ paddingTop: height * 0.07, height: height * 0.15, paddingLeft: width * 0.04, backgroundColor: 'rgb(35, 37, 47)' }} largeTitle='Quick Reports' largeTitleFontColor='#fff' />
+                        <Grid style={{ backgroundColor: 'rgb(35, 37, 47)' }}>
+                            <Row onPress={pickImage} style={{ backgroundColor: '#171A1F', borderRadius: 24, marginTop: h * 0.02, marginLeft: w * 0.07, marginRight: w * 0.07 }}>
                                 <View style={styles.iconWrapper}>
                                     <Icon style={styles.uploadIcon} name='cloud-upload-outline' type='Ionicons' />
                                 </View>
                             </Row>
-                            <Row onPress={pickImageFromCamera} style={{ backgroundColor: '#000', marginTop: h * 0.02, marginLeft: w * 0.07, marginRight: w * 0.07, marginBottom: h * 0.02, borderRadius: 24 }}>
+                            <Row onPress={pickImageFromCamera} style={{ backgroundColor: '#171A1F', marginTop: h * 0.02, marginLeft: w * 0.07, marginRight: w * 0.07, marginBottom: h * 0.02, borderRadius: 24 }}>
                                 <View style={styles.iconWrapper}>
                                     <Icon style={styles.uploadIcon} name='camera-outline' type='Ionicons' />
                                 </View>

@@ -27,6 +27,9 @@ function Profile(props) {
     useFocusEffect(
         useCallback(() => {
             // Do something when the screen is focused
+            setTimeout(() => {
+                animation.current.play();
+            }, 200);
             return () => {
                 setShowAllReports(false)
             };
@@ -50,7 +53,7 @@ function Profile(props) {
                     <Container style={{ backgroundColor: 'rgb(35, 37, 47)' }}>
                         <Grid>
                             <Row size={1.8} style={{ backgroundColor: 'rgb(35, 37, 47)' }}>
-                                <LottieView ref={animation} source={require('../assets/Lottie/shapes.json')} loop={true} />
+                                <LottieView ref={animation} source={require('../assets/Lottie/shapes.json')} loop={false} />
                                 <Image
                                     source={require('../imgs/prof.jpg')}
                                     style={styles.avatar}
@@ -58,11 +61,11 @@ function Profile(props) {
                             </Row>
                             <Row size={2.2} style={{ backgroundColor: '#171A1F', borderTopRightRadius: 32, borderTopLeftRadius: 32 }}>
                                 {
-                                    loaded ?
+                                    loaded && props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
                                         <>
                                             <View style={{ height: height * 0.47, width: width, marginLeft: width * 0.05 }}>
-                                                <Text style={{ fontFamily: 'Lexand', fontSize: 40, marginTop: height * 0.07, color: '#fff', marginLeft: width * 0.05 }}>Pratit</Text>
-                                                <Text style={{ fontFamily: 'Lexand', fontSize: 40, color: '#fff', marginLeft: width * 0.05 }}>Bandiwadekar</Text>
+                                                <Text style={{ fontFamily: 'Lexand', fontSize: 40, marginTop: height * 0.07, color: '#fff', marginLeft: width * 0.05 }}>{(props.decrypt.decrypt.name.split(" "))[0]}</Text>
+                                                <Text style={{ fontFamily: 'Lexand', fontSize: 40, color: '#fff', marginLeft: width * 0.05 }}>{(props.decrypt.decrypt.name.split(" "))[1]}</Text>
                                                 {
                                                     props && props.decrypt && props.decrypt.loading == false && props.decrypt.decrypt ?
                                                         <>

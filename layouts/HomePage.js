@@ -199,8 +199,8 @@ function HomePage(props) {
                                         {
                                             loaded1 && data ?
                                                 <>
-                                                    <Text style={{ fontFamily: 'mplus', fontSize: 40, marginTop: height * 0.02, color: '#fff' }}>Hello,</Text>
-                                                    <Text style={{ fontFamily: 'mplus', fontSize: 40, color: '#fff' }}>{data.decrypt.name} 👋</Text>
+                                                    <Text style={{ fontFamily: 'mplus', fontSize: 25, marginTop: height * 0.02, color: '#fff' }}>Hello,</Text>
+                                                    <Text style={{ fontFamily: 'mplus', fontSize: 30, color: '#fff' }}>{data.decrypt.name} 👋</Text>
                                                 </> :
                                                 <SkeletonPlaceholder highlightColor={'#ffffff'}>
                                                     <View style={{ paddingLeft: width * 0.05 }}>
