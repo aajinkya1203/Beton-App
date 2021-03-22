@@ -4,6 +4,7 @@ import ParallaxScrollView from 'react-native-parallax-scroll-view';
 import Carousel from 'react-native-snap-carousel';
 import { useFonts } from 'expo-font';
 import { Card, CardTitle, CardContent, CardAction, CardButton, CardImage } from 'react-native-material-cards'
+import { Col, Row, Grid } from "react-native-easy-grid";
 import {
     BallIndicator,
     BarIndicator,
@@ -19,12 +20,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Location from 'expo-location'
 import { graphql } from 'react-apollo';
 import { flowRight as compose } from 'lodash';
-import { findUsingZipCode } from '../queries/query';
+import { findUsingZipCode, getRandomAd, decrypt } from '../queries/query';
 import { ProgressBar, Colors } from 'react-native-paper';
 import { useLazyQuery } from 'react-apollo';
 import ByYou from '../Charts/ByYou'
 import Nearby from '../Charts/Nearby'
-import { addBaseReport, addReport, decrypt, existingBaseCoordinate, allAdvertisers } from '../queries/query'
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 import AppleHeader from "react-native-apple-header";
 var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -56,7 +56,7 @@ function HomePage(props) {
         mplus: require('../assets/font/mplus.ttf'),
     });
 
-    console.log("Props in homepage: ", props.allAdvertisers)
+    console.log("Props in homepage: ", props.getRandomAd)
 
     const [carouselItems, setCarousalItems] = useState(
         [
@@ -224,7 +224,7 @@ function HomePage(props) {
                             </>
                         )}
                     >
-                        <View style={{ height: height * 0.95, paddingTop: height * 0.02, backgroundColor: '#171A1F' }}>
+                        <View style={{ height: height * 0.94, paddingTop: height * 0.02, backgroundColor: '#171A1F' }}>
                             <Carousel
                                 layout={"default"}
                                 data={carouselItems}
@@ -236,7 +236,7 @@ function HomePage(props) {
                                 activeSlideAlignment={'center'}
                                 firstItem={1}
                             />
-                            <View style={{ height: height * 0.45 }}>
+                            <View style={{ height: height * 0.26 }}>
                                 <View style={{ height: height * 0.2, width: width, backgroundColor: 'rgb(35, 37, 47)', borderRadius: 24 }}>
                                     {
                                         called && !loading && data && data.decrypt ?
@@ -265,6 +265,28 @@ function HomePage(props) {
                                             </SkeletonPlaceholder>
                                     }
                                 </View>
+                            </View>
+                            <View style={{ height: height * 0.2, width: width, borderRadius: 24, backgroundColor: 'rgb(35, 37, 47)' }}>
+                                {
+                                    props.getRandomAd && props.getRandomAd.getRandomAd ?
+                                        <Container style={{ borderRadius: 24, backgroundColor: 'rgb(35, 37, 47)' }}>
+                                            <Grid style={{ borderRadius: 24, backgroundColor: 'rgb(35, 37, 47)' }}>
+                                                <Col style={{ backgroundColor: 'rgb(35, 37, 47)', borderRadius: 24 }}>
+                                                    <View style={{ height: '100%', width: '100%', padding: width * 0.04, backgroundColor: 'rgb(35, 37, 47)', borderRadius: 24 }}>
+                                                        <Image style={{ height: '100%', width: '100%', borderRadius: 24 }} source={{ uri: props.getRandomAd.getRandomAd.image }} />
+                                                    </View>
+                                                </Col>
+                                                <Col style={{ borderRadius: 24 }}>
+                                                    <View style={{ height: '100%', width: '100%', padding: width * 0.04, backgroundColor: 'rgb(35, 37, 47)' }}>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Advertisement</Text>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}></Text>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>{props.getRandomAd.getRandomAd.title}</Text>
+                                                    </View>
+                                                </Col>
+                                            </Grid>
+                                        </Container>
+                                        : null
+                                }
                             </View>
                         </View>
                     </ParallaxScrollView> : null
@@ -296,7 +318,7 @@ export default compose(
             }
         }
     }),
-    graphql(allAdvertisers, {
-        name: "allAdvertisers",
+    graphql(getRandomAd, {
+        name: "getRandomAd",
     })
 )(HomePage)
