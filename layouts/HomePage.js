@@ -31,6 +31,7 @@ var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
 var today = new Date()
 import { Container, Header, Content, Icon, Button, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import * as Linking from 'expo-linking';
 
 const { width, height } = Dimensions.get('window');
 
@@ -61,7 +62,7 @@ function HomePage(props) {
         mplus: require('../assets/font/mplus.ttf'),
     });
 
-    console.log("Props in homepage: ", props.users)
+    console.log("Props in homepage: ", props.getRandomAd)
 
     const [carouselItems, setCarousalItems] = useState(
         [
@@ -128,6 +129,10 @@ function HomePage(props) {
                 </Card>
             </View >
         )
+    }
+
+    const openLink = (url) => {
+        Linking.openURL('https://' + url);
     }
 
     useEffect(() => {
@@ -282,15 +287,15 @@ function HomePage(props) {
                                                     </View>
                                                 </Col>
                                                 <Col style={{ borderRadius: 24 }}>
-                                                    <View style={{ height: '100%', width: '100%', padding: width * 0.04, backgroundColor: 'rgb(35, 37, 47)', borderRadius: 24 }}>
+                                                    <TouchableOpacity onPress={() => openLink(props.getRandomAd.getRandomAd.link)} style={{ height: '100%', width: '100%', padding: width * 0.04, backgroundColor: 'rgb(35, 37, 47)', borderRadius: 24 }}>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 10, color: '#fff' }}>Advertisement</Text>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}></Text>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>{props.getRandomAd.getRandomAd.title}</Text>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}></Text>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}></Text>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}></Text>
-                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 10, color: '#fff' }}>Ad by: Twitter</Text>
-                                                    </View>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 10, color: '#fff' }}>Ad by: {props.getRandomAd.getRandomAd.advertiserID.company}</Text>
+                                                    </TouchableOpacity>
                                                 </Col>
                                             </Grid>
                                         </Container>
