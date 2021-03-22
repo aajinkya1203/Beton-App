@@ -20,7 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Location from 'expo-location'
 import { graphql } from 'react-apollo';
 import { flowRight as compose } from 'lodash';
-import { findUsingZipCode, getRandomAd, decrypt } from '../queries/query';
+import { findUsingZipCode, getRandomAd, decrypt, users } from '../queries/query';
 import { ProgressBar, Colors } from 'react-native-paper';
 import { useLazyQuery } from 'react-apollo';
 import ByYou from '../Charts/ByYou'
@@ -48,6 +48,11 @@ function HomePage(props) {
         }
     );
 
+    const [getAds, { called1, loading1, data1 }] = useLazyQuery(
+        getRandomAd,
+    );
+
+
     const [loaded] = useFonts({
         Lexand: require('../assets/font/LexendDeca-Regular.ttf'),
     });
@@ -56,14 +61,14 @@ function HomePage(props) {
         mplus: require('../assets/font/mplus.ttf'),
     });
 
-    console.log("Props in homepage: ", props.getRandomAd)
+    console.log("Props in homepage: ", props.users)
 
     const [carouselItems, setCarousalItems] = useState(
         [
             {
                 title: "Item 1",
                 text: 0,
-                text1: 'District',
+                text1: 'and growing strong!',
                 color: "rgb(35, 37, 47)",
                 backgroundGradientFrom: "#097679",
                 backgroundGradientTo: "#00d4ff"
@@ -98,7 +103,7 @@ function HomePage(props) {
                         {
                             called && !loading && data && data.decrypt ?
                                 <>
-                                    <Text style={{ fontFamily: 'Lexand', fontSize: 70, marginTop: height * 0.02, color: '#fff' }}>{item.text}{item.text === 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#fff' }}>pothole</Text> : <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#fff' }}>potholes</Text>}</Text>
+                                    <Text style={{ fontFamily: 'Lexand', fontSize: 70, marginTop: height * 0.02, color: '#fff' }}>{item.text}{item.text === 1 ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#fff' }}>pothole</Text> : item.title == 'Item 1' ? <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#fff' }}>users</Text>: <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#fff' }}>potholes</Text>}</Text>
                                     <Text style={{ fontFamily: 'Lexand', fontSize: 15, marginTop: height * 0.005, color: '#fff' }}>{item.text1}</Text>
                                 </> :
                                 <SkeletonPlaceholder highlightColor={'#ffffff'}>
@@ -117,6 +122,7 @@ function HomePage(props) {
                                 item.title == 'Item 2' ?
                                     <Nearby backgroundGradientFrom={item.backgroundGradientFrom} backgroundGradientTo={item.backgroundGradientTo} /> : null
                             }
+                            
                         </View>
                     </View>
                 </Card>
@@ -151,8 +157,8 @@ function HomePage(props) {
             setCarousalItems([
                 {
                     title: "Item 1",
-                    text: 25,
-                    text1: 'District',
+                    text: props.users.users.length,
+                    text1: 'and growing strong!',
                     color: "rgb(35, 37, 47)",
                     backgroundGradientFrom: "#fb3f3f",
                     backgroundGradientTo: "#000000"
@@ -204,9 +210,8 @@ function HomePage(props) {
                                                 </> :
                                                 <SkeletonPlaceholder highlightColor={'#ffffff'}>
                                                     <View style={{ paddingLeft: width * 0.05 }}>
-                                                        <View style={{ width: width * 0.2, height: height * 0.02, marginTop: height * 0.01, borderRadius: 6 }}></View>
-                                                        <View style={{ width: width * 0.4, height: height * 0.07, marginTop: height * 0.02, borderRadius: 12 }}></View>
-                                                        <View style={{ width: width * 0.6, height: height * 0.03, marginTop: height * 0.02, borderRadius: 6 }}></View>
+                                                        <View style={{ width: width * 0.3, height: height * 0.03, marginTop: height * 0.02, borderRadius: 6 }}></View>
+                                                        <View style={{ width: width * 0.55, height: height * 0.05, marginTop: height * 0.02, borderRadius: 12 }}></View>
                                                     </View>
                                                 </SkeletonPlaceholder>
                                         }
@@ -236,7 +241,7 @@ function HomePage(props) {
                                 activeSlideAlignment={'center'}
                                 firstItem={1}
                             />
-                            <View style={{ height: height * 0.26 }}>
+                            <View style={{ height: height * 0.23 }}>
                                 <View style={{ height: height * 0.2, width: width, backgroundColor: 'rgb(35, 37, 47)', borderRadius: 24 }}>
                                     {
                                         called && !loading && data && data.decrypt ?
@@ -277,10 +282,14 @@ function HomePage(props) {
                                                     </View>
                                                 </Col>
                                                 <Col style={{ borderRadius: 24 }}>
-                                                    <View style={{ height: '100%', width: '100%', padding: width * 0.04, backgroundColor: 'rgb(35, 37, 47)' }}>
-                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>Advertisement</Text>
+                                                    <View style={{ height: '100%', width: '100%', padding: width * 0.04, backgroundColor: 'rgb(35, 37, 47)', borderRadius: 24 }}>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 10, color: '#fff' }}>Advertisement</Text>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}></Text>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}>{props.getRandomAd.getRandomAd.title}</Text>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}></Text>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}></Text>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 20, color: '#fff' }}></Text>
+                                                        <Text style={{ fontFamily: 'Lexand', fontSize: 10, color: '#fff' }}>Ad by: Twitter</Text>
                                                     </View>
                                                 </Col>
                                             </Grid>
@@ -320,5 +329,14 @@ export default compose(
     }),
     graphql(getRandomAd, {
         name: "getRandomAd",
+        options: () => ({
+            pollInterval: 20000
+        })
+    }),
+    graphql(users, {
+        name: "users",
+        options: () => ({
+            pollInterval: 60000
+        })
     })
 )(HomePage)

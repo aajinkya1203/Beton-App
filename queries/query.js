@@ -289,6 +289,7 @@ const getRandomAd = gql`
     advertiserID{
       id
       email
+      company
     }
   }
 }
