@@ -51,13 +51,18 @@ function Main(props) {
     const [showSignInError, setShowSignInError] = useState(false)
     const [signInError, setSignInError] = useState(null)
     const [signInLoad, setSignInLoad] = useState(false)
+    
 
     useEffect(() => {
         setTimeout(async () => {
             //setIsLoading(false)
             let userToken = null
+            let splashCheck = null
             try {
                 userToken = await AsyncStorage.getItem('userToken')
+
+
+                console.log("Splash check: ", splashCheck)
                 // global.tempo = userToken
                 let { status } = await Location.requestPermissionsAsync();
                 if (status !== 'granted') {
@@ -211,8 +216,8 @@ function Main(props) {
         )
     }
 
-    const showLogin = () => {
-        setShowSignIn(true)
+    const showLogin = (show) => {
+        setShowSignIn(show)
     }
 
     return (
@@ -260,7 +265,7 @@ function Main(props) {
                             <Tab.Screen name="Profile" component={Profile} />
                             {/*<Tab.Screen name="TestMap" component={Test} />*/}
                         </Tab.Navigator>
-                    </NavigationContainer> : showSignIn ? <SignUp showLogin={showLogin} /> : <Login show={showSignInError} signInError={signInError} load={signInLoad} />
+                    </NavigationContainer> : showSignIn ? <SignUp showLogin={showLogin} /> : <Login show={showSignInError} signInError={signInError} load={signInLoad} showLogin={showLogin}/>
             }
 
 

@@ -67,7 +67,7 @@ const Register = (props) => {
     }
 
     const sendVal = () => {
-        props.showLogin()
+        props.showLogin(true)
     }
 
     return (
@@ -79,42 +79,11 @@ const Register = (props) => {
             >
                 <Block flex middle>
                     <Block style={styles.registerContainer}>
-                        <Block flex={0.25} middle style={styles.socialConnect}>
-                            <Text color="#8898AA" size={12}>
-                                Sign up with
-                            </Text>
-                            <Block row style={{ marginTop: theme.SIZES.BASE }}>
-                                <Button style={{ ...styles.socialButtons, marginRight: 30 }}>
-                                    <Block row>
-                                        <Icon
-                                            name="logo-github"
-                                            family="Ionicon"
-                                            size={14}
-                                            color={"black"}
-                                            style={{ marginTop: 2, marginRight: 5 }}
-                                        />
-                                        <Text style={styles.socialTextButtons}>GITHUB</Text>
-                                    </Block>
-                                </Button>
-                                <Button onPress={() => sendVal()} style={styles.socialButtons}>
-                                    <Block row>
-                                        <Icon
-                                            name="logo-google"
-                                            family="Ionicon"
-                                            size={14}
-                                            color={"black"}
-                                            style={{ marginTop: 2, marginRight: 5 }}
-                                        />
-                                        <Text style={styles.socialTextButtons}>GOOGLE</Text>
-                                    </Block>
-                                </Button>
-                            </Block>
-                        </Block>
                         <Block flex>
-                            <Block flex={0.17} middle>
+                            <Block  middle style={{paddingTop: height * 0.05}}>
                                 <Text color="#8898AA" size={12}>
-                                    Or sign up the classic way
-                        </Text>
+                                    Sign up
+                                </Text>
                             </Block>
                             <ScrollView>
                                 <Block flex center>
@@ -233,6 +202,17 @@ const Register = (props) => {
                                                 Privacy Policy
                                             </Button>
                                         </Block>
+                                        <Button
+                                            onPress={() => props.showLogin(false)}
+                                            style={{ width: 100 }}
+                                            color="transparent"
+                                            textStyle={{
+                                                color: argonTheme.COLORS.PRIMARY,
+                                                fontSize: 14
+                                            }}
+                                        >
+                                            or Sign in
+                                            </Button>
                                         <Block middle>
                                             <Button onPress={() => signUpHandle()} color="primary" style={styles.createButton}>
                                                 <Text bold size={14} color={argonTheme.COLORS.WHITE}>

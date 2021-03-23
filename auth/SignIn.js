@@ -24,6 +24,8 @@ import {
     UIActivityIndicator,
     WaveIndicator,
 } from 'react-native-indicators';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import AppIntroSlider from 'react-native-app-intro-slider';
 
 
 const { width, height } = Dimensions.get("screen");
@@ -61,16 +63,55 @@ const argonTheme = {
     }
 };
 
+const bruh = 'bruh'
+
 const Login = (props) => {
+
+    const slides = [
+        {
+            key: 'one',
+            title: 'Title 1',
+            text: 'Description.\nSay something cool',
+            //image: require('./assets/1.jpg'),
+            backgroundColor: '#59b2ab',
+        },
+        {
+            key: 'two',
+            title: 'Title 2',
+            text: 'Other cool stuff',
+            //image: require('./assets/2.jpg'),
+            backgroundColor: '#febe29',
+        },
+        {
+            key: 'three',
+            title: 'Rocket guy',
+            text: 'I\'m already out of descriptions\n\nLorem ipsum bla bla bla',
+            //image: require('./assets/3.jpg'),
+            backgroundColor: '#22bcb5',
+        }
+    ];
 
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const { signIn } = useContext(AuthContext)
-
+    const [showSplash, setShowSplash] = useState(true)
 
     console.log("Email: ", email)
     console.log("Password: ", password)
+
+    const checkSplash = async () => {
+        const splashCheck = await AsyncStorage.getItem('splashToken')
+        if (splashCheck != null) {
+            setShowSplash(false)
+        } else {
+            await AsyncStorage.setItem('splashToken', bruh)
+        }
+    }
+
+    useEffect(() => {
+        checkSplash()
+    }, [])
 
 
     const loginHandle = (userName, password) => {
@@ -90,135 +131,148 @@ const Login = (props) => {
         )
     }
 
+    const renderItem = ({ item }) => {
+        return (
+            <View style={{ height: height, width: width, backgroundColor: item.backgroundColor }}></View>
+        )
+    }
+
     return (
-        <Block flex middle>
-            <StatusBar hidden />
-            <ImageBackground
-                source={require('../imgs/register-bg.png')}
-                style={{ width, height, zIndex: 1 }}
-            >
-                <Block flex middle>
-                    <Block style={styles.registerContainer}>
-                        <Block flex={0.25} middle style={styles.socialConnect}>
-                            <Text color="#8898AA" size={12}>
-                                Sign In with
+        <>
+            {
+                showSplash ?
+                    <Block flex middle>
+                        <StatusBar hidden />
+                        <ImageBackground
+                            source={require('../imgs/register-bg.png')}
+                            style={{ width, height, zIndex: 1 }}
+                        >
+                            <Block flex middle>
+                                <Block style={styles.registerContainer}>
+                                    <Block flex={0.25} middle style={styles.socialConnect}>
+                                        <Text color="#8898AA" size={12}>
+                                            Sign In with
                             </Text>
-                            <Block row style={{ marginTop: theme.SIZES.BASE }}>
-                                <Button style={{ ...styles.socialButtons, marginRight: 30 }}>
-                                    <Block row>
-                                        <Icon
-                                            name="logo-github"
-                                            family="Ionicon"
-                                            size={14}
-                                            color={"black"}
-                                            style={{ marginTop: 2, marginRight: 5 }}
-                                        />
-                                        <Text style={styles.socialTextButtons}>GITHUB</Text>
+                                        <Block row style={{ marginTop: theme.SIZES.BASE }}>
+                                            <Button style={{ ...styles.socialButtons, marginRight: 30 }}>
+                                                <Block row>
+                                                    <Icon
+                                                        name="logo-github"
+                                                        family="Ionicon"
+                                                        size={14}
+                                                        color={"black"}
+                                                        style={{ marginTop: 2, marginRight: 5 }}
+                                                    />
+                                                    <Text style={styles.socialTextButtons}>GITHUB</Text>
+                                                </Block>
+                                            </Button>
+                                            <Button style={styles.socialButtons}>
+                                                <Block row>
+                                                    <Icon
+                                                        name="logo-google"
+                                                        family="Ionicon"
+                                                        size={14}
+                                                        color={"black"}
+                                                        style={{ marginTop: 2, marginRight: 5 }}
+                                                    />
+                                                    <Text style={styles.socialTextButtons}>GOOGLE</Text>
+                                                </Block>
+                                            </Button>
+                                        </Block>
                                     </Block>
-                                </Button>
-                                <Button style={styles.socialButtons}>
-                                    <Block row>
-                                        <Icon
-                                            name="logo-google"
-                                            family="Ionicon"
-                                            size={14}
-                                            color={"black"}
-                                            style={{ marginTop: 2, marginRight: 5 }}
-                                        />
-                                        <Text style={styles.socialTextButtons}>GOOGLE</Text>
-                                    </Block>
-                                </Button>
-                            </Block>
-                        </Block>
-                        <Block flex>
-                            <Block flex={0.17} middle>
-                                <Text color="#8898AA" size={12}>
-                                    Or sign in the classic way
+                                    <Block flex>
+                                        <Block flex={0.17} middle>
+                                            <Text color="#8898AA" size={12}>
+                                                Or sign in the classic way
                         </Text>
-                            </Block>
-                            <Block flex center>
-                                <KeyboardAvoidingView
-                                    style={{ flex: 1 }}
-                                    behavior="padding"
-                                    enabled
-                                >
+                                        </Block>
+                                        <Block flex center>
+                                            <KeyboardAvoidingView
+                                                style={{ flex: 1 }}
+                                                behavior="padding"
+                                                enabled
+                                            >
 
-                                    <Block width={width * 0.8} style={{ marginBottom: 15 }}>
-                                        <Input
-                                            onChangeText={(text) => setEmail(text)}
-                                            borderless
-                                            placeholder="Email"
-                                            iconContent={
-                                                <Icon
-                                                    size={16}
-                                                    color={argonTheme.COLORS.ICON}
-                                                    name="ic_mail_24px"
-                                                    family="ArgonExtra"
-                                                    style={styles.inputIcons}
-                                                />
-                                            }
-                                        />
-                                    </Block>
-                                    <Block width={width * 0.8}>
-                                        <Input
-                                            onChangeText={(text) => setPassword(text)}
-                                            password
-                                            borderless
-                                            placeholder="Password"
-                                            iconContent={
-                                                <Icon
-                                                    size={16}
-                                                    color={argonTheme.COLORS.ICON}
-                                                    name="padlock-unlocked"
-                                                    family="ArgonExtra"
-                                                    style={styles.inputIcons}
-                                                />
-                                            }
-                                        />
-                                        {
-                                            props.show ?
-                                                <Block row style={styles.passwordCheck} key={props.signInError}>
-                                                    <Text size={12} color={argonTheme.COLORS.MUTED}>
-                                                        {props.signInError}
-                                                    </Text>
-                                                </Block> : null
-                                        }
-                                    </Block>
+                                                <Block width={width * 0.8} style={{ marginBottom: 15 }}>
+                                                    <Input
+                                                        onChangeText={(text) => setEmail(text)}
+                                                        borderless
+                                                        placeholder="Email"
+                                                        iconContent={
+                                                            <Icon
+                                                                size={16}
+                                                                color={argonTheme.COLORS.ICON}
+                                                                name="ic_mail_24px"
+                                                                family="ArgonExtra"
+                                                                style={styles.inputIcons}
+                                                            />
+                                                        }
+                                                    />
+                                                </Block>
+                                                <Block width={width * 0.8}>
+                                                    <Input
+                                                        onChangeText={(text) => setPassword(text)}
+                                                        password
+                                                        borderless
+                                                        placeholder="Password"
+                                                        iconContent={
+                                                            <Icon
+                                                                size={16}
+                                                                color={argonTheme.COLORS.ICON}
+                                                                name="padlock-unlocked"
+                                                                family="ArgonExtra"
+                                                                style={styles.inputIcons}
+                                                            />
+                                                        }
+                                                    />
+                                                    {
+                                                        props.show ?
+                                                            <Block row style={styles.passwordCheck} key={props.signInError}>
+                                                                <Text size={12} color={argonTheme.COLORS.MUTED}>
+                                                                    {props.signInError}
+                                                                </Text>
+                                                            </Block> : null
+                                                    }
+                                                </Block>
 
 
-                                    <Block row width={width * 0.75} style={{ alignItems: 'center', justifyContent: 'center', bottom: height * 0.0005 }}>
-                                        {/*<Checkbox
+                                                <Block row width={width * 0.75} style={{ alignItems: 'center', justifyContent: 'center', bottom: height * 0.0005 }}>
+                                                    {/*<Checkbox
                                             checkboxStyle={{
                                                 borderWidth: 3
                                             }}
                                             color={argonTheme.COLORS.PRIMARY}
                                             label="I agree with the"
                                         />*/}
-                                        <Button
-                                            style={{ width: 100 }}
-                                            color="transparent"
-                                            textStyle={{
-                                                color: argonTheme.COLORS.PRIMARY,
-                                                fontSize: 14
-                                            }}
-                                        >
-                                            or Sign up
+                                                    <Button
+                                                        onPress={() => props.showLogin(true)}
+                                                        style={{ width: 100 }}
+                                                        color="transparent"
+                                                        textStyle={{
+                                                            color: argonTheme.COLORS.PRIMARY,
+                                                            fontSize: 14
+                                                        }}
+                                                    >
+                                                        or Sign up
                                             </Button>
+                                                </Block>
+                                                <Block middle>
+                                                    <Button onPress={() => loginHandle(email, password)} color="primary" style={styles.createButton}>
+                                                        <Text bold size={14} color={argonTheme.COLORS.WHITE}>
+                                                            Sign In
+                                                        </Text>
+                                                    </Button>
+                                                </Block>
+                                            </KeyboardAvoidingView>
+                                        </Block>
                                     </Block>
-                                    <Block middle>
-                                        <Button onPress={() => loginHandle(email, password)} color="primary" style={styles.createButton}>
-                                            <Text bold size={14} color={argonTheme.COLORS.WHITE}>
-                                                Sign In
-                                        </Text>
-                                        </Button>
-                                    </Block>
-                                </KeyboardAvoidingView>
+                                </Block>
                             </Block>
-                        </Block>
-                    </Block>
-                </Block>
-            </ImageBackground>
-        </Block>
+                        </ImageBackground>
+                    </Block> :
+                    <AppIntroSlider renderItem={renderItem} data={slides} onDone={() => setShowSplash(false)} />
+            }
+        </>
     );
 }
 

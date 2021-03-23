@@ -78,6 +78,7 @@ function Profile(props) {
                                                             }
                                                         </> : <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Loading...</Text>
                                                 }
+                                                <Text onPress={() => signOut()} style={{ fontFamily: 'Lexand', fontSize: 20, marginTop: height * 0.02, color: '#6E727F', marginLeft: width * 0.05 }}>Log Out</Text>
                                                 <Row style={{ marginLeft: width * 0.05 }}>
                                                     <Col style={{ marginTop: height * 0.05 }}>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#6E727F' }}>Reports</Text>

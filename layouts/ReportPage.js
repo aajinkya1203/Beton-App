@@ -25,7 +25,6 @@ var today = new Date()
 import AppleHeader from "react-native-apple-header";
 
 
-
 const { width, height } = Dimensions.get("screen");
 const ASPECT_RATIO = width / height;
 
@@ -45,6 +44,7 @@ function ReportPage(props) {
     const [complete, setComplete] = useState(false)
     const animation = useRef(null);
     const [identifying, setIdentifying] = useState(false)
+    const [googleResponse, setGoogleResponse] = useState(false)
 
     // set Google Maps Geocoding API for purposes of quota management. Its optional but recommended.
     Geocode.setApiKey("AIzaSyBvZX8lKdR6oCkPOn2z-xmw0JHMEzrM_6w");
