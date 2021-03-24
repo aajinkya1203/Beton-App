@@ -10,7 +10,7 @@ import {
     Image
 } from "react-native";
 import { Block, Checkbox, Text, theme, Button } from "galio-framework";
-import {Icon, Input } from "../components";
+import { Icon, Input } from "../components";
 import { Images } from "../constants";
 import { AuthContext } from './context'
 import { selectHttpOptionsAndBody } from "@apollo/client";
@@ -67,6 +67,7 @@ const Register = (props) => {
     const [emailError, setEmailError] = useState(false)
     const [passError, setPassError] = useState(false)
     const animation = useRef(null);
+    const [showTimePicker, setShowTimePicker] = useState(false)
 
     console.log("Name: ", name)
     console.log("Email: ", email)
@@ -128,7 +129,9 @@ const Register = (props) => {
                     <Image style={{ height: '100%', width: '100%' }} source={require('../imgs/wave-haikei.png')} />
                 </View>
                 <View style={{ height: height * 0.12, width: width, position: 'absolute', marginTop: height * 0.13, marginLeft: width * 0.29 }}>
-                    <Text style={{ fontFamily: 'Lexand', fontSize: 50, color: 'white' }}>Sign Up</Text>
+                    {
+                        <Text style={{ fontFamily: 'Lexand', fontSize: 50, color: 'white' }}>Sign Up</Text>
+                    }
                 </View>
                 <Row size={2} style={{ backgroundColor: '#fff' }}>
                     <ScrollView>
@@ -173,7 +176,7 @@ const Register = (props) => {
                             </Block>
                             {
 
-                                emailError ?
+                                emailError && loaded ?
                                     <Text color="red" size={12}>Please enter a valid email address!</Text> : null
 
                             }
@@ -223,22 +226,31 @@ const Register = (props) => {
                             <Block width={width * 0.8} style={{ marginBottom: 15 / height, marginLeft: width * 0.09 }}>
                                 <Row>
                                     <Col>
-                                        <DateTimePicker
-                                            testID="dateTimePicker"
-                                            value={dob}
-                                            mode={'date'}
-                                            is24Hour={false}
-                                            display="default"
-                                            onChange={() => valDob}
-                                        />
+                                        {
+                                            showTimePicker ?
+                                                <DateTimePicker
+                                                    testID="dateTimePicker"
+                                                    value={dob}
+                                                    mode={'date'}
+                                                    is24Hour={false}
+                                                    display="default"
+                                                    onChange={() => valDob}
+                                                /> : <Button shadowless={true} style={{ fontFamily: 'Lexand', fontSize: 17, backgroundColor: '#F1EFF2', height: height * 0.035, marginTop: height * 0.004, marginRigh}}><Text style={{ color: '#44A0F7', fontFamily: 'Lexand', fontSize: 16 }}>Select DOB</Text></Button>
+                                        }
                                     </Col>
-                                    <Col style={{justifyContent: 'center', alignItems: 'center'}}>
-                                        <Button shadowless={true} style={{ fontFamily: 'Lexand', fontSize: 17, backgroundColor: '#F1EFF2', height: height * 0.035, marginTop: height * 0.004, marginRight: width * 0.1 }}><Text style={{color: '#44A0F7', fontFamily: 'Lexand', fontSize: 16}}>Upload Picture</Text></Button>
+                                    <Col style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        {
+                                            loaded ?
+                                                <Button shadowless={true} style={{ fontFamily: 'Lexand', fontSize: 17, backgroundColor: '#F1EFF2', height: height * 0.035, marginTop: height * 0.004, marginRight: width * 0.1 }}><Text style={{ color: '#44A0F7', fontFamily: 'Lexand', fontSize: 16 }}>Upload Picture</Text></Button> : null
+                                        }
                                     </Col>
                                 </Row>
                             </Block>
                             <Block middle style={{ marginTop: height * 0.05 }}>
-                                <Text style={{ fontFamily: 'Lexand', fontSize: 17, color: '#F21B3F' }}>or Sign In</Text>
+                                {
+                                    loaded ?
+                                        <Text style={{ fontFamily: 'Lexand', fontSize: 17, color: '#F21B3F' }}>or Sign In</Text> : null
+                                }
                             </Block>
                         </Col>
                     </ScrollView>

@@ -116,8 +116,8 @@ function Profile(props) {
 
 const styles = StyleSheet.create({
     avatar: {
-        width: width * 150,
-        height: height * 150,
+        width: width * 150 / width,
+        height: height * 150 / height,
         borderRadius: 75,
         borderWidth: 0,
         marginTop: height * 0.11,
