@@ -58,6 +58,7 @@ function Profile(props) {
                                     source={require('../imgs/prof.jpg')}
                                     style={styles.avatar}
                                 />
+                                <Text onPress={() => signOut()} style={{ fontFamily: 'Lexand', fontSize: 20, marginTop: height * 0.06, color: '#6E727F', marginLeft: width * 0.08 }}>Log Out</Text>
                             </Row>
                             <Row size={2.2} style={{ backgroundColor: '#171A1F', borderTopRightRadius: 32, borderTopLeftRadius: 32 }}>
                                 {
@@ -78,7 +79,7 @@ function Profile(props) {
                                                             }
                                                         </> : <Text size={16} color="#ffffff" style={{ marginTop: 10 }}>Loading...</Text>
                                                 }
-                                                <Text onPress={() => signOut()} style={{ fontFamily: 'Lexand', fontSize: 20, marginTop: height * 0.02, color: '#6E727F', marginLeft: width * 0.05 }}>Log Out</Text>
+
                                                 <Row style={{ marginLeft: width * 0.05 }}>
                                                     <Col style={{ marginTop: height * 0.05 }}>
                                                         <Text style={{ fontFamily: 'Lexand', fontSize: 15, color: '#6E727F' }}>Reports</Text>
@@ -115,8 +116,8 @@ function Profile(props) {
 
 const styles = StyleSheet.create({
     avatar: {
-        width: width * 150 / width,
-        height: height * 150 / height,
+        width: width * 150,
+        height: height * 150,
         borderRadius: 75,
         borderWidth: 0,
         marginTop: height * 0.11,

@@ -140,7 +140,7 @@ const Login = (props) => {
     return (
         <>
             {
-                showSplash ?
+                !showSplash ?
                     <Block flex middle>
                         <StatusBar hidden />
                         <ImageBackground
@@ -152,7 +152,7 @@ const Login = (props) => {
                                     <Block flex={0.25} middle style={styles.socialConnect}>
                                         <Text color="#8898AA" size={12}>
                                             Sign In with
-                            </Text>
+                                        </Text>
                                         <Block row style={{ marginTop: theme.SIZES.BASE }}>
                                             <Button style={{ ...styles.socialButtons, marginRight: 30 }}>
                                                 <Block row>
