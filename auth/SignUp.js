@@ -95,7 +95,11 @@ const Register = (props) => {
     }
 
     const signUpHandle = () => {
-        signUp(name, email, password, address, dob)
+        if (!emailError && !passError && address !== '') {
+            signUp(name, email, password, address, dob)
+        } else {
+            alert('Please fill all the required fields')
+        }
     }
 
     const valDob = (selectDate) => {
@@ -104,7 +108,7 @@ const Register = (props) => {
     }
 
     const sendVal = () => {
-        props.showLogin(true)
+        props.showLogin(false)
     }
 
     const [loaded] = useFonts({
@@ -130,7 +134,8 @@ const Register = (props) => {
                 </View>
                 <View style={{ height: height * 0.12, width: width, position: 'absolute', marginTop: height * 0.13, marginLeft: width * 0.29 }}>
                     {
-                        <Text style={{ fontFamily: 'Lexand', fontSize: 50, color: 'white' }}>Sign Up</Text>
+                        loaded ?
+                            <Text style={{ fontFamily: 'Lexand', fontSize: 50, color: 'white' }}>Sign Up</Text> : null
                     }
                 </View>
                 <Row size={2} style={{ backgroundColor: '#fff' }}>
@@ -235,7 +240,7 @@ const Register = (props) => {
                                                     is24Hour={false}
                                                     display="default"
                                                     onChange={() => valDob}
-                                                /> : <Button shadowless={true} style={{ fontFamily: 'Lexand', fontSize: 17, backgroundColor: '#F1EFF2', height: height * 0.035, marginTop: height * 0.004, marginRigh}}><Text style={{ color: '#44A0F7', fontFamily: 'Lexand', fontSize: 16 }}>Select DOB</Text></Button>
+                                                /> : loaded ? <Button onPress={() => setShowTimePicker(true)} shadowless={true} style={{ fontFamily: 'Lexand', fontSize: 17, backgroundColor: '#F1EFF2', height: height * 0.035, marginTop: height * 0.004, marginLeft: 0, width: width * 0.26 }}><Text style={{ color: '#44A0F7', fontFamily: 'Lexand', fontSize: 16 }}>Select DOB</Text></Button> : null
                                         }
                                     </Col>
                                     <Col style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -249,7 +254,7 @@ const Register = (props) => {
                             <Block middle style={{ marginTop: height * 0.05 }}>
                                 {
                                     loaded ?
-                                        <Text style={{ fontFamily: 'Lexand', fontSize: 17, color: '#F21B3F' }}>or Sign In</Text> : null
+                                        <Text onPress={() => sendVal()} style={{ fontFamily: 'Lexand', fontSize: 17, color: '#F21B3F' }}>or Sign In</Text> : null
                                 }
                             </Block>
                         </Col>
