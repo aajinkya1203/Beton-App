@@ -334,14 +334,14 @@ export default compose(
     }),
     graphql(getRandomAd, {
         name: "getRandomAd",
-        // options: () => ({
-        //     pollInterval: 20000
-        // })
+        options: () => ({
+            pollInterval: 20000
+        })
     }),
     graphql(users, {
         name: "users",
-        // options: () => ({
-        //     pollInterval: 60000
-        // })
+        options: () => ({
+            pollInterval: 60000
+        })
     })
 )(HomePage)
