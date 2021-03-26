@@ -108,6 +108,7 @@ const Login = (props) => {
     const animation2 = useRef(null);
     const [emailError, setEmailError] = useState(false)
     const [passError, setPassError] = useState(false)
+    const [currentItem, setCurrentItem] = useState(null)
 
     console.log("Email: ", email)
     console.log("Password: ", password)
@@ -146,10 +147,8 @@ const Login = (props) => {
     useEffect(() => {
         setTimeout(() => {
             animation.current.play();
-            animation1.current.play();
-            animation2.current.play();
         }, 200);
-    })
+    }, [])
 
     const checkEmail = (text) => {
         setEmail(text)
@@ -219,7 +218,26 @@ const Login = (props) => {
         );
     };
 
+    const runAnimation = (item) => {
+        if (item == 0) {
+            setTimeout(() => {
+                animation.current.play();
+            }, 200);
+        }
+        if (item == 1) {
+            setTimeout(() => {
+                animation1.current.play();
+            }, 200);
+        }
+        if (item == 2) {
+            setTimeout(() => {
+                animation2.current.play();
+            }, 200);
+        }
+    }
+
     const renderItem = ({ item }) => {
+
         return (
             <View style={{ height: height, width: width }}>
                 <Container style={{ backgroundColor: item.backgroundColor }}>
@@ -411,7 +429,7 @@ const Login = (props) => {
                         </Grid>
                     </Container> :
                     <AppIntroSlider renderItem={renderItem} data={slides} onDone={() => setShowSplash(false)} activeDotStyle={{ backgroundColor: '#212121' }} renderDoneButton={renderDoneButton}
-                        renderNextButton={renderNextButton} renderPrevButton={renderPreviousButton} />
+                        renderNextButton={renderNextButton} renderPrevButton={renderPreviousButton} onSlideChange={(item) => runAnimation(item)} />
             }
         </>
     );
