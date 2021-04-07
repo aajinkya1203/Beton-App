@@ -21,13 +21,13 @@ export default function Acce() {
 
   const _subscribe = () => {
     setSubscription(
-      Accelerometer.addListener(accelerometerData => {
+      Accelerometer.addListener(async(accelerometerData) => {
         setData(accelerometerData);
         console.log("Zoom zoom: ", accelerometerData)
-        if (accelerometerData.y >= 2 || accelerometerData.y <= -2) {
+        if (accelerometerData.y <= -1.6) {
           try {
             const { sound } = await Audio.Sound.createAsync(
-              require('../assets/Sounds/donefor.mp3')
+              require('./assets/Sounds/swiftly.mp3')
             );
             await sound.playAsync();
           } catch {

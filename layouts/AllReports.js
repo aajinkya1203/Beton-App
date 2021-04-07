@@ -47,14 +47,14 @@ export default function AllReports(props) {
                         <ScrollView style={{ height: height, width: width, marginTop: height * 0.05, borderTopLeftRadius: 24, borderTopRightRadius: 24 }} itemDivider={false}>
                             {
                                 props.decrypt && props.decrypt.decrypt && props.decrypt.decrypt.reports ?
-                                    <List style={{ backgroundColor: '#0D1117', borderRadius: 24 }}>
+                                    <List style={{ backgroundColor: '#cfd8dc', borderRadius: 24 }}>
                                         {
                                             props.decrypt.decrypt.reports.map((report, key) => {
                                                 console.log("Check Report: ", report)
                                                 var title = report.address.split(',')
                                                 return (
                                                     <View style={{ flex: 1 }} key={key}>
-                                                        <Card style={{ borderRadius: 24, backgroundColor: '#161B22' }} isDark>
+                                                        <Card style={{ borderRadius: 24, backgroundColor: '#fff'}}>
                                                             <CardTitle
                                                                 title={(title[title.length - 4] + ', ' + title[title.length - 3]).trim()}
                                                                 subtitle={report.reportedAt}
@@ -66,7 +66,7 @@ export default function AllReports(props) {
                                                                 <CardButton
                                                                     onPress={() => getDeets(report.location, report.id, report.reportedAt, report.reportedOn, report.address)}
                                                                     title="View Details"
-                                                                    color="#CAE8FF"
+                                                                    color="#129EAF"
                                                                 />
                                                             </CardAction>
                                                         </Card>
